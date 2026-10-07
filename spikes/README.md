@@ -6,7 +6,8 @@ Cada spike vive en `spikes/NNN-nombre/` con un `README.md` basado en [`_plantill
 
 | Nº | Pregunta | Estado | Resultado |
 |---|---|---|---|
-| — | _Ninguno iniciado_ | | |
+| [001](001-auth-aislada/) | ¿Se aíslan varias cuentas por directorio de configuración en Linux, Windows y WSL? | In Progress | Linux parcial ✔; Windows/WSL pendiente |
+| [002](002-invocacion-headless/) | ¿Se pueden controlar `claude -p` y `codex exec` como procesos con JSONL, consumo y cancelación? | Done | Sí; Claude informa también el uso de sus ventanas de límite |
 
 Candidatos (de CONTEXTO.md, próximos pasos 3):
 
