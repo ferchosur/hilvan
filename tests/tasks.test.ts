@@ -197,3 +197,51 @@ describe('SR-012 repository hooks trust', () => {
     await rm(root, { recursive: true, force: true });
   });
 });
+
+describe.runIf(process.platform !== 'win32')('worktree setup hook (FR-018)', () => {
+  it('runs the declared command once in a new worktree and fails clearly', async () => {
+    const tmp = await mkdtemp(path.join(os.tmpdir(), 'hilvan-hook-'));
+    const repo = path.join(tmp, 'repo');
+    execFileSync('git', ['init', '-q', '-b', 'main', repo]);
+    execFileSync('git', [
+      '-C',
+      repo,
+      '-c',
+      'user.name=t',
+      '-c',
+      'user.email=t@t',
+      'commit',
+      '-q',
+      '--allow-empty',
+      '-m',
+      'i',
+    ]);
+    const store = new ProjectStore(repo);
+    await store.init({ name: 'repo', baseBranch: 'main', setupHook: ['touch', 'SETUP_DONE'] });
+    const profile = ProfileSchema.parse({
+      id: 'fake',
+      label: 'fake',
+      app: 'claude-code',
+      auth: { mode: 'subscription' },
+      configDir: path.join(tmp, 'cfg'),
+      destination: { launcher: 'native', executable: FAKE },
+      accepts: ['personal'],
+    });
+    const env = { ...process.env, FAKE_SCENARIO: 'success' };
+    const t = await createTask(store, { title: 'x', classification: 'personal', mode: 'write' });
+    const r = await runTask(store, t.id, profile, {
+      host: { platform: process.platform, insideWsl: false, env },
+    });
+    expect(r.run.diff?.paths).toContain('SETUP_DONE'); // created by the hook inside the worktree
+
+    const bad = new ProjectStore(repo);
+    await bad.init({ name: 'repo', baseBranch: 'main', setupHook: ['false'] });
+    const t2 = await createTask(bad, { title: 'y', classification: 'personal', mode: 'write' });
+    await expect(
+      runTask(bad, t2.id, profile, { host: { platform: process.platform, insideWsl: false, env } }),
+    ).rejects.toThrow(/setup hook "false" failed/);
+    expect(await bad.readLock()).toBeNull();
+    expect((await bad.loadTask(t2.id)).worktree).not.toBeNull(); // tracked, can be discarded
+    await rm(tmp, { recursive: true, force: true });
+  });
+});
