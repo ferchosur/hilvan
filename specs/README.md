@@ -4,6 +4,6 @@ Fuente de verdad de **qué** debe hacer el producto. Ciclo de vida y versionado 
 
 | Nº | Documento | Versión | Estado | Actualizado |
 |---|---|---|---|---|
-| 001 | [Requisitos de producto](001-product-requirements.md) | 1.1 | Approved | 2026-10-06 |
+| 001 | [Requisitos de producto](001-product-requirements.md) | 1.2 | Approved | 2026-10-06 |
 
 Nueva especificación: copie [`_plantilla.md`](_plantilla.md) como `NNN-nombre-corto.md` (siguiente número libre) y añádala a esta tabla.
