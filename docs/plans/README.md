@@ -6,4 +6,5 @@ Cada plan debe listar entregas pequeñas y verificables, indicando para cada una
 
 | Plan | Estado |
 |---|---|
-| [001 — MVP](001-mvp.md) | Accepted |
+| [001 — MVP](001-mvp.md) | Accepted · M0–M5 ✔ en Linux |
+| [Verificación del MVP](verificacion-mvp.md) | 20/22 AC ✔, AC-015 parcial (Windows), AC-009 diferido |
