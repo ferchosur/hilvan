@@ -25,3 +25,9 @@ D-013–D-024 (ver la spec). Respuestas del usuario: CLI oficial con login propi
 ## Siguiente paso
 
 Terminar M0. Que el usuario ejecute el spike 001 en el PC del trabajo (Windows/WSL).
+
+## Continuación — M0 y nombre
+
+- M0 implementado en la rama `feat/m0-esqueleto`: `npm run check` pasa (21 tests) y `ao doctor` detecta Node 22.22.1, git 2.53.0, Claude Code 2.1.292 y codex-cli 0.160.1.
+- Desviación técnica menor, documentada en ADR-0002: el build se hace con `tsc` (TS 7) en lugar de tsup, y se añade `cross-spawn` para Windows.
+- El usuario propuso el nombre **LOTA** (*Lord Of The Agents*). Se registró en Q-011 junto con los reparos (marca de Tolkien, mensaje contrario al control humano, npm ocupado). Sigue abierta.

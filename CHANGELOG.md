@@ -6,6 +6,7 @@ Cambios notables del proyecto. Formato basado en [Keep a Changelog](https://keep
 
 ### Añadido
 
+- **M0 — esqueleto del CLI `ao`:** proyecto TypeScript (Node ≥ 22.12, ESM), Biome, Vitest, build con `tsc`, CI en Ubuntu y Windows con Node 22 y 24; esquemas zod de perfil, destino, tarea y máquina de estados; rutas de configuración por SO; carga validada de `profiles.yaml`; comando `ao doctor`.
 - **Especificación 001 v1.0 aprobada** (baseline): resuelve Q-001–Q-010 (D-013–D-024); FR-015–FR-019 (revisión cruzada, consumo visible, estados bloqueado/incierto, worktree por tarea, brief); NFR-010–NFR-012; AC-018–AC-021; R-006–R-008.
 - ADR-0002 a ADR-0010: stack, superficie, adaptadores, lanzadores, identidad, persistencia, worktrees, políticas y licencia.
 - Diseño: arquitectura, modelo de datos, contrato de adaptador y modelo de amenazas.
