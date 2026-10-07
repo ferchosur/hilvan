@@ -102,6 +102,11 @@ export class ProjectStore {
     return text;
   }
 
+  reviewFile(taskId: string, runId: string): string {
+    if (!RUN_ID.test(runId)) throw new ProjectError(`invalid run id "${runId}"`);
+    return path.join(this.taskDir(taskId), 'reviews', `${runId}.md`);
+  }
+
   async brief(id: string): Promise<string> {
     return (await readTextSafe(path.join(this.taskDir(id), 'brief.md'), MAX_JSON)) ?? '';
   }

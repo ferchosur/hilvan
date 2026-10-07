@@ -80,7 +80,10 @@ process.stdin.on('end', async () => {
     type: 'result',
     subtype: 'success',
     is_error: false,
-    result: 'Done. token sk-ant-api03-AAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+    result:
+      scenario === 'review'
+        ? '- high: missing test for hello.txt\nVERDICT: changes_requested'
+        : 'Done. token sk-ant-api03-AAAAAAAAAAAAAAAAAAAAAAAAAAAA',
     session_id: 'sess-1',
     total_cost_usd: 0.0123,
     usage: { input_tokens: 10, output_tokens: 5 },
