@@ -47,8 +47,12 @@ export const ProfileSchema = z.object({
   label: z.string().min(1),
   app: AppSchema,
   auth: AuthSchema,
-  /** CLAUDE_CONFIG_DIR / CODEX_HOME, as a path inside the destination environment. */
-  configDir: z.string().min(1),
+  /**
+   * CLAUDE_CONFIG_DIR / CODEX_HOME, as a path inside the destination environment.
+   * `null` means the CLI's default login: the variable is removed, not set, because
+   * Claude Code keeps the default account outside `~/.claude` (in `~/.claude.json`).
+   */
+  configDir: z.string().min(1).nullable().default(null),
   destination: DestinationSchema,
   /** Data classifications this profile may receive (D-022). */
   accepts: z.array(z.string().min(1)).min(1),

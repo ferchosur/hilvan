@@ -16,6 +16,8 @@ profiles:
       mode: subscription            # subscription | api-key
       # apiKeyEnv: WORK_ANTHROPIC_KEY  (solo api-key: nombre de la variable, nunca el valor)
     configDir: C:\Users\me\.hilvan-profiles\claude-corp   # CLAUDE_CONFIG_DIR / CODEX_HOME, en el entorno destino
+                                    # null = login por defecto del CLI: la variable se ELIMINA, no se fija
+                                    # (Claude guarda la cuenta por defecto en ~/.claude.json, fuera de ~/.claude)
     destination:
       launcher: native              # native | wsl | windows | (ssh, incremento 2)
       # distro: Ubuntu-24.04        (wsl)

@@ -35,6 +35,7 @@ No registrar emails, organizaciones ni rutas reales en este documento: usar "cue
 ## Resultados
 
 - **Linux (2026-10-06, spike 002):** un directorio vacío da `loggedIn: false` y el directorio por defecto da sesión iniciada. `claude auth status` identifica la cuenta y la organización. Falta probarlo con dos cuentas reales.
+- **Linux (2026-10-06, M1):** **el login por defecto de Claude no equivale a `CLAUDE_CONFIG_DIR=~/.claude`.** Sin la variable, la cuenta (email y organización) se lee de `~/.claude.json`, en la carpeta personal. Con la variable apuntando a `~/.claude`, Claude busca `~/.claude/.claude.json`, que no existe: la sesión sigue activa pero la cuenta aparece como `null`, y además el CLI crea ese archivo. Decisión: un perfil "login por defecto" usa `configDir: null` y el adaptador **elimina** la variable del entorno en vez de fijarla. En Codex, `CODEX_HOME=~/.codex` sí equivale al valor por defecto, pero se aplica la misma regla por coherencia.
 - **Windows / WSL:** pendiente.
 
 ## Conclusión

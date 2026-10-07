@@ -31,3 +31,10 @@ Terminar M0. Que el usuario ejecute el spike 001 en el PC del trabajo (Windows/W
 - M0 implementado en la rama `feat/m0-esqueleto`: `npm run check` pasa (21 tests) y `ao doctor` detecta Node 22.22.1, git 2.53.0, Claude Code 2.1.292 y codex-cli 0.160.1.
 - Desviación técnica menor, documentada en ADR-0002: el build se hace con `tsc` (TS 7) en lugar de tsup, y se añade `cross-spawn` para Windows.
 - El usuario propuso el nombre **LOTA** (*Lord Of The Agents*). Se registró en Q-011 junto con los reparos (marca de Tolkien, mensaje contrario al control humano, npm ocupado). Sigue abierta.
+
+## Continuación — nombre Hilvan y M1 en Linux
+
+- El usuario eligió el nombre **Hilvan** entre Comitiva, Hilvan, Models Orchestrator y mantener el nombre de trabajo. Queda registrado como D-025 (spec 001 v1.1, etiqueta `spec-001-v1.1`). Paquete y comando `hilvan`, con alias `hv`.
+- M1 implementado y verificado en este Linux con los logins reales. Pasan 50 tests.
+- Hallazgo: reutilizar el login por defecto de Claude exige *eliminar* `CLAUDE_CONFIG_DIR`, no apuntarla a `~/.claude`. La prueba creó `~/.claude/.claude.json`, que se eliminó tras comprobar que era un residuo de la prueba (389 bytes, sin datos de cuenta).
+- Pendiente: verificar los lanzadores `wsl` y `windows` en el PC del trabajo (spike 001).
