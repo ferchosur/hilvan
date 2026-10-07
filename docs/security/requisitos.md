@@ -36,6 +36,11 @@
 | SR-028 | Las GitHub Actions se fijan por SHA de commit y el `GITHUB_TOKEN` tiene permisos mínimos (`contents: read`). | T22 | ✔ | `ci.yml` |
 | SR-029 | La publicación en npm se hace con `--provenance` desde la CI, con 2FA y el nombre reservado. | T23 | ☐ release 0.1.0 | — |
 | SR-030 | Los directorios de perfil se crean con 0700 fuera de directorios temporales, y `profile check` avisa si los permisos son más abiertos. | T25 | ✔ (M1) | `src/core/profiles.ts` |
+| SR-032 | La UI web escucha solo en loopback (`127.0.0.1`/`::1`), en un puerto aleatorio. | UI web | ◐ (spike 004 ✔) | `spikes/004-ui-web` |
+| SR-033 | Token de sesión de 256 bits, que pasa de la URL a una cookie `HttpOnly; SameSite=Strict`. Todas las rutas lo exigen y se compara en tiempo constante. | UI web | ◐ (spike 004 ✔) | idem |
+| SR-034 | Validación de `Host` contra DNS rebinding y sin CORS. Las mutaciones exigen `X-Hilvan-Token` (CSRF). | UI web | ◐ (Host ✔; CSRF al añadir POST) | idem |
+| SR-035 | CSP estricta sin `unsafe-inline` ni CDNs, y salida del agente siempre como texto (`textContent`). | UI web, T01 | ◐ (spike 004 ✔) | idem |
+| SR-036 | La UI no expone lectura de archivos arbitrarios: solo `.hilvan/` y diffs de ramas `hilvan/*` saneados. | UI web | ◐ (spike 004 ✔) | idem |
 | SR-031 | Los mensajes de error no incluyen valores de variables de entorno ni contenido de archivos de credenciales. | T12 | ✔ (revisión de código) | — |
 
 ## Proceso
