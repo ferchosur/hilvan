@@ -90,7 +90,7 @@ Login: `claude auth login`. Comprobación de autenticación: `claude auth status
 codex exec --json --cd <cwd>
       --sandbox <workspace-write si write | read-only si read>
       [--model <m>] [--output-schema <archivo>] -
-codex exec resume <id> --json …                     (reanudación)
+codex exec resume <id> --json --cd … -             (reanudación; sin probar aún con la CLI real)
 env: CODEX_HOME=<configDir> (el adaptador crea el directorio si falta; nunca bajo /tmp)
      (+ CODEX_API_KEY desde apiKeyEnv si auth=api-key)
 stdin: prompt

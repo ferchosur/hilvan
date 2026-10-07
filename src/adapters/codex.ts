@@ -1,4 +1,5 @@
 import type { Profile } from '../domain/index.js';
+import { type CodexParserState, parseCodexLine } from './parsers.js';
 import type { AgentAdapter, AuthStatus } from './types.js';
 
 const PROVIDER_KEYS = ['OPENAI_API_KEY', 'CODEX_API_KEY'] as const;
@@ -29,6 +30,27 @@ export const codexAdapter: AgentAdapter = {
 
   authStatusCommand(profile, hostEnv) {
     return { executable: 'codex', args: ['login', 'status'], ...profileEnv(profile, hostEnv) };
+  },
+
+  runCommand(profile, req, hostEnv) {
+    const model = req.model ?? profile.model;
+    const common = [
+      '--json',
+      '--cd',
+      req.cwd,
+      '--sandbox',
+      req.mode === 'write' ? 'workspace-write' : 'read-only',
+      ...(model ? ['--model', model] : []),
+    ];
+    const args = req.resumeSessionId
+      ? ['exec', 'resume', req.resumeSessionId, ...common, '-']
+      : ['exec', ...common, '-'];
+    return { executable: 'codex', args, cwd: req.cwd, ...profileEnv(profile, hostEnv) };
+  },
+
+  createParser() {
+    const st: CodexParserState = { lastMessage: '' };
+    return (line: string) => parseCodexLine(line, st);
   },
 
   /** `codex login status` prints text and does not identify the account (spike 002). */
