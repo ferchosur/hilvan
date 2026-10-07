@@ -1,7 +1,7 @@
 # Contexto para continuar el proyecto
 
 Última actualización: 2026-10-07
-Estado: **MVP completo en Linux (M0–M5 y Criterio)**, con 155 tests y e2e real con Claude Code y Codex. **20 de 22 criterios de aceptación verificados** ([matriz](docs/plans/verificacion-mvp.md)); AC-015 está pendiente de Windows/WSL y AC-009 diferido. Hay decisiones del usuario pendientes (ver abajo).
+Estado: **MVP completo en Linux (M0–M5, Criterio y FR-021)**, con 168 tests y e2e real con Claude Code y Codex. **23 de 25 criterios de aceptación verificados** ([matriz](docs/plans/verificacion-mvp.md)); AC-015 está pendiente de Windows/WSL y AC-009 diferido. Especificación 001 **v1.3** (etiqueta `spec-001-v1.3`). Hay decisiones del usuario pendientes (ver abajo).
 
 Fuentes de verdad:
 
@@ -39,9 +39,16 @@ Entornos del usuario:
 
 Calidad: **168 tests**, TypeScript estricto, Biome y CI en Linux y Windows. Arranque de `--version`: 149 ms (antes 298).
 
+## Cómo se usa en este PC
+
+- `hilvan` y `hv` están instalados como enlaces en `~/.local/bin` que apuntan a `dist/cli/main.js` (sin sudo; el prefijo global de npm es `/usr/local`). **Tras cambiar código: `npm run build`.**
+- Configuración real del usuario: `~/.config/hilvan/` (vacía: aún no hay perfiles creados en este PC). Las pruebas e2e usaron carpetas temporales del scratchpad, que ya no existen.
+- Regla de enrutamiento del usuario: la cuenta Claude **corporativa** se usa **solo** para tareas que necesitan sus herramientas o MCP internos (`routing: reserved`); todo lo demás va a la cuenta **personal**.
+- Comprobación antes de cada commit o fusión: `npm run check` debe terminar con `rc=0`. No filtres su salida con tuberías: ya ocultó un fallo una vez.
+
 ## Decisiones vigentes (detalle en spec y ADR)
 
-TypeScript/Node ≥ 22 (ADR-0002, **en revisión por Q-013**) · CLI primero (0003) · adaptadores de proceso no interactivo (0004) · un orquestador con lanzadores native/wsl/windows (0005) · identidad por directorio de configuración del CLI oficial, sin tocar tokens (0006) · persistencia en archivos (0007) · worktree por tarea y ejecución secuencial (0008) · política en capas y aprobación (0009) · Apache-2.0 (0010) · Criterio (0011) · UI: TUI propia y web mínima (0012, **Proposed**).
+TypeScript/Node ≥ 22 (ADR-0002, **en revisión por Q-013**) · CLI primero (0003) · adaptadores de proceso no interactivo (0004) · un orquestador con lanzadores native/wsl/windows (0005) · identidad por directorio de configuración del CLI oficial, sin tocar tokens (0006) · persistencia en archivos (0007) · worktree por tarea y ejecución secuencial (0008) · política en capas y aprobación (0009) · Apache-2.0 (0010) · Criterio (0011) · UI: TUI propia y web mínima (0012, **Proposed**) · herramientas de la cuenta, perfil reservado e inferencia de herramientas, lanzamiento con `--setting-sources user` (0013).
 
 ## Hallazgos técnicos clave
 
