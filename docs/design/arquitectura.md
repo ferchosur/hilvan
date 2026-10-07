@@ -6,16 +6,16 @@
 
 ## 1. Vista general
 
-Un único proceso Node.js (`ao`) coordina perfiles que viven en distintos entornos. Lanza los CLIs oficiales de los agentes como procesos hijos y guarda todo el estado en archivos.
+Un único proceso Node.js (`hilvan`) coordina perfiles que viven en distintos entornos. Lanza los CLIs oficiales de los agentes como procesos hijos y guarda todo el estado en archivos.
 
 ```mermaid
 flowchart TB
-    U([Persona]) --> CLI[cli<br/>comandos ao]
+    U([Persona]) --> CLI[cli<br/>comandos hilvan]
     CLI --> ORC[core / orchestrator<br/>casos de uso]
     ORC --> POL[policy<br/>elegibilidad y aprobación]
     ORC --> HO[handoff<br/>paquete de continuidad]
     ORC --> GIT[gitops<br/>worktrees, diff, merge]
-    ORC --> ST[(store<br/>.ao/ + config de usuario)]
+    ORC --> ST[(store<br/>.hilvan/ + config de usuario)]
     ORC --> AD[adapters<br/>claude-code · codex]
     AD --> LA[launchers<br/>native · wsl · windows · ssh*]
     LA -->|spawn, stdio JSONL| P1[[claude -p<br/>CLAUDE_CONFIG_DIR=perfil A]]
@@ -54,7 +54,7 @@ sequenceDiagram
     participant G as gitops
     participant A as adapter
     participant S as store
-    U->>C: ao task run T --profile X
+    U->>C: hilvan task run T --profile X
     C->>P: evaluate(T, X)
     P-->>C: eligible / denied(motivos) / require_approval
     alt require_approval
@@ -75,18 +75,18 @@ sequenceDiagram
 
 ### 3.2 Traspaso a otro perfil
 
-1. `ao handoff T --to Y`: `core` pide al perfil de origen (reanudando su sesión) un resumen con esquema JSON (`--json-schema` / `--output-schema`) y añade hechos de `gitops` (rama, commits, diff stat, archivos).
+1. `hilvan handoff T --to Y`: `core` pide al perfil de origen (reanudando su sesión) un resumen con esquema JSON (`--json-schema` / `--output-schema`) y añade hechos de `gitops` (rama, commits, diff stat, archivos).
 2. `handoff` detecta secretos y los marca, renderiza el Markdown, y el usuario lo edita y aprueba.
 3. Se registra el hash del paquete aprobado y se crea una nueva ejecución en Y con el paquete como contexto inicial.
 
 ### 3.3 Revisión y aceptación
 
-`ao review T` muestra el diff. `ao review T --by Z` lanza una ejecución de solo lectura en Z que adjunta su informe. `ao accept T` fusiona la rama y limpia el worktree. `ao discard T` limpia sin fusionar.
+`hilvan review T` muestra el diff. `hilvan review T --by Z` lanza una ejecución de solo lectura en Z que adjunta su informe. `hilvan accept T` fusiona la rama y limpia el worktree. `hilvan discard T` limpia sin fusionar.
 
 ## 4. Decisiones transversales
 
 - **Errores:** los errores de dominio son tipados (`PolicyDenied`, `ProfileUnavailable`, `AdapterProtocolError`…) y nunca provocan un cambio automático de perfil (FR-010, FR-017).
-- **Concurrencia:** una ejecución activa por proyecto en el MVP, protegida con un archivo de bloqueo `.ao/lock` que incluye PID. Si el PID ya no existe al arrancar, la ejecución asociada pasa a `uncertain`.
+- **Concurrencia:** una ejecución activa por proyecto en el MVP, protegida con un archivo de bloqueo `.hilvan/lock` que incluye PID. Si el PID ya no existe al arrancar, la ejecución asociada pasa a `uncertain`.
 - **Observabilidad:** `events.jsonl` (auditoría de negocio) y `runs/<id>.jsonl` (eventos crudos del agente). Ninguno contiene secretos (ver [amenazas](amenazas.md)).
 - **Internacionalización:** los mensajes del CLI están en inglés en el código, con catálogo en español. La documentación de usuario está en español e inglés antes de publicar.
 
@@ -94,5 +94,5 @@ sequenceDiagram
 
 | Incremento | Cambio arquitectónico |
 |---|---|
-| 2 | `launchers/ssh`, ejecución paralela (N ejecuciones activas), UI web local (`ao ui`, servidor HTTP local + SPA) sobre `core`, notificaciones. |
+| 2 | `launchers/ssh`, ejecución paralela (N ejecuciones activas), UI web local (`hilvan ui`, servidor HTTP local + SPA) sobre `core`, notificaciones. |
 | 3 | Adaptador ACP genérico, perfil de investigación (Perplexity), varios repositorios por proyecto, posible runner en Go y `Store` en SQLite. |

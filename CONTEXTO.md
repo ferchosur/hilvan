@@ -1,7 +1,7 @@
 # Contexto para continuar el proyecto
 
 Última actualización: 2026-10-06
-Estado: **baseline aprobado (spec 001 v1.0)**. Diseño del MVP aceptado. Hito **M0 terminado** (esqueleto, `ao doctor`). Siguiente: **M1** (perfiles y destinos).
+Estado: **baseline aprobado (spec 001 v1.0)**. Diseño del MVP aceptado. Hito **M0 terminado** (esqueleto, `hilvan doctor`). Siguiente: **M1** (perfiles y destinos).
 
 Este documento resume el estado **actual**. Fuentes de verdad:
 
@@ -13,7 +13,7 @@ Este documento resume el estado **actual**. Fuentes de verdad:
 
 ## Objetivo del producto
 
-Herramienta open source (Apache-2.0) para coordinar agentes de IA entre proveedores y entre varias cuentas de una misma aplicación, conservando la continuidad de las tareas mediante paquetes de contexto revisables. Cada usuario elige qué aplicaciones conecta y cuántos perfiles configura. **Se posiciona como continuidad y gobierno, nunca como forma de sumar o eludir cuotas.**
+**Hilvan** (D-025): herramienta open source (Apache-2.0) para coordinar agentes de IA entre proveedores y entre varias cuentas de una misma aplicación, conservando la continuidad de las tareas mediante paquetes de contexto revisables. Cada usuario elige qué aplicaciones conecta y cuántos perfiles configura. **Se posiciona como continuidad y gobierno, nunca como forma de sumar o eludir cuotas.**
 
 Caso de origen del usuario:
 
@@ -25,15 +25,16 @@ Caso de origen del usuario:
 | Tema | Decisión | Ref. |
 |---|---|---|
 | Lenguaje | TypeScript, Node ≥ 22; contrato JSON por stdio para permitir runners en Go en el futuro | D-013, ADR-0002 |
-| Superficie | CLI `ao` primero; UI web local en el incremento 2 | D-014, ADR-0003 |
+| Superficie | CLI `hilvan` primero; UI web local en el incremento 2 | D-014, ADR-0003 |
 | SO | Linux, Windows nativo y WSL; macOS "best effort" | D-014 |
 | Agentes | Claude Code y Codex CLI, en proceso no interactivo (`claude -p` stream-json, `codex exec --json`) | D-015, D-016, ADR-0004 |
 | Entornos | Un orquestador con lanzadores `native`, `wsl` y `windows`; `ssh` en el incremento 2 | D-017, ADR-0005 |
-| Identidad | `CLAUDE_CONFIG_DIR` / `CODEX_HOME` por perfil; login con el CLI oficial; ao nunca toca tokens | D-018, ADR-0006 |
-| Persistencia | Archivos: `profiles.yaml` y `policy.yaml` del usuario; `.ao/` por proyecto con `events.jsonl` | D-019, ADR-0007 |
+| Identidad | `CLAUDE_CONFIG_DIR` / `CODEX_HOME` por perfil; login con el CLI oficial; Hilvan nunca toca tokens | D-018, ADR-0006 |
+| Persistencia | Archivos: `profiles.yaml` y `policy.yaml` del usuario; `.hilvan/` por proyecto con `events.jsonl` | D-019, ADR-0007 |
 | Aislamiento | Worktree y rama por tarea que escribe; ejecución secuencial en el MVP | D-020, ADR-0008 |
 | Políticas | Clasificaciones configurables; política gestionada `enforced`; aprobación del paquete completo y editable, con hash | D-021–D-023, ADR-0009 |
 | Licencia | Apache-2.0, contribuciones con DCO | D-024, ADR-0010 |
+| Nombre | **Hilvan**; comando `hilvan` (alias `hv`); estado de proyecto en `.hilvan/` | D-025 |
 | Perplexity | Diferido: su API requiere créditos aparte y el usuario no los tiene | D-004 |
 
 Principios que siguen vigentes:
@@ -68,17 +69,15 @@ Ninguno de los orquestadores revisados (Orcha, vibe-kanban, claude-squad, herdr,
 
 ## Preguntas abiertas (no bloquean el MVP)
 
-- **Q-011 — Nombre público:** "Agent Orchestrator" ya está en uso por otros productos. No puede incluir marcas de proveedores. Hay que decidirlo antes de publicar.
-  - Propuesta del usuario (2026-10-06): **LOTA** (*Lord Of The Agents*). Reparos: riesgo de marca por la referencia directa a la propiedad intelectual de Tolkien, el lema "one agent to rule them all" contradice el principio de control humano, y `lota` ya está ocupado en npm. Alternativa: inspirarse en la Comunidad (*Fellowship*) y no en el Anillo. Sigue abierta.
 - **Q-012 — Monetización:** el usuario quiere tratarlo después del MVP.
 - Spike 001 en Windows: si el CLI guarda credenciales en el almacén del sistema y las comparte entre directorios, los perfiles de Windows tendrían que usar API key u otro usuario del sistema.
 
 ## Próximos pasos
 
-1. ~~M0~~ terminado: `npm run check` y `ao doctor` funcionan en Linux; la CI cubre Windows.
+1. ~~M0~~ terminado: `npm run check` y `hilvan doctor` funcionan en Linux; la CI cubre Windows.
 2. El usuario ejecuta el **spike 001** en el equipo de validación (procedimiento en `spikes/001-auth-aislada/`).
 3. **M1:** perfiles, destinos y `profile check`.
-4. M2 a M5 según el [plan](docs/plans/001-mvp.md); después, la release 0.1.0 con el nombre definitivo.
+4. M2 a M5 según el [plan](docs/plans/001-mvp.md); después, la release 0.1.0.
 
 ## Referencias
 

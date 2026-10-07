@@ -4,7 +4,7 @@ description: Cierra la sesión de trabajo — actualiza CONTEXTO.md, escribe la 
 disable-model-invocation: true
 ---
 
-Cierra la sesión de trabajo del proyecto agent-orchestrator. Tema opcional de la sesión: $ARGUMENTS
+Cierra la sesión de trabajo del proyecto Hilvan. Tema opcional de la sesión: $ARGUMENTS
 
 1. Revisa `git status` y `git diff` (incluido lo ya preparado) para saber qué cambió en la sesión, junto con lo conversado.
 2. **CONTEXTO.md:** actualiza la fecha de "Última actualización" y las secciones afectadas para reflejar el estado **actual** (no la historia). Retira preguntas resueltas y añade las nuevas. Mantén las referencias a IDs (`D-`, `Q-`, `FR-`, `AC-`).

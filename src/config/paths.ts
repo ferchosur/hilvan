@@ -1,7 +1,7 @@
 import os from 'node:os';
 import path from 'node:path';
 
-export const APP_DIR_NAME = 'agent-orchestrator';
+export const APP_DIR_NAME = 'hilvan';
 
 export interface PlatformContext {
   platform: NodeJS.Platform;
@@ -18,10 +18,10 @@ function pathFor(platform: NodeJS.Platform): path.PlatformPath {
   return platform === 'win32' ? path.win32 : path.posix;
 }
 
-/** Per-user configuration directory (ADR-0007). `AO_CONFIG_DIR` overrides it. */
+/** Per-user configuration directory (ADR-0007). `HILVAN_CONFIG_DIR` overrides it. */
 export function userConfigDir(ctx: PlatformContext = currentPlatform()): string {
   const p = pathFor(ctx.platform);
-  if (ctx.env.AO_CONFIG_DIR) return ctx.env.AO_CONFIG_DIR;
+  if (ctx.env.HILVAN_CONFIG_DIR) return ctx.env.HILVAN_CONFIG_DIR;
   switch (ctx.platform) {
     case 'win32':
       return p.join(ctx.env.APPDATA ?? p.join(ctx.homedir, 'AppData', 'Roaming'), APP_DIR_NAME);
