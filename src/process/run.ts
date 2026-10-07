@@ -1,4 +1,5 @@
 import spawn from 'cross-spawn';
+import { assertSafeArgs } from '../security/args.js';
 
 export interface RunResult {
   /** Exit code, or null if the process could not start or was killed. */
@@ -25,6 +26,11 @@ export function runCommand(
   args: readonly string[],
   opts: RunOptions = {},
 ): Promise<RunResult> {
+  try {
+    assertSafeArgs(args);
+  } catch (err) {
+    return Promise.reject(err);
+  }
   return new Promise((resolve) => {
     let stdout = '';
     let stderr = '';
@@ -71,6 +77,11 @@ export function runInteractive(
   args: readonly string[],
   opts: Omit<RunOptions, 'timeoutMs'> = {},
 ): Promise<number | null> {
+  try {
+    assertSafeArgs(args);
+  } catch (err) {
+    return Promise.reject(err);
+  }
   return new Promise((resolve) => {
     const child = spawn(command, [...args], {
       env: opts.env ?? process.env,

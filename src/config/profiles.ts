@@ -1,8 +1,11 @@
-import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
-import path from 'node:path';
 import { parse, stringify } from 'yaml';
 import { z } from 'zod';
 import { type ProfilesFile, ProfilesFileSchema } from '../domain/index.js';
+import { readTextSafe, UnsafePathError, writeFileAtomic } from '../security/fs.js';
+
+/** SR-008: YAML limits. */
+export const MAX_CONFIG_BYTES = 1024 * 1024;
+export const YAML_OPTIONS = { maxAliasCount: 100, uniqueKeys: true } as const;
 
 export class ConfigError extends Error {
   constructor(
@@ -18,7 +21,8 @@ export class ConfigError extends Error {
 export function parseProfiles(text: string, file = 'profiles.yaml'): ProfilesFile {
   let raw: unknown;
   try {
-    raw = parse(text);
+    if (text.length > MAX_CONFIG_BYTES) throw new Error(`file exceeds ${MAX_CONFIG_BYTES} bytes`);
+    raw = parse(text, YAML_OPTIONS);
   } catch (err) {
     throw new ConfigError(file, err instanceof Error ? err.message : String(err));
   }
@@ -29,22 +33,20 @@ export function parseProfiles(text: string, file = 'profiles.yaml'): ProfilesFil
 
 /** Loads `profiles.yaml`; a missing file means no profiles configured yet. */
 export async function loadProfiles(file: string): Promise<ProfilesFile> {
-  let text: string;
+  let text: string | null;
   try {
-    text = await readFile(file, 'utf8');
+    text = await readTextSafe(file, MAX_CONFIG_BYTES);
   } catch (err) {
-    if ((err as NodeJS.ErrnoException).code === 'ENOENT') return { version: 1, profiles: [] };
+    if (err instanceof UnsafePathError) throw new ConfigError(file, err.message);
     throw err;
   }
+  if (text === null) return { version: 1, profiles: [] };
   return parseProfiles(text, file);
 }
 
 /** Writes `profiles.yaml` atomically; the config directory is private to the user. */
 export async function saveProfiles(file: string, data: ProfilesFile): Promise<void> {
   const valid = ProfilesFileSchema.parse(data);
-  await mkdir(path.dirname(file), { recursive: true, mode: 0o700 });
-  const tmp = `${file}.${process.pid}.tmp`;
   const header = '# Hilvan profiles — managed with `hilvan profile`. Never put secrets here.\n';
-  await writeFile(tmp, header + stringify(valid), { mode: 0o600 });
-  await rename(tmp, file);
+  await writeFileAtomic(file, header + stringify(valid));
 }
