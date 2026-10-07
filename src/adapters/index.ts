@@ -3,7 +3,8 @@ import { claudeCodeAdapter } from './claude-code.js';
 import { codexAdapter } from './codex.js';
 import type { AgentAdapter } from './types.js';
 
-export type { AgentAdapter, AuthStatus } from './types.js';
+export type { AgentEvent, RunOutcome, RunState } from './events.js';
+export type { AgentAdapter, AuthStatus, RunSpec } from './types.js';
 
 const ADAPTERS: Readonly<Record<App, AgentAdapter>> = {
   'claude-code': claudeCodeAdapter,

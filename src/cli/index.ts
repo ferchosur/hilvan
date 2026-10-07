@@ -17,6 +17,8 @@ const GROUPS: Record<string, () => Promise<Register>> = {
   profile: async () => (await import('./profile.js')).registerProfileCommands,
   criterio: async () => (await import('./criterio.js')).registerCriterioCommands,
   audit: async () => (await import('./audit.js')).registerAuditCommands,
+  init: async () => (await import('./task.js')).registerInitCommand,
+  task: async () => (await import('./task.js')).registerTaskCommands,
 };
 
 export function selectGroups(argv: readonly string[]): string[] {

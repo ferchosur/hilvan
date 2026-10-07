@@ -10,6 +10,21 @@ Cambios notables del proyecto. Formato basado en [Keep a Changelog](https://keep
 
 ### Añadido
 
+- **M2 — tareas y ejecución:**
+  - comandos `hilvan init` y `hilvan task new|list|show|log|run|cancel|discard`;
+  - brief estructurado, con sugerencias de Criterio para tipo, complejidad y endurecimiento de la clasificación;
+  - ejecución con los adaptadores claude-code (`-p` stream-json, `--strict-mcp-config`, permisos según el modo) y codex (`exec --json`, sandbox según el modo), con el prompt por stdin;
+  - eventos normalizados y estado final decidido por los eventos: `completed`, `blocked` (límite, autenticación o facturación), `failed`, `cancelled` o `uncertain`;
+  - worktree y rama `hilvan/<tarea>` por tarea de escritura, con commit automático en la rama de la tarea y diff medido;
+  - riesgo del diff y probabilidad de cumplir el brief estimados por Criterio;
+  - consumo y uso de las ventanas de límite visibles en cada ejecución;
+  - bloqueo de una ejecución activa por proyecto, con recuperación de ejecuciones interrumpidas (pasan a `uncertain`);
+  - Ctrl+C y `--timeout` cancelan la ejecución;
+  - logs de ejecución con secretos redactados y auditoría con cadena de hash;
+  - aviso y confianza explícita para los hooks del repositorio (SR-012).
+
+  Verificado con un agente simulado y con ejecuciones reales de Claude Code y Codex.
+- **Rendimiento:** carga perezosa de comandos y caché de compilación (`hilvan --version` pasa de 298 a 149 ms). Spike 003 con benchmark en Node, Go, Python y Java (Q-013).
 - **Seguridad:**
   - [análisis de riesgos](docs/security/analisis-de-riesgos.md): 25 amenazas STRIDE con matriz de riesgo;
   - [requisitos SR-001…SR-031](docs/security/requisitos.md) trazados a pruebas;
