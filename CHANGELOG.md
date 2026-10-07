@@ -10,6 +10,13 @@ Cambios notables del proyecto. Formato basado en [Keep a Changelog](https://keep
 
 ### Añadido
 
+- **M3 — elegibilidad, política y recomendación:**
+  - política en capas: gestionada, de usuario y de proyecto;
+  - reglas `deny` y `require_approval` con selectores por clasificación, perfil, etiqueta y aplicación;
+  - `enforced` solo en la capa gestionada, y el proyecto solo puede restringir;
+  - evaluación con motivos visibles y aprobación obligatoria que muestra el brief exacto antes de enviarlo (sin aprobación no se envía nada);
+  - `hilvan task recommend` (Criterio ordena solo los perfiles elegibles; el margen de cuota sale de los límites reportados);
+  - comandos `hilvan policy show|check` y `hilvan task run --approve`.
 - **M2 — tareas y ejecución:**
   - comandos `hilvan init` y `hilvan task new|list|show|log|run|cancel|discard`;
   - brief estructurado, con sugerencias de Criterio para tipo, complejidad y endurecimiento de la clasificación;
