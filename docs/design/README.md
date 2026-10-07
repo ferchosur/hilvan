@@ -1,12 +1,12 @@
 # Diseño técnico
 
-**Bloqueado** hasta que la especificación 001 esté `Approved` y los spikes prioritarios tengan resultados.
+Diseño del MVP derivado de la [especificación 001 v1.0](../../specs/001-product-requirements.md).
 
-Documentos previstos (crear cuando se desbloquee):
-
-- `arquitectura.md` — componentes, límites de confianza y despliegue (Windows / WSL).
-- `modelo-de-datos.md` — proyecto, tarea, perfil, destino, paquete de continuidad, auditoría.
-- `contrato-adaptador.md` — entrada, streaming, cancelación, resultado y estados inciertos (Q-009).
-- `amenazas.md` — modelo de amenazas: credenciales, fuga de contexto entre perfiles, políticas obligatorias.
+| Documento | Contenido |
+|---|---|
+| [arquitectura.md](arquitectura.md) | Módulos, dependencias, flujos principales y evolución. |
+| [modelo-de-datos.md](modelo-de-datos.md) | `profiles.yaml`, `policy.yaml`, carpeta `.ao/`, entidades y máquina de estados. |
+| [contrato-adaptador.md](contrato-adaptador.md) | Interfaz `AgentAdapter`, eventos normalizados y argumentos de Claude Code y Codex. |
+| [amenazas.md](amenazas.md) | Modelo de amenazas STRIDE y controles. |
 
 Cada elección relevante entre alternativas se registra además como ADR en [`../adr/`](../adr/).
