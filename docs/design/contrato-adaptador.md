@@ -76,11 +76,13 @@ claude -p --output-format stream-json --verbose
        --permission-prompts none
        --permission-mode <acceptEdits si write | dontAsk si read>
        [--model <m>] [--resume <id>] [--json-schema <json>]
-env: CLAUDE_CONFIG_DIR=<configDir>  (+ ANTHROPIC_API_KEY desde apiKeyEnv si auth=api-key)
+env: CLAUDE_CONFIG_DIR=<configDir>, o se elimina si configDir es null (login por defecto)
+     se eliminan ANTHROPIC_API_KEY/ANTHROPIC_AUTH_TOKEN heredadas en perfiles de suscripción
+     (+ ANTHROPIC_API_KEY desde apiKeyEnv si auth=api-key)
 stdin: prompt
 ```
 
-Comprobación de autenticación: `claude auth status` (JSON) → `loggedIn`, `authMethod`, cuenta = `email` (verificable).
+Login: `claude auth login`. Comprobación de autenticación: `claude auth status --json` → `loggedIn`, `authMethod`, cuenta = `email` (verificable).
 
 **Codex**
 
