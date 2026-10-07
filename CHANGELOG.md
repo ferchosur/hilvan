@@ -10,6 +10,13 @@ Cambios notables del proyecto. Formato basado en [Keep a Changelog](https://keep
 
 ### Añadido
 
+- **M5 — revisión, revisión cruzada y aceptación:**
+  - `hilvan review <tarea>` muestra el diff saneado, el riesgo según Criterio y las rutas sensibles marcadas, y registra el *head* revisado;
+  - `hilvan review <tarea> --by <perfil>` pide una revisión de solo lectura a otro perfil, con política y aprobación, y adjunta su veredicto (`VERDICT: approve|changes_requested`) sin cambiar la identidad de la tarea;
+  - `hilvan accept` exige haber revisado el diff actual, un checkout limpio y estar en la rama base; fusiona con `--no-ff`, limpia el worktree y la rama, y Criterio aprende (Beta por perfil y tipo, y modelo de aceptación);
+  - `task discard` enseña el rechazo.
+
+  E2E real: Claude, como revisor, rechazó la respuesta alucinada de Codex.
 - **M4 — traspaso entre perfiles:**
   - `hilvan handoff <tarea> --to <perfil> [--edit] [--approve] [--print]`;
   - el paquete de continuidad se arma con lo que Hilvan observó: estado, ejecuciones, commits y archivos de la rama, y las afirmaciones del agente anterior **marcadas como no verificadas**. Funciona aunque el perfil de origen esté bloqueado por límite;

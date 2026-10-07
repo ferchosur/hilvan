@@ -446,7 +446,8 @@ export function registerTaskCommands(program: Command): void {
       try {
         if (!o.yes) throw new Error('add --yes to discard the task and delete its branch');
         const store = await openStore();
-        const t = await discardTask(store, await store.resolveTaskId(ref));
+        const { discardWithLearning } = await import('./review.js');
+        const t = await discardWithLearning(store, await store.resolveTaskId(ref));
         console.log(`✔ task ${short(t.id)} discarded`);
       } catch (err) {
         fail(err);
