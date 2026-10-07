@@ -100,7 +100,7 @@ Notación: **P** probabilidad y **I** impacto, ambos de 1 a 3. **R** = P × I.
 ## 5. Riesgos residuales aceptados
 
 - **A6 (administrador local):** la política gestionada no protege frente a quien administra el equipo.
-- **Hooks del repositorio con `claude -p`:** solo se avisa, porque desactivarlos exige `--bare`, que no admite el login de suscripción. Se reevaluará si Claude Code ofrece una opción de confianza por proyecto en modo `-p`.
+- ~~Hooks del repositorio con `claude -p`~~ **(resuelto 2026-10-07, ADR-0013):** `--setting-sources user` impide que se ejecuten, verificado empíricamente, y conserva el login de suscripción.
 - **Codex no permite verificar la cuenta concreta.**
 - **Salida del agente semánticamente maliciosa** (instrucciones engañosas en texto plano): Hilvan la sanea a nivel de terminal, pero no puede juzgar su intención. La revisión humana y la revisión cruzada siguen siendo el control.
 

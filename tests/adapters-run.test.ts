@@ -92,29 +92,36 @@ describe('adapter commands', () => {
     destination: { launcher: 'native' },
     accepts: ['personal'],
   };
-  it('claude: strict MCP, no prompts, mode-based permissions, prompt not in args', () => {
-    const p = ProfileSchema.parse({
+  it('claude: never loads repository settings; MCP by profile mode (ADR-0013)', () => {
+    const claude = adapterFor('claude-code');
+    const account = ProfileSchema.parse({ ...base, app: 'claude-code' });
+    const a = claude.runCommand(account, { cwd: '/repo', mode: 'read' }, {});
+    expect(a.args).toEqual(expect.arrayContaining(['-p', '--setting-sources', 'user', 'dontAsk']));
+    expect(a.args).not.toContain('--strict-mcp-config'); // the account's own connectors stay available
+    expect(a.env.CLAUDE_CONFIG_DIR).toBe('/h/.hilvan-profiles/p');
+
+    const declared = ProfileSchema.parse({
       ...base,
       app: 'claude-code',
-      tools: { mcpConfig: '/h/mcp.json' },
+      tools: { mcp: 'profile', mcpConfig: '/h/mcp.json' },
     });
-    const cmd = adapterFor('claude-code').runCommand(p, { cwd: '/repo', mode: 'read' }, {});
-    expect(cmd.args).toEqual(
+    expect(claude.runCommand(declared, { cwd: '/repo', mode: 'read' }, {}).args).toEqual(
       expect.arrayContaining([
-        '-p',
+        '--setting-sources',
+        'user',
         '--strict-mcp-config',
         '--mcp-config',
         '/h/mcp.json',
-        'dontAsk',
       ]),
     );
-    expect(cmd.env.CLAUDE_CONFIG_DIR).toBe('/h/.hilvan-profiles/p');
-    const w = adapterFor('claude-code').runCommand(
-      p,
-      { cwd: '/repo', mode: 'write', resumeSessionId: 's1' },
-      {},
-    );
-    expect(w.args).toEqual(expect.arrayContaining(['acceptEdits', '--resume', 's1']));
+    const none = ProfileSchema.parse({ ...base, app: 'claude-code', tools: { mcp: 'none' } });
+    const n = claude.runCommand(none, { cwd: '/repo', mode: 'write', resumeSessionId: 's1' }, {});
+    expect(n.args).toContain('--strict-mcp-config');
+    expect(n.args).not.toContain('--mcp-config');
+    expect(n.args).toEqual(expect.arrayContaining(['acceptEdits', '--resume', 's1']));
+    expect(
+      ProfileSchema.safeParse({ ...base, app: 'claude-code', tools: { mcp: 'profile' } }).success,
+    ).toBe(false);
   });
   it('codex: sandbox by mode, prompt from stdin', () => {
     const p = ProfileSchema.parse({ ...base, app: 'codex' });

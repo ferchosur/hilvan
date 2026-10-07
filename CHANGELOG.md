@@ -10,6 +10,13 @@ Cambios notables del proyecto. Formato basado en [Keep a Changelog](https://keep
 
 ### Añadido
 
+- **Herramientas por cuenta y perfil reservado** (FR-021, ADR-0013, spec 001 v1.3):
+  - `routing: reserved`, para que la cuenta corporativa solo reciba tareas que necesitan sus herramientas;
+  - Criterio infiere las herramientas requeridas a partir del brief (alias predefinidos, alias del perfil y aprendizaje), con confirmación;
+  - `hilvan task requires` y aviso en `task recommend`;
+  - `hilvan profile tools [--apply]` descubre los MCP de la cuenta;
+  - `hilvan profile set` y opciones `--routing`, `--mcp`, `--alias`.
+- **Seguridad:** Claude Code se lanza con `--setting-sources user`. Verificado en real: el hook y el MCP hostiles del repositorio no se ejecutan, y los conectores de la cuenta siguen disponibles. Sustituye a `--strict-mcp-config` y a la confianza por hash (SR-011, SR-012).
 - **`hilvan stats`:** uso por perfil en el proyecto con solo lo que reportan los CLIs: ejecuciones por estado, coste estimado, tokens, últimos límites, aceptadas y descartadas; incluye la calibración de Criterio. Incluye el consumo de las revisiones cruzadas.
 - **Hook de preparación por worktree** (FR-018): `hilvan init --setup "npm ci"` se ejecuta sin shell, con timeout y auditoría, en cada worktree nuevo.
 - **M5 — revisión, revisión cruzada y aceptación:**

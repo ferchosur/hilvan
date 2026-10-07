@@ -24,9 +24,13 @@ profiles:
       executable: claude            # opcional; por defecto el de la app
     accepts: [public, corporate, confidential]   # clasificaciones que puede recibir
     tags: [corporate]               # para reglas de política
+    routing: reserved               # default | reserved: solo tareas que requieren sus herramientas (FR-021)
     tools:
-      mcpConfig: C:\Users\me\.hilvan-profiles\claude-corp\mcp.json   # servidores MCP del perfil
+      mcp: account                  # account (MCP de la cuenta/organización) | profile | none
+      # mcpConfig: …/mcp.json       (solo con mcp: profile)
       provides: [jira, confluence]  # capacidades declaradas para la elegibilidad
+      aliases:                      # palabras que revelan que se necesita la herramienta
+        jira: [ticket, incidencia, sprint]
     model: null                     # opcional (p. ej. sonnet)
     preference: 0                   # desempate entre elegibles; mayor = preferido
 ```

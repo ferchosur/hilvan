@@ -1,7 +1,7 @@
 # 001 — Requisitos de producto
 
 - **Estado:** Approved
-- **Versión:** 1.2
+- **Versión:** 1.3
 - **Fecha:** 2026-10-06
 - **Aprobado por / fecha:** Fernando Giraldo, 2026-10-06 (aprobación del plan que resuelve Q-001–Q-010)
 - **Relacionado:** [investigación 2026-10-06](../docs/research/2026-10-06-foros-y-herramientas.md), [ADR-0002–0010](../docs/adr/README.md), [plan MVP](../docs/plans/001-mvp.md)
@@ -190,6 +190,10 @@ Una tarea se define con un brief estructurado: objetivo, contexto, criterios de 
 
 El sistema debe responder a preguntas acotadas (elección, puntuación 2–10, sí/no) con un valor, una confianza y las señales que la sustentan, usando solo información local. Cada decisión se clasifica como automática, a confirmar o a escalar según umbrales configurables. Las decisiones que envían datos a otro perfil o cambian de perfil siempre requieren confirmación. El sistema aprende de los resultados y correcciones del usuario y muestra su calibración.
 
+### FR-021 — Herramientas por cuenta y perfil reservado
+
+Un perfil puede marcarse como **reservado**: solo se recomienda para tareas que requieren alguna de las herramientas que declara. El resto del trabajo va a los perfiles por defecto, y el reservado solo se usa si es la única opción elegible, en cuyo caso se indica. El sistema debe inferir del brief qué herramientas declaradas necesita una tarea, con confianza y explicación, pedir confirmación antes de aplicarlas y aprender de esa confirmación. Debe poder descubrir las herramientas configuradas en cada cuenta sin invocar al modelo y sin guardar sus destinos. Las ejecuciones conservan las herramientas propias de la cuenta, pero nunca cargan configuración, hooks ni servidores MCP aportados por el repositorio.
+
 ## 8. Requisitos no funcionales
 
 - **NFR-001 — Secretos:** credenciales y tokens se guardan en almacenamiento seguro del sistema operativo o mecanismo equivalente; no se escriben en registros ni archivos de proyecto.
@@ -230,6 +234,9 @@ El sistema debe responder a preguntas acotadas (elección, puntuación 2–10, s
 - **AC-020:** si se interrumpe el proceso del agente sin resultado final, la tarea queda en `uncertain` y no se reintenta automáticamente.
 - **AC-021:** una tarea que modifica código trabaja en su propio worktree; al aceptarla se fusiona su rama y al aceptarla o descartarla se elimina el worktree.
 - **AC-022:** con red deshabilitada, Criterio sugiere tipo de tarea, complejidad y riesgo con confianza y explicación, en menos de 5 ms por decisión. Una corrección del usuario cambia las sugerencias posteriores para entradas similares.
+- **AC-023:** con un perfil personal por defecto y uno corporativo reservado que provee `jira`, una tarea sin herramientas se recomienda al personal (el corporativo aparece excluido por `routing`), y una tarea que requiere `jira` se recomienda al corporativo.
+- **AC-024:** Criterio sugiere `jira` para un brief que menciona tickets o incidencias de Jira; tras confirmaciones del usuario, aprende vocabulario nuevo para esa herramienta.
+- **AC-025:** una ejecución de Claude Code en un repositorio con `.mcp.json` y hooks propios no ejecuta ninguno de los dos, y conserva los MCP de la cuenta.
 
 ## 10. Riesgos y supuestos
 
@@ -267,6 +274,7 @@ Pendientes, no bloqueantes para el MVP:
 
 ## 12. Historial de revisión
 
+- **1.3 (2026-10-07):** FR-021 (herramientas por cuenta, perfil reservado, inferencia y descubrimiento de herramientas), AC-023–AC-025. ADR-0013.
 - **1.2 (2026-10-07):** FR-020 (Criterio), NFR-013 (ligereza), AC-022; FR-012 con regla de cuotas por aplicación y registro de resultados. ADR-0011.
 - **1.1 (2026-10-06):** nombre de producto Hilvan (D-025, resuelve Q-011). Sin cambios de alcance.
 - **1.0 (2026-10-06):** baseline aprobado. Resuelve Q-001–Q-010 (D-013–D-024), difiere Perplexity (D-004), añade FR-015–FR-019, NFR-010–NFR-012, AC-018–AC-021, R-006–R-008. Autoriza diseño e implementación del alcance de la sección 6 según el [plan MVP](../docs/plans/001-mvp.md).

@@ -186,3 +186,53 @@ export function sharedAccountWarnings(checks: readonly ProfileCheck[]): string[]
     .filter((ids) => ids.length > 1)
     .map((ids) => `profiles ${ids.join(', ')} are logged into the same account`);
 }
+
+/** Tool id from a discovered MCP server name: "claude.ai Jira Cloud" → "claude-ai-jira-cloud". */
+export function toolIdFromName(name: string): string {
+  const slug = name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 63)
+    .replace(/-+$/, '');
+  return /^[a-z0-9]/.test(slug) ? slug : `t-${slug}`.slice(0, 63);
+}
+
+export interface ToolDiscovery {
+  discovered: Array<{ id: string; name: string; status: string }>;
+  /** Discovered but not declared in `provides`. */
+  missing: string[];
+  /** Declared in `provides` but not found in the account. */
+  stale: string[];
+  error?: string;
+}
+
+/**
+ * FR-021: lists the MCP servers the account itself has configured (no model call), run from the
+ * home directory so repository `.mcp.json` servers are not mixed in.
+ */
+export async function discoverTools(profile: Profile, deps: CheckDeps): Promise<ToolDiscovery> {
+  const adapter = adapterFor(profile.app);
+  const cmd = { ...adapter.listToolsCommand(profile, deps.host.env), cwd: os.homedir() };
+  const inv = buildInvocation(profile.destination, cmd, deps.host);
+  const r = await deps.run(inv);
+  if (r.code !== 0) {
+    return {
+      discovered: [],
+      missing: [],
+      stale: [],
+      error: (r.stderr || r.stdout).trim().split('\n')[0] ?? r.error ?? 'failed',
+    };
+  }
+  const discovered = adapter
+    .parseToolList(r.stdout)
+    .map((t) => ({ id: toolIdFromName(t.name), name: t.name, status: t.status }));
+  const ids = new Set(discovered.map((d) => d.id));
+  return {
+    discovered,
+    missing: [...ids].filter((id) => !profile.tools.provides.includes(id)),
+    stale: profile.tools.provides.filter((p) => !ids.has(p)),
+  };
+}

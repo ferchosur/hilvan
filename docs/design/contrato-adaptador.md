@@ -72,7 +72,8 @@ El estado final se decide por los **eventos**, no por el código de salida: Clau
 
 ```
 claude -p --output-format stream-json --verbose
-       --strict-mcp-config [--mcp-config <profile.tools.mcpConfig>]
+       --setting-sources user                  (nunca ajustes, hooks ni .mcp.json del repo; ADR-0013)
+       [--strict-mcp-config [--mcp-config <f>]] (solo si tools.mcp es profile|none)
        --permission-prompts none
        --permission-mode <acceptEdits si write | dontAsk si read>
        [--model <m>] [--resume <id>] [--json-schema <json>]
