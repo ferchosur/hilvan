@@ -4,7 +4,7 @@ Herramienta para coordinar agentes y cuentas de IA y conservar la continuidad de
 
 > `agent-orchestrator` y “Orquestador de agentes de IA” son nombres de trabajo; el nombre de producto sigue abierto (D-005).
 
-**Estado:** definición de requisitos. Especificación 001 v0.3 en `Draft`. Sin arquitectura aprobada ni implementación.
+**Estado:** implementación del MVP (hito M0). Especificación 001 v1.0 `Approved`. Licencia [Apache-2.0](LICENSE).
 
 ## Empezar aquí
 
@@ -12,6 +12,7 @@ Herramienta para coordinar agentes y cuentas de IA y conservar la continuidad de
 2. [specs/001-product-requirements.md](specs/001-product-requirements.md): requisitos de producto (fuente de verdad).
 3. [docs/glosario.md](docs/glosario.md): términos del dominio.
 4. [CONTRIBUTING.md](CONTRIBUTING.md): flujo de trabajo, git y convenciones.
+5. [docs/design/arquitectura.md](docs/design/arquitectura.md) y [docs/plans/001-mvp.md](docs/plans/001-mvp.md): cómo se construye y en qué orden.
 
 Si trabaja con un agente de IA, las reglas están en [AGENTS.md](AGENTS.md) (Claude Code las carga mediante [CLAUDE.md](CLAUDE.md)).
 
@@ -55,6 +56,8 @@ agent-orchestrator/
 │   ├── research/        Investigación y benchmarking
 │   └── sessions/        Bitácora de sesiones de trabajo
 ├── spikes/              Pruebas de viabilidad desechables
+├── src/                 Código TypeScript (CLI `ao`)
+├── tests/               Tests y fixtures
 └── .claude/             Configuración y skills compartidos de Claude Code
 ```
 
@@ -62,6 +65,9 @@ agent-orchestrator/
 
 | Documento | Estado |
 |---|---|
-| [001 — Requisitos de producto](specs/001-product-requirements.md) | Draft v0.3 |
+| [001 — Requisitos de producto](specs/001-product-requirements.md) | Approved v1.0 |
 | [Estado del proyecto y oportunidades](docs/research/estado-y-oportunidades.md) | Informe 2026-10-04 |
-| [ADR-0001 — Método SDD y registro de decisiones](docs/adr/0001-metodo-sdd-y-registro-de-decisiones.md) | Accepted |
+| [ADR-0001 a 0010](docs/adr/README.md) | Accepted |
+| [Diseño del MVP](docs/design/README.md) | Accepted |
+| [Plan 001 — MVP](docs/plans/001-mvp.md) | Accepted |
+| [Investigación de foros y herramientas](docs/research/2026-10-06-foros-y-herramientas.md) | 2026-10-06 |
