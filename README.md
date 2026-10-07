@@ -59,7 +59,7 @@ flowchart LR
 ## Estructura
 
 ```
-hilvan/   (carpeta local actual: agent-orchestrator/)
+hilvan/
 ├── AGENTS.md            Reglas para agentes de IA (compartidas)
 ├── CLAUDE.md            Entrada de Claude Code (importa AGENTS.md y CONTEXTO.md)
 ├── CONTEXTO.md          Memoria viva: estado, decisiones, próximos pasos
