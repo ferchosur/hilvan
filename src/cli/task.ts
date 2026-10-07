@@ -3,8 +3,10 @@ import type { Command } from 'commander';
 import type { AgentEvent } from '../adapters/index.js';
 import { criterioFile, loadCriterio, saveCriterio } from '../config/criterio-store.js';
 import { profilesFile, userConfigDir } from '../config/paths.js';
+import { defaultPolicyPaths, loadEffectivePolicy } from '../config/policy.js';
 import { loadProfiles } from '../config/profiles.js';
-import { currentHost, findProfile } from '../core/profiles.js';
+import { currentHost, describeDestination, findProfile } from '../core/profiles.js';
+import { recommend } from '../core/recommend.js';
 import { repoAgentConfig, trust, untrusted } from '../core/repo-trust.js';
 import {
   type Brief,
@@ -268,8 +270,15 @@ export function registerTaskCommands(program: Command): void {
       '--trust-repo-hooks',
       'accept hooks defined by this repository (.claude/settings*.json)',
     )
+    .option(
+      '--approve',
+      'approve sending the brief when a policy rule requires approval (non-interactive)',
+    )
     .action(
-      async (ref: string, o: { profile: string; timeout: string; trustRepoHooks?: boolean }) => {
+      async (
+        ref: string,
+        o: { profile: string; timeout: string; trustRepoHooks?: boolean; approve?: boolean },
+      ) => {
         try {
           const store = await openStore();
           const taskId = await store.resolveTaskId(ref);
@@ -302,8 +311,28 @@ export function registerTaskCommands(program: Command): void {
             process.removeListener('SIGINT', onSigint);
           };
           process.on('SIGINT', onSigint);
+          const policy = await loadEffectivePolicy(defaultPolicyPaths(store.root));
+          for (const w of policy.warnings) console.error(`! policy: ${w}`);
           const report = await runTask(store, taskId, profile, {
             host: currentHost(),
+            policy,
+            approve: async (ev, brief) => {
+              console.log(`\n? ${profile.id} needs your approval to receive this task:`);
+              for (const a of ev.approvals) {
+                console.log(`  · ${clean(a.reason, 200)} [rule ${a.ruleId}, ${a.layer}]`);
+              }
+              console.log('──── exactly what will be sent (brief) ────');
+              console.log(sanitizeForTerminal(brief));
+              console.log('───────────────────────────────────────────');
+              if (o.approve) return true;
+              if (!process.stdin.isTTY) return false;
+              const p = await import('@clack/prompts');
+              const ok = await p.confirm({
+                message: `Send it to ${profile.id}?`,
+                initialValue: false,
+              });
+              return ok === true;
+            },
             criterio: engine,
             runOptions: { timeoutMs: Number(o.timeout) * 60_000 },
             onEvent: printEvent,
@@ -339,6 +368,62 @@ export function registerTaskCommands(program: Command): void {
         }
       },
     );
+
+  task
+    .command('recommend <id>')
+    .description(
+      "Which profiles may run this task, which are excluded and why, and Criterio's ranking.",
+    )
+    .option('--json', 'print as JSON')
+    .action(async (ref: string, o: { json?: boolean }) => {
+      try {
+        const store = await openStore();
+        const t = await store.loadTask(await store.resolveTaskId(ref));
+        const { profiles } = await loadProfiles(profilesFile());
+        const { engine } = await loadCriterio(criterioFile(userConfigDir()));
+        const policy = await loadEffectivePolicy(defaultPolicyPaths(store.root));
+        const rec = recommend(policy, t, profiles, engine, await store.listTasks());
+        if (o.json) {
+          const out = {
+            taskType: rec.taskType,
+            ranked: rec.ranked.map((r) => ({
+              id: r.profile.id,
+              score: r.score,
+              why: r.why,
+              requiresApproval: r.evaluation.requiresApproval,
+            })),
+            excluded: rec.excluded.map((x) => ({
+              id: x.profile.id,
+              exclusions: x.evaluation.exclusions,
+            })),
+          };
+          return console.log(JSON.stringify(out, null, 2));
+        }
+        console.log(
+          `task ${short(t.id)} · ${t.classification} · type ${rec.taskType}${t.requires.length ? ` · requires ${t.requires.join(', ')}` : ''}`,
+        );
+        if (!rec.ranked.length) console.log('✖ no eligible profile');
+        rec.ranked.forEach((r, i) => {
+          console.log(
+            `${i === 0 ? '★' : ' '} ${r.profile.id} (${r.profile.app} @ ${describeDestination(r.profile)}) score ${r.score.toFixed(2)}${r.evaluation.requiresApproval ? ' · approval required' : ''}`,
+          );
+          for (const w of r.why) console.log(`     · ${w.signal}`);
+        });
+        for (const x of rec.excluded) {
+          const reasons = x.evaluation.exclusions.map(
+            (e) => `${e.reason}${e.enforced ? ' (enforced)' : ''}`,
+          );
+          console.log(`  ✖ ${x.profile.id}: ${reasons.join('; ')}`);
+        }
+        if (rec.ranked[0]) {
+          console.log(
+            `  next: hilvan task run ${short(t.id)} --profile ${rec.ranked[0].profile.id}  (you decide; nothing runs automatically)`,
+          );
+        }
+      } catch (err) {
+        fail(err);
+      }
+    });
 
   task
     .command('cancel <id>')

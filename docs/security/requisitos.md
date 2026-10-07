@@ -24,8 +24,8 @@
 | SR-016 | `hilvan init` añade `.hilvan/` al `.gitignore` del proyecto y `doctor` avisa si `.hilvan/` está versionado. | T12 | ✔ | `.hilvan/.gitignore` = `*` · test |
 | SR-017 | El registro de auditoría es una cadena de hash: cada evento incluye `prev` (SHA-256 del evento anterior) y su propio `hash`. `hilvan audit verify` detecta modificaciones, borrados intermedios y reordenamientos. | T13 | ✔ | `src/store/audit.ts` · tests |
 | SR-018 | La auditoría registra hashes y rutas, nunca el contenido de paquetes ni secretos. | T12, T13 | ✔ (por diseño del API) | `audit.ts` |
-| SR-019 | La política del proyecto (`.hilvan/policy.yaml`) solo puede añadir restricciones; las reglas que relajan se ignoran con aviso. | T14 | ☐ M3 | — |
-| SR-020 | Las reglas `enforced` de la política gestionada no pueden aprobarse por encima, ni siquiera con `--yes`. | T15 | ☐ M3 | — |
+| SR-019 | La política del proyecto (`.hilvan/policy.yaml`) solo puede añadir restricciones; las reglas que relajan se ignoran con aviso. | T14 | ✔ | `src/policy/evaluate.ts#mergePolicies` (sin efecto "allow"; el proyecto no redefine clasificaciones) · tests |
+| SR-020 | Las reglas `enforced` de la política gestionada no pueden aprobarse por encima, ni siquiera con `--yes`. | T15 | ✔ | `mergePolicies` + `runTask` ("cannot be approved") · tests |
 | SR-021 | El modelo de Criterio se valida al cargar (esquema, tamaños, valores finitos) y sus pesos tienen un tope (±4). Ninguna decisión de Criterio puede ejecutar por sí sola acciones sensibles. Existe `hilvan criterio reset`. | T16 | ✔ | `src/config/criterio-store.ts`, `thresholds.ts` · tests |
 | SR-022 | Criterio no almacena texto: solo pesos por hash de señales. | T17 | ✔ | `features.ts` · test de persistencia |
 | SR-023 | Los nombres de rama y rutas de worktree se generan a partir de ids validados (`hilvan/tsk_<ulid>`) y nunca a partir de texto libre. | T18 | ✔ | `src/gitops/` (`hilvan/tsk_<ulid>`) · tests |
