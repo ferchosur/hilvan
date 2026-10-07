@@ -33,9 +33,10 @@ Entornos del usuario:
 | `criterio ask/teach/stats/reset` | Motor de decisión local (~30 µs/decisión) que aprende de las correcciones. |
 | `handoff <tarea> --to <perfil>` | Paquete de continuidad (estado, ejecuciones, commits, archivos y afirmaciones *no verificadas*), con secretos redactados, editable, aprobado y guardado con sha256. Funciona aunque el origen esté bloqueado por límite. |
 | `review <tarea> [--by <perfil>]` / `accept` | Diff saneado con el riesgo según Criterio; revisión cruzada de solo lectura con veredicto; aceptar exige el diff revisado y fusiona con `--no-ff`; Criterio aprende de aceptar y descartar. |
+| `stats` | Uso por perfil (coste estimado, tokens, últimos límites, resultados) y calibración de Criterio. |
 | `audit verify` | Verifica la cadena de hash de `.hilvan/events.jsonl`. |
 
-Calidad: **155 tests**, TypeScript estricto, Biome y CI en Linux y Windows. Arranque de `--version`: 149 ms (antes 298).
+Calidad: **156 tests**, TypeScript estricto, Biome y CI en Linux y Windows. Arranque de `--version`: 149 ms (antes 298).
 
 ## Decisiones vigentes (detalle en spec y ADR)
 
