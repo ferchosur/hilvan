@@ -22,3 +22,4 @@ export function ulid(now = Date.now(), rand: Uint8Array = randomBytes(10)): stri
 
 export const newTaskId = (): string => `tsk_${ulid()}`;
 export const newRunId = (): string => `run_${ulid()}`;
+export const newHandoffId = (): string => `ho_${ulid()}`;
