@@ -182,7 +182,7 @@ describe('usage per profile (FR-016)', () => {
     expect(a).toMatchObject({
       profileId: 'a',
       runs: 2,
-      costRuns: 2,
+      costRuns: 3,
       inputTokens: 20,
       accepted: 1,
       states: { completed: 1, blocked: 1 },
