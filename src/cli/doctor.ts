@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { ConfigError, loadProfiles } from '../config/profiles.js';
 import { type RunResult, runCommand } from '../process/run.js';
+import { looseConfigPermissions } from '../security/fs.js';
 
 export type CheckStatus = 'ok' | 'warn' | 'fail' | 'info';
 
@@ -16,6 +17,8 @@ export interface DoctorDeps {
   profilesFile: string;
   run: (cmd: string, args: readonly string[]) => Promise<RunResult>;
   readText: (file: string) => Promise<string>;
+  /** SR-005: returns a problem description when a config file has unsafe permissions. */
+  configPerms: (file: string) => Promise<string | null>;
 }
 
 export const MIN_NODE = [22, 12] as const;
@@ -27,6 +30,7 @@ export function defaultDoctorDeps(profilesFile: string): DoctorDeps {
     profilesFile,
     run: (cmd, args) => runCommand(cmd, args, { timeoutMs: 15_000 }),
     readText: (file) => readFile(file, 'utf8'),
+    configPerms: looseConfigPermissions,
   };
 }
 
@@ -77,6 +81,8 @@ async function detectWsl(deps: DoctorDeps): Promise<CheckResult | null> {
 }
 
 async function checkProfiles(deps: DoctorDeps): Promise<CheckResult> {
+  const perms = await deps.configPerms(deps.profilesFile);
+  if (perms) return { name: 'profiles', status: 'fail', detail: `${perms}; run: chmod 600` };
   try {
     const file = await loadProfiles(deps.profilesFile);
     const n = file.profiles.length;

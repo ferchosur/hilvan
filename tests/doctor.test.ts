@@ -10,6 +10,7 @@ function deps(over: Partial<DoctorDeps> & { tools?: Record<string, RunResult> } 
     profilesFile: '/nonexistent/profiles.yaml',
     run: async (cmd) => tools[cmd] ?? { code: null, stdout: '', stderr: '', error: 'not_found' },
     readText: async () => 'Linux version 6.0 (generic)',
+    configPerms: async () => null,
     ...over,
   };
 }
@@ -40,6 +41,13 @@ describe('doctor', () => {
     );
     expect(hasFailures(results)).toBe(false);
     expect(results.find((r) => r.name === 'claude')?.detail).toBe('2.1.292 (Claude Code)');
+  });
+
+  it('fails when profiles.yaml is writable by others (SR-005)', async () => {
+    const results = await runDoctor(
+      deps({ configPerms: async () => 'x is writable by group/others (666)' }),
+    );
+    expect(results.find((r) => r.name === 'profiles')?.status).toBe('fail');
   });
 
   it('detects running inside WSL', async () => {
