@@ -1,4 +1,5 @@
 import type { Profile } from '../domain/index.js';
+import { parseClaudeLine } from './parsers.js';
 import type { AgentAdapter, AuthStatus } from './types.js';
 
 const PROVIDER_KEYS = ['ANTHROPIC_API_KEY', 'ANTHROPIC_AUTH_TOKEN'] as const;
@@ -33,6 +34,29 @@ export const claudeCodeAdapter: AgentAdapter = {
       args: ['auth', 'status', '--json'],
       ...profileEnv(profile, hostEnv),
     };
+  },
+
+  /** docs/design/contrato-adaptador.md §4; NFR-011/SR-011: only the profile's MCP servers. */
+  runCommand(profile, req, hostEnv) {
+    const args = [
+      '-p',
+      '--output-format',
+      'stream-json',
+      '--verbose',
+      '--strict-mcp-config',
+      ...(profile.tools.mcpConfig ? ['--mcp-config', profile.tools.mcpConfig] : []),
+      '--permission-prompts',
+      'none',
+      '--permission-mode',
+      req.mode === 'write' ? 'acceptEdits' : 'dontAsk',
+      ...((req.model ?? profile.model) ? ['--model', (req.model ?? profile.model) as string] : []),
+      ...(req.resumeSessionId ? ['--resume', req.resumeSessionId] : []),
+    ];
+    return { executable: 'claude', args, cwd: req.cwd, ...profileEnv(profile, hostEnv) };
+  },
+
+  createParser() {
+    return parseClaudeLine;
   },
 
   parseAuthStatus(stdout, stderr, exitCode): AuthStatus {
