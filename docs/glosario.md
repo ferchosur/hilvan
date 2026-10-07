@@ -22,6 +22,7 @@ Términos del dominio con el significado que tienen en este proyecto. Si un docu
 | **Bloqueada (`blocked`)** | Ejecución detenida por límite de uso, autenticación o facturación; espera una decisión del usuario. | FR-017 |
 | **Incierta (`uncertain`)** | Ejecución cuyo proceso terminó sin resultado final; no se reintenta sola. | FR-017 |
 | **Revisión cruzada** | Revisión de solo lectura del resultado de una tarea, hecha por otro perfil (normalmente de otro proveedor). | FR-015 |
+| **Perfil reservado** | Perfil con `routing: reserved`: solo se recomienda para tareas que requieren alguna de sus herramientas; el resto va a los perfiles por defecto. | FR-021, ADR-0013 |
 | **Política gestionada** | Archivo de política de solo lectura para el usuario cuyas reglas `enforced` no se pueden aprobar por encima. | ADR-0009 |
 | **Spike** | Prueba de viabilidad acotada en tiempo que responde una pregunta técnica; su código es desechable. | `spikes/` |
 | **Baseline** | Versión aprobada (`Approved`) de una especificación que autoriza diseño e implementación. | ADR-0001 |

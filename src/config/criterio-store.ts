@@ -17,6 +17,13 @@ export const CriterioStateSchema = z.object({
   taskType: SoftmaxStateSchema.refine((s) => s.classes === TASK_TYPES.length),
   sensitivity: SoftmaxStateSchema.refine((s) => s.classes === 2),
   acceptance: SoftmaxStateSchema.refine((s) => s.classes === 2),
+  tools: z
+    .record(
+      z.string().regex(/^[a-z0-9][a-z0-9-]{0,62}$/),
+      SoftmaxStateSchema.refine((s) => s.classes === 2),
+    )
+    .optional()
+    .refine((t) => !t || Object.keys(t).length <= 200, 'too many tool models'),
   complexityOffset: z.partialRecord(
     z.enum(TASK_TYPES),
     z.object({ sum: z.number().finite(), n: z.number().int().nonnegative() }),
@@ -25,7 +32,7 @@ export const CriterioStateSchema = z.object({
   history: z
     .array(
       z.object({
-        q: z.enum(['taskType', 'sensitivity', 'acceptance']),
+        q: z.enum(['taskType', 'sensitivity', 'acceptance', 'tools']),
         p: z.number().min(0).max(1),
         y: z.union([z.literal(0), z.literal(1)]),
       }),

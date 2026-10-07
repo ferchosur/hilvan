@@ -33,10 +33,11 @@ Entornos del usuario:
 | `criterio ask/teach/stats/reset` | Motor de decisión local (~30 µs/decisión) que aprende de las correcciones. |
 | `handoff <tarea> --to <perfil>` | Paquete de continuidad (estado, ejecuciones, commits, archivos y afirmaciones *no verificadas*), con secretos redactados, editable, aprobado y guardado con sha256. Funciona aunque el origen esté bloqueado por límite. |
 | `review <tarea> [--by <perfil>]` / `accept` | Diff saneado con el riesgo según Criterio; revisión cruzada de solo lectura con veredicto; aceptar exige el diff revisado y fusiona con `--no-ff`; Criterio aprende de aceptar y descartar. |
+| `profile tools/set`, `task requires` | Descubre los MCP de cada cuenta. `routing: reserved` hace que la cuenta corporativa solo reciba tareas que necesitan sus herramientas. Criterio infiere las herramientas requeridas del brief y aprende de tus confirmaciones. |
 | `stats` | Uso por perfil (coste estimado, tokens, últimos límites, resultados) y calibración de Criterio. |
 | `audit verify` | Verifica la cadena de hash de `.hilvan/events.jsonl`. |
 
-Calidad: **156 tests**, TypeScript estricto, Biome y CI en Linux y Windows. Arranque de `--version`: 149 ms (antes 298).
+Calidad: **168 tests**, TypeScript estricto, Biome y CI en Linux y Windows. Arranque de `--version`: 149 ms (antes 298).
 
 ## Decisiones vigentes (detalle en spec y ADR)
 
@@ -49,13 +50,14 @@ TypeScript/Node ≥ 22 (ADR-0002, **en revisión por Q-013**) · CLI primero (00
 - **El login por defecto de Claude guarda la cuenta en `~/.claude.json`.** Reutilizarlo exige *eliminar* `CLAUDE_CONFIG_DIR`, no apuntarla a `~/.claude`.
 - **E2E 2026-10-07:** en una tarea de solo lectura, Codex respondió sin leer el archivo y describió un README inexistente (alucinación). **La revisión cruzada real de Claude lo detectó** (`VERDICT: changes_requested`), lo que demuestra el valor de FR-015.
 - **Spike 003 (rendimiento):** Go arranca en 1 ms y usa 15 MB, frente a ~145 ms y 60–80 MB en Node; además genera un binario sin runtime. Python es lento en CPU y Java pesado.
+- **ADR-0013:** `--setting-sources user` bloquea los hooks y el MCP del repositorio (verificado) y conserva los conectores de la cuenta. `--strict-mcp-config` no bloqueaba los hooks y apagaba las herramientas de la cuenta.
 - **Spike 004:** web local en vivo con `node:http` + SSE y cero dependencias; 9 de 9 controles de seguridad verificados.
 
 ## Decisiones pendientes del usuario
 
 1. **Q-013 — ¿Migrar a Go?** Recomendación técnica: sí, por NFR-013 y para facilitar la instalación. El código TypeScript y sus tests servirían de especificación. Requiere instalar Go ≥ 1.23 (aquí hay 1.17).
 2. **ADR-0012 — UI:** aceptar `hilvan watch` (TUI propia) y `hilvan ui` (web local mínima).
-3. **Spike 001 en el PC del trabajo:** verificar el aislamiento de cuentas en Windows y WSL (procedimiento en `spikes/001-auth-aislada/`).
+3. **Spike 001 en el PC del trabajo:** verificar el aislamiento de cuentas en Windows y WSL (procedimiento en `spikes/001-auth-aislada/`). Comprobar también que `hilvan profile tools claude-corp` ve los MCP de la organización y que siguen activos con `--setting-sources user`; después, `hilvan profile tools claude-corp --apply` y `hilvan profile set claude-corp --routing reserved`.
 4. **Q-012 — Monetización** (después del MVP).
 
 ## Próximos pasos
