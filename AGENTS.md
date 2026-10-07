@@ -1,10 +1,10 @@
-# Guía para agentes — agent-orchestrator
+# Guía para agentes — Hilvan
 
 Instrucciones comunes para cualquier agente de IA (Claude Code, Codex u otros) que trabaje en este repositorio. `CLAUDE.md` importa este archivo; edite aquí las reglas compartidas.
 
 ## Qué es este proyecto
 
-Herramienta para coordinar agentes y cuentas de IA y conservar la continuidad de las tareas mediante contexto y resultados revisables. Nombre de trabajo: `agent-orchestrator` (nombre de producto pendiente).
+Herramienta para coordinar agentes y cuentas de IA y conservar la continuidad de las tareas mediante contexto y resultados revisables. Nombre del producto: **Hilvan** (de *hilvanar*: unir piezas con puntadas). Paquete npm y comando: `hilvan`, con alias `hv` (D-025).
 
 **Fase actual: implementación del MVP.** La especificación 001 v1.0 está `Approved`, el diseño está en `docs/design/` y el plan en `docs/plans/001-mvp.md` (hitos M0–M5).
 

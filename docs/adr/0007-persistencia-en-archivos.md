@@ -18,9 +18,9 @@ Hay que guardar perfiles, proyectos, tareas, ejecuciones, paquetes de contexto, 
 
 **Archivos**, detrás de una interfaz de repositorio (`Store`) para poder cambiar a SQLite sin tocar el dominio:
 
-- Configuración de usuario: `profiles.yaml` y `policy.yaml` en `$XDG_CONFIG_HOME/agent-orchestrator/` (Linux), `%APPDATA%\agent-orchestrator\` (Windows) o `~/Library/Application Support/agent-orchestrator/` (macOS).
-- Estado del proyecto: carpeta `.ao/` en la raíz del repositorio (`tasks/<id>/task.json`, `brief.md`, `handoff-*.md`, `runs/<run>.jsonl`), y `events.jsonl` **append-only** como registro de auditoría.
-- Escrituras atómicas (archivo temporal + renombrado). `.ao/` se añade a `.gitignore` del proyecto por defecto.
+- Configuración de usuario: `profiles.yaml` y `policy.yaml` en `$XDG_CONFIG_HOME/hilvan/` (Linux), `%APPDATA%\hilvan\` (Windows) o `~/Library/Application Support/hilvan/` (macOS).
+- Estado del proyecto: carpeta `.hilvan/` en la raíz del repositorio (`tasks/<id>/task.json`, `brief.md`, `handoff-*.md`, `runs/<run>.jsonl`), y `events.jsonl` **append-only** como registro de auditoría.
+- Escrituras atómicas (archivo temporal + renombrado). `.hilvan/` se añade a `.gitignore` del proyecto por defecto.
 
 ## Consecuencias
 

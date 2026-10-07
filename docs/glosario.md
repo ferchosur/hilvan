@@ -18,7 +18,7 @@ Términos del dominio con el significado que tienen en este proyecto. Si un docu
 | **Clasificación de datos** | Etiqueta de sensibilidad de una tarea; por defecto `public`, `personal`, `corporate`, `confidential`, configurable por proyecto. | D-022 |
 | **Conector / herramienta** | Capacidad externa disponible para un perfil (p. ej. un servidor MCP). Se asocia al perfil, no a la aplicación. | FR-006 |
 | **Ejecución (run)** | Una invocación de un agente para una tarea, con su sesión, sus eventos, su consumo y su resultado. Una tarea puede tener varias. | modelo de datos |
-| **Worktree de tarea** | Copia de trabajo git aislada (`git worktree`) y rama `ao/<tarea>` donde trabaja una tarea que escribe código. | ADR-0008 |
+| **Worktree de tarea** | Copia de trabajo git aislada (`git worktree`) y rama `hilvan/<tarea>` donde trabaja una tarea que escribe código. | ADR-0008 |
 | **Bloqueada (`blocked`)** | Ejecución detenida por límite de uso, autenticación o facturación; espera una decisión del usuario. | FR-017 |
 | **Incierta (`uncertain`)** | Ejecución cuyo proceso terminó sin resultado final; no se reintenta sola. | FR-017 |
 | **Revisión cruzada** | Revisión de solo lectura del resultado de una tarea, hecha por otro perfil (normalmente de otro proveedor). | FR-015 |

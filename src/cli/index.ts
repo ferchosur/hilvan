@@ -10,7 +10,7 @@ const pkg = JSON.parse(readFileSync(new URL('../../package.json', import.meta.ur
 };
 
 const program = new Command()
-  .name('ao')
+  .name('hilvan')
   .description('Coordinate AI coding agents across providers and accounts.')
   .version(pkg.version);
 

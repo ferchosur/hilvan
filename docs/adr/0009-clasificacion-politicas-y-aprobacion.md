@@ -13,9 +13,9 @@ El sistema debe excluir perfiles no elegibles, pedir aprobación en cruces sensi
 
 - **Clasificación:** cada tarea tiene una etiqueta; valores por defecto `public < personal < corporate < confidential`, configurables por proyecto. Cada perfil declara `accepts: [...]`.
 - **Política en capas** (modelo similar a los *managed settings* de Claude Code):
-  1. **Gestionada** — archivo de solo lectura para el usuario (`/etc/agent-orchestrator/policy.yaml` o `%ProgramData%\agent-orchestrator\policy.yaml`). Sus reglas `enforced` **no se pueden aprobar por encima** (AC-014).
+  1. **Gestionada** — archivo de solo lectura para el usuario (`/etc/hilvan/policy.yaml` o `%ProgramData%\hilvan\policy.yaml`). Sus reglas `enforced` **no se pueden aprobar por encima** (AC-014).
   2. **Usuario** — `policy.yaml` del directorio de configuración.
-  3. **Proyecto** — `.ao/policy.yaml`, solo puede **restringir** más.
+  3. **Proyecto** — `.hilvan/policy.yaml`, solo puede **restringir** más.
 - Reglas expresadas como `{ from: <clasificación|perfil>, to: <perfil|etiqueta de perfil>, effect: deny | require_approval }`. Evaluación: denegaciones gestionadas → requisitos de herramientas/capacidades → aprobación requerida → permitido. El resultado incluye **motivos legibles** (AC-012).
 - **Aprobación (Q-008):** se aprueba el **paquete completo**; antes, el usuario puede editarlo (Markdown en `$EDITOR`). Se envía exactamente lo aprobado y se registra su SHA-256 en `events.jsonl`. Cancelar no envía nada (AC-004).
 

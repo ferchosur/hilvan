@@ -99,5 +99,5 @@ Comprobación de autenticación: `codex login status` (texto). La cuenta concret
 ## 5. Pruebas
 
 - Tests unitarios del parser con los fixtures reales de `spikes/002-invocacion-headless/fixtures/` (copiados a `tests/fixtures/`).
-- Prueba de integración opcional (`AO_E2E=1`) que lanza los CLIs reales con un prompt trivial.
+- Prueba de integración opcional (`HILVAN_E2E=1`) que lanza los CLIs reales con un prompt trivial.
 - Un adaptador "fake" (script Node que emite JSONL) para probar `core` sin consumir cuota.

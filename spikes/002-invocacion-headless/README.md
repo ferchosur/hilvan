@@ -58,6 +58,6 @@ Hipótesis confirmada, con confianza alta para Linux. Ambos CLIs se pueden contr
 ## Impacto
 
 - [Contrato de adaptador](../../docs/design/contrato-adaptador.md): estado final basado en el evento `result`/`turn.*`, cierre de stdin, evento normalizado `usage` y evento `limits` (solo Claude).
-- `ao profile check`: Claude usa `claude auth status`; Codex usa `codex login status`, que solo indica si hay sesión (la cuenta concreta no es verificable → advertencia visible).
+- `hilvan profile check`: Claude usa `claude auth status`; Codex usa `codex login status`, que solo indica si hay sesión (la cuenta concreta no es verificable → advertencia visible).
 - El adaptador de Codex crea el directorio de `CODEX_HOME` del perfil si no existe.
 - Pendiente para Windows/WSL: repetir en el PC del trabajo (spike 001).

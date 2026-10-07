@@ -11,9 +11,9 @@ Agentes que editan el mismo árbol se pisan. Orcha documentó ramas mezcladas al
 
 ## Decisión
 
-- Toda tarea que puede modificar archivos se ejecuta en `git worktree add <dir> -b ao/<id-tarea>`, en una carpeta hermana del repositorio (`../.ao-worktrees/<repo>/<id>`) para no anidar repositorios.
+- Toda tarea que puede modificar archivos se ejecuta en `git worktree add <dir> -b hilvan/<id-tarea>`, en una carpeta hermana del repositorio (`../.hilvan-worktrees/<repo>/<id>`) para no anidar repositorios.
 - Hook de preparación opcional por proyecto (p. ej. `npm ci`), declarado en la configuración del proyecto.
-- Revisión = `git diff <base>...ao/<id>`; aceptar = fusionar en la rama base; aceptar o descartar elimina worktree y rama.
+- Revisión = `git diff <base>...hilvan/<id>`; aceptar = fusionar en la rama base; aceptar o descartar elimina worktree y rama.
 - El MVP ejecuta **una tarea a la vez**; el paralelismo (incremento 2) solo requiere permitir varias ejecuciones simultáneas, porque el aislamiento ya existe.
 - Tareas de solo lectura (revisión, análisis) no crean worktree.
 
