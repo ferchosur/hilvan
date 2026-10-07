@@ -1,7 +1,7 @@
 # Contexto para continuar el proyecto
 
 Última actualización: 2026-10-06
-Estado: **baseline aprobado (spec 001 v1.0)**. Diseño del MVP aceptado. Implementación en curso: hito **M0** (esqueleto).
+Estado: **baseline aprobado (spec 001 v1.0)**. Diseño del MVP aceptado. Hito **M0 terminado** (esqueleto, `ao doctor`). Siguiente: **M1** (perfiles y destinos).
 
 Este documento resume el estado **actual**. Fuentes de verdad:
 
@@ -69,12 +69,13 @@ Ninguno de los orquestadores revisados (Orcha, vibe-kanban, claude-squad, herdr,
 ## Preguntas abiertas (no bloquean el MVP)
 
 - **Q-011 — Nombre público:** "Agent Orchestrator" ya está en uso por otros productos. No puede incluir marcas de proveedores. Hay que decidirlo antes de publicar.
+  - Propuesta del usuario (2026-10-06): **LOTA** (*Lord Of The Agents*). Reparos: riesgo de marca por la referencia directa a la propiedad intelectual de Tolkien, el lema "one agent to rule them all" contradice el principio de control humano, y `lota` ya está ocupado en npm. Alternativa: inspirarse en la Comunidad (*Fellowship*) y no en el Anillo. Sigue abierta.
 - **Q-012 — Monetización:** el usuario quiere tratarlo después del MVP.
 - Spike 001 en Windows: si el CLI guarda credenciales en el almacén del sistema y las comparte entre directorios, los perfiles de Windows tendrían que usar API key u otro usuario del sistema.
 
 ## Próximos pasos
 
-1. Terminar **M0** (rama `feat/m0-esqueleto`) y fusionarlo.
+1. ~~M0~~ terminado: `npm run check` y `ao doctor` funcionan en Linux; la CI cubre Windows.
 2. El usuario ejecuta el **spike 001** en el equipo de validación (procedimiento en `spikes/001-auth-aislada/`).
 3. **M1:** perfiles, destinos y `profile check`.
 4. M2 a M5 según el [plan](docs/plans/001-mvp.md); después, la release 0.1.0 con el nombre definitivo.
