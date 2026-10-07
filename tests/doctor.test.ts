@@ -57,3 +57,18 @@ describe('doctor', () => {
     expect(results.find((r) => r.name === 'wsl')?.detail).toMatch(/inside WSL/);
   });
 });
+
+describe('lazy command loading', () => {
+  it('loads only the group being run', async () => {
+    const { selectGroups } = await import('../src/cli/index.js');
+    expect(selectGroups(['node', 'hilvan', 'criterio', 'ask', 'x'])).toEqual(['criterio']);
+    expect(selectGroups(['node', 'hilvan', '--version'])).toEqual([]);
+    expect(selectGroups(['node', 'hilvan', '--help'])).toEqual([
+      'doctor',
+      'profile',
+      'criterio',
+      'audit',
+    ]);
+    expect(selectGroups(['node', 'hilvan'])).toEqual(['doctor', 'profile', 'criterio', 'audit']);
+  });
+});

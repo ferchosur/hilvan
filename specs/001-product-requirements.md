@@ -262,6 +262,7 @@ El sistema debe responder a preguntas acotadas (elección, puntuación 2–10, s
 
 Pendientes, no bloqueantes para el MVP:
 
+- **Q-013 — Lenguaje de implementación (2026-10-07):** el spike 003 muestra que Go cumple mucho mejor NFR-013 (arranque 1 ms frente a ~145 ms, 15 MB frente a 60–80 MB, binario sin runtime). ¿Se migra a Go antes de M2, revisando ADR-0002? Decide el usuario.
 - **Q-012 — Monetización:** modelo de sostenibilidad del proyecto open source; se trabajará después del MVP.
 
 ## 12. Historial de revisión
