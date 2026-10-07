@@ -1,12 +1,11 @@
 # 001 — Requisitos de producto
 
 - **Estado:** Approved
-- **Versión:** 1.0
+- **Versión:** 1.1
 - **Fecha:** 2026-10-06
 - **Aprobado por / fecha:** Fernando Giraldo, 2026-10-06 (aprobación del plan que resuelve Q-001–Q-010)
 - **Relacionado:** [investigación 2026-10-06](../docs/research/2026-10-06-foros-y-herramientas.md), [ADR-0002–0010](../docs/adr/README.md), [plan MVP](../docs/plans/001-mvp.md)
-- **Nombre de trabajo:** Orquestador de agentes de IA
-- **Nombre de producto:** Pendiente
+- **Nombre de producto:** Hilvan (D-025)
 
 ## 1. Resumen
 
@@ -54,7 +53,7 @@ Una persona que ya usa dos o más asistentes o agentes de IA, posiblemente con v
 - **D-002 — Elección por tarea:** la persona puede seleccionar qué perfil ejecuta cada tarea.
 - **D-003 — Uso de cuenta personal en trabajo corporativo:** puede permitirse por decisión explícita de la persona para una tarea concreta, sin importar el proveedor. El producto debe mostrar qué contexto se enviará antes de ejecutar.
 - **D-004 — Perplexity:** ~~integración opcional en MVP~~ **diferida a después del MVP** (2026-10-06): su API exige créditos aparte de la suscripción. El rol de investigación lo cubre cualquier perfil con búsqueda web. Cuando se integre, será de solo lectura y con resultados citados.
-- **D-005 — Nombre:** `agent-orchestrator` y “Orquestador de agentes de IA” son nombres de trabajo; el nombre de producto sigue abierto.
+- **D-005 — Nombre:** ~~`agent-orchestrator` como nombre de trabajo~~ sustituido por D-025.
 - **D-006 — Implementación guiada por especificaciones:** usar SDD y no iniciar una capacidad sin requisitos aprobados y criterios de aceptación.
 - **D-007 — Aplicaciones y perfiles configurables:** el usuario elige las aplicaciones que integra y puede configurar cero, uno o varios perfiles por aplicación. Ningún proveedor ni cantidad fija se considera obligatorio.
 - **D-008 — Elegibilidad antes de recomendar:** un perfil solo puede recomendarse si está autorizado para la clasificación de datos y dispone de las capacidades y herramientas requeridas. La optimización no puede invalidar este filtro.
@@ -64,7 +63,7 @@ Una persona que ya usa dos o más asistentes o agentes de IA, posiblemente con v
 - **D-012 — Invocación mediante adaptadores:** el orquestador entrega instrucciones a través de un adaptador de ejecución configurado para el entorno del perfil. La vía preferida para un CLI local es iniciar un proceso con argumentos, directorio de trabajo y entrada/salida controlados. No debe depender de escribir en una ventana de terminal que la persona haya abierto manualmente.
 
 - **D-013 — Lenguaje:** TypeScript sobre Node.js ≥ 22. El contrato adaptador↔núcleo es JSON por stdio, independiente del lenguaje, para permitir runners en otros lenguajes (p. ej. Go) más adelante. ADR-0002.
-- **D-014 — Superficie y SO (Q-001, Q-002, Q-004):** CLI propio `ao` primero; UI web local en el incremento 2 sobre el mismo núcleo. Soporte de Linux, Windows nativo y WSL; macOS "best effort". ADR-0003.
+- **D-014 — Superficie y SO (Q-001, Q-002, Q-004):** CLI propio `hilvan` primero; UI web local en el incremento 2 sobre el mismo núcleo. Soporte de Linux, Windows nativo y WSL; macOS "best effort". ADR-0003.
 - **D-015 — Integraciones iniciales (Q-003):** adaptadores para Claude Code y Codex CLI. ADR-0004.
 - **D-016 — Modo de adaptador (Q-009):** un proceso no interactivo por ejecución (`claude -p` / `codex exec`), con eventos normalizados, cancelación y reanudación por id de sesión. Puente a sesiones interactivas y adaptador ACP genérico: posteriores. ADR-0004.
 - **D-017 — Entornos (Q-010):** un solo proceso orquestador con lanzadores por destino: `native`, `wsl` (distribución concreta) y `windows` (desde WSL). Lanzador `ssh` en el incremento 2. Sin runner por entorno en el MVP. ADR-0005.
@@ -75,6 +74,7 @@ Una persona que ya usa dos o más asistentes o agentes de IA, posiblemente con v
 - **D-022 — Clasificación (Q-007):** etiquetas configurables por proyecto con valores por defecto `public`, `personal`, `corporate`, `confidential`; cada tarea tiene una clasificación y cada perfil declara las que acepta. ADR-0009.
 - **D-023 — Aprobación (Q-008):** se aprueba el paquete completo, que puede editarse antes de aprobar; se envía exactamente la versión aprobada y se registra su hash. ADR-0009.
 - **D-024 — Licencia:** Apache-2.0. ADR-0010.
+- **D-025 — Nombre (Q-011):** el producto se llama **Hilvan** (de *hilvanar*). Paquete npm `hilvan`; comando `hilvan` con alias `hv`; estado de proyecto en `.hilvan/`. Se descartaron "LOTA" (riesgo de marca de Tolkien y mensaje contrario al control humano) y "models orchestrator" (genérico; el producto orquesta cuentas y agentes, no modelos). Decidido por el usuario el 2026-10-06.
 
 ## 6. Alcance del MVP
 
@@ -252,14 +252,15 @@ Una tarea se define con un brief estructurado: objetivo, contexto, criterios de 
 | Q-008 Aprobación | D-023 |
 | Q-009 Adaptadores | D-016 |
 | Q-010 Entornos | D-017 |
+| Q-011 Nombre público | D-025 |
 
 Pendientes, no bloqueantes para el MVP:
 
-- **Q-011 — Nombre público:** elegir un nombre único, sin marcas de proveedores ni de terceros, antes de publicar el repositorio. Propuesta en evaluación: "LOTA" (ver `CONTEXTO.md`).
 - **Q-012 — Monetización:** modelo de sostenibilidad del proyecto open source; se trabajará después del MVP.
 
 ## 12. Historial de revisión
 
+- **1.1 (2026-10-06):** nombre de producto Hilvan (D-025, resuelve Q-011). Sin cambios de alcance.
 - **1.0 (2026-10-06):** baseline aprobado. Resuelve Q-001–Q-010 (D-013–D-024), difiere Perplexity (D-004), añade FR-015–FR-019, NFR-010–NFR-012, AC-018–AC-021, R-006–R-008. Autoriza diseño e implementación del alcance de la sección 6 según el [plan MVP](../docs/plans/001-mvp.md).
 - **0.3 (2026-10-06):** destinos y adaptadores de ejecución (D-011, D-012).
 - **0.2:** configuración dinámica de perfiles y elegibilidad (D-007–D-010).

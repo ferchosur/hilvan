@@ -9,24 +9,24 @@
 
 **Activos:**
 
-- Credenciales de los proveedores, que están en el directorio de configuración de cada perfil y que **ao no lee**.
+- Credenciales de los proveedores, que están en el directorio de configuración de cada perfil y que **Hilvan no lee**.
 - Datos corporativos dentro de tareas y paquetes.
 - Código del repositorio.
 - El registro de auditoría.
 
 **Límites de confianza:**
 
-1. La persona y ao.
-2. ao y cada proceso de agente (el agente es un actor semiconfiable: obedece a un modelo y al contenido del repositorio).
+1. La persona y Hilvan.
+2. Hilvan y cada proceso de agente (el agente es un actor semiconfiable: obedece a un modelo y al contenido del repositorio).
 3. Un perfil y otro perfil (separación de identidad y de clasificación).
-4. El repositorio y la configuración de ao (un repositorio clonado puede ser hostil).
+4. El repositorio y la configuración de Hilvan (un repositorio clonado puede ser hostil).
 
 ## 2. Amenazas y controles
 
 | # | Amenaza (STRIDE) | Escenario | Control en el MVP |
 |---|---|---|---|
 | T1 | Divulgación de información | Contexto corporativo enviado a un perfil personal | Elegibilidad antes de recomendar; reglas `deny` gestionadas y `enforced`; vista previa y aprobación obligatorias; el hash de lo enviado queda en la auditoría (AC-003, AC-014). |
-| T2 | Divulgación de información | Secretos (tokens, claves) dentro del paquete de traspaso o de los logs | Detector de secretos (patrones de claves conocidas y alta entropía) antes de la vista previa, con las coincidencias marcadas; `events.jsonl` guarda solo hashes y rutas; `.ao/` en `.gitignore`. |
+| T2 | Divulgación de información | Secretos (tokens, claves) dentro del paquete de traspaso o de los logs | Detector de secretos (patrones de claves conocidas y alta entropía) antes de la vista previa, con las coincidencias marcadas; `events.jsonl` guarda solo hashes y rutas; `.hilvan/` en `.gitignore`. |
 | T3 | Suplantación | Una tarea se ejecuta con la cuenta equivocada | `CLAUDE_CONFIG_DIR`/`CODEX_HOME` explícitos por ejecución; `profile check` verifica la cuenta (Claude) antes de la primera ejecución y tras cambios de configuración; el destino se muestra en cada confirmación (AC-017). |
 | T4 | Elevación de privilegios | El repositorio trae `.mcp.json` o hooks que `claude -p` ejecuta sin pedir confianza | `--strict-mcp-config` siempre y solo el MCP declarado en el perfil (NFR-011). Riesgo residual: los hooks de `.claude/settings.json` del repositorio siguen activos sin `--bare` → se avisa la primera vez que se usa un repositorio con hooks y se documenta. |
 | T5 | Manipulación | Inyección de argumentos o comandos mediante rutas, títulos o prompts | `spawn` con array de argumentos y `shell:false`; el prompt va por stdin, nunca como argumento interpolado; validación de rutas y de `id` con zod. |

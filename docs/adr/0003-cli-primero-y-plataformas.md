@@ -17,7 +17,7 @@ Hay que decidir la superficie inicial (escritorio, web local, terminal) y los si
 
 ## Decisión
 
-**CLI `ao`** como primera superficie, con interfaz propia (no embebida en otro agente). La **UI web local** llega en el incremento 2, reutilizando el mismo núcleo. Soporte de **Linux, Windows nativo y WSL**, con CI en `ubuntu-latest` y `windows-latest`; macOS "best effort".
+**CLI `hilvan`** como primera superficie, con interfaz propia (no embebida en otro agente). La **UI web local** llega en el incremento 2, reutilizando el mismo núcleo. Soporte de **Linux, Windows nativo y WSL**, con CI en `ubuntu-latest` y `windows-latest`; macOS "best effort".
 
 ## Consecuencias
 

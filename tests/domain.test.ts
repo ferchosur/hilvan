@@ -11,7 +11,7 @@ const base = {
   label: 'Claude — corporate',
   app: 'claude-code',
   auth: { mode: 'subscription' },
-  configDir: '/home/user/.ao-profiles/claude-corp',
+  configDir: '/home/user/.hilvan-profiles/claude-corp',
   destination: { launcher: 'native' },
   accepts: ['corporate'],
 };

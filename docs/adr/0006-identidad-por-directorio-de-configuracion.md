@@ -12,10 +12,10 @@ Varias cuentas del mismo proveedor deben convivir sin mezclarse. Los términos d
 ## Decisión
 
 - Cada perfil apunta a un **directorio de configuración propio** del CLI: `CLAUDE_CONFIG_DIR` para Claude Code, `CODEX_HOME` para Codex. El orquestador solo fija esa variable al lanzar el proceso.
-- `ao profile login <perfil>` abre el **CLI oficial en modo interactivo** con ese directorio para que el usuario complete el login del proveedor. El orquestador **no lee, copia ni almacena** credenciales ni tokens.
+- `hilvan profile login <perfil>` abre el **CLI oficial en modo interactivo** con ese directorio para que el usuario complete el login del proveedor. El orquestador **no lee, copia ni almacena** credenciales ni tokens.
 - Perfiles con API key: el perfil guarda el **nombre** de la variable de entorno (p. ej. `apiKeyEnv: WORK_ANTHROPIC_KEY`), nunca su valor.
 - Herramientas por perfil: Claude se lanza con `--strict-mcp-config --mcp-config <archivo del perfil>`; Codex con la configuración de su `CODEX_HOME`. Lo que no está declarado en el perfil no se carga.
-- `ao profile check` verifica la identidad activa con los comandos de estado de cada CLI (se concreta en el spike 001).
+- `hilvan profile check` verifica la identidad activa con los comandos de estado de cada CLI (se concreta en el spike 001).
 
 ## Consecuencias
 

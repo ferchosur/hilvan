@@ -3,7 +3,7 @@ name: retomar
 description: Recupera el contexto del proyecto al iniciar una sesión — estado actual, última bitácora, commits recientes y próximos pasos. Usar al empezar a trabajar o cuando el usuario pregunte "dónde quedamos".
 ---
 
-Recupera el contexto del proyecto agent-orchestrator y resúmelo para el usuario.
+Recupera el contexto del proyecto Hilvan y resúmelo para el usuario.
 
 1. Lee `CONTEXTO.md` completo.
 2. Lista `docs/sessions/` y lee la entrada más reciente (excluye `README.md`).
