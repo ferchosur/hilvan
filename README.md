@@ -16,6 +16,22 @@
 
 Si trabaja con un agente de IA, las reglas están en [AGENTS.md](AGENTS.md) (Claude Code las carga mediante [CLAUDE.md](CLAUDE.md)).
 
+## Uso rápido (en desarrollo)
+
+```bash
+npm ci && npm run build && npm link     # instala los comandos `hilvan` y `hv`
+hilvan doctor                           # comprueba Node, git, Claude Code, Codex y WSL
+
+# Un perfil por cuenta y entorno
+hilvan profile add --id claude-personal --app claude-code --accepts public,personal --use-default-login
+hilvan profile add --id codex-personal  --app codex       --accepts public,personal --use-default-login
+hilvan profile add --id claude-work     --app claude-code --accepts corporate,confidential --tags corporate
+hilvan profile login claude-work        # login oficial en ~/.hilvan-profiles/claude-work
+hilvan profile check                    # verifica ejecutable, carpeta y cuenta activa de cada perfil
+```
+
+Hilvan nunca lee ni guarda credenciales: cada perfil usa su propia carpeta de configuración del CLI oficial.
+
 ## Método de trabajo: SDD
 
 Usaremos desarrollo guiado por especificaciones (Spec-Driven Development):
