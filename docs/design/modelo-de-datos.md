@@ -15,7 +15,7 @@ profiles:
     auth:
       mode: subscription            # subscription | api-key
       # apiKeyEnv: WORK_ANTHROPIC_KEY  (solo api-key: nombre de la variable, nunca el valor)
-    configDir: C:\Users\me\.ao-profiles\claude-corp   # CLAUDE_CONFIG_DIR / CODEX_HOME, en el entorno destino
+    configDir: C:\Users\me\.hilvan-profiles\claude-corp   # CLAUDE_CONFIG_DIR / CODEX_HOME, en el entorno destino
     destination:
       launcher: native              # native | wsl | windows | (ssh, incremento 2)
       # distro: Ubuntu-24.04        (wsl)
@@ -23,7 +23,7 @@ profiles:
     accepts: [public, corporate, confidential]   # clasificaciones que puede recibir
     tags: [corporate]               # para reglas de política
     tools:
-      mcpConfig: C:\Users\me\.ao-profiles\claude-corp\mcp.json   # servidores MCP del perfil
+      mcpConfig: C:\Users\me\.hilvan-profiles\claude-corp\mcp.json   # servidores MCP del perfil
       provides: [jira, confluence]  # capacidades declaradas para la elegibilidad
     model: null                     # opcional (p. ej. sonnet)
     preference: 0                   # desempate entre elegibles; mayor = preferido
@@ -43,10 +43,10 @@ rules:
     reason: "Política de la empresa: datos corporativos no salen a cuentas personales"
 ```
 
-## 3. Estado del proyecto — `.ao/`
+## 3. Estado del proyecto — `.hilvan/`
 
 ```
-.ao/
+.hilvan/
 ├── project.json        { id, name, baseBranch, setupHook?, createdAt }
 ├── policy.yaml         (opcional, solo restringe)
 ├── events.jsonl        auditoría append-only
@@ -100,7 +100,7 @@ stateDiagram-v2
     ready --> awaiting_approval: requiere aprobación
     awaiting_approval --> ready: aprobada
     awaiting_approval --> draft: cancelada
-    ready --> running: ao task run
+    ready --> running: hilvan task run
     running --> in_review: run completed
     running --> failed: run failed
     running --> blocked: límite/auth/facturación
@@ -110,8 +110,8 @@ stateDiagram-v2
     uncertain --> ready: usuario revisa y decide
     failed --> ready: reintento explícito
     in_review --> ready: pedir cambios (nueva run)
-    in_review --> accepted: ao accept
-    in_review --> discarded: ao discard
+    in_review --> accepted: hilvan accept
+    in_review --> discarded: hilvan discard
     accepted --> [*]
     discarded --> [*]
 ```

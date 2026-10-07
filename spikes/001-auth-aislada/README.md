@@ -20,11 +20,11 @@ Sí, usando `CLAUDE_CONFIG_DIR` / `CODEX_HOME` por perfil. Riesgo: en Windows o 
 
 ## Procedimiento (lo ejecuta el usuario; requiere login interactivo)
 
-1. Crear directorios fuera de `/tmp`, por ejemplo `~/.ao-profiles/claude-corp`, `~/.ao-profiles/claude-personal` y `~/.ao-profiles/codex-personal`.
+1. Crear directorios fuera de `/tmp`, por ejemplo `~/.hilvan-profiles/claude-corp`, `~/.hilvan-profiles/claude-personal` y `~/.hilvan-profiles/codex-personal`.
 2. Hacer login en cada uno con el CLI oficial:
-   - `CLAUDE_CONFIG_DIR=~/.ao-profiles/claude-corp claude`, luego `/login` y salir.
+   - `CLAUDE_CONFIG_DIR=~/.hilvan-profiles/claude-corp claude`, luego `/login` y salir.
    - Repetir con `claude-personal`.
-   - `mkdir -p … && CODEX_HOME=~/.ao-profiles/codex-personal codex login`.
+   - `mkdir -p … && CODEX_HOME=~/.hilvan-profiles/codex-personal codex login`.
 3. Verificar cada perfil con `CLAUDE_CONFIG_DIR=… claude auth status`: `email` y `orgName` deben ser distintos. Con un directorio vacío debe dar `loggedIn: false`.
 4. Ejecutar `claude -p "di OK" --output-format json` en cada perfil y comprobar que `rate_limit_event` muestra ventanas de uso distintas.
 5. Repetir los pasos 1 a 4 en **Windows nativo (PowerShell)** con `$env:CLAUDE_CONFIG_DIR=…`, y desde Windows hacia WSL con `wsl.exe -d <distro> --cd <dir> -- env CLAUDE_CONFIG_DIR=… claude auth status`.

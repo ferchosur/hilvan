@@ -1,12 +1,13 @@
 {
-  "name": "agent-orchestrator",
+  "name": "hilvan",
   "version": "0.0.0",
-  "description": "Coordinate AI coding agents across providers and multiple accounts, with reviewable context handoffs.",
+  "description": "Hilvan stitches AI coding agents and accounts together: per-account identities, policy-checked routing and reviewable context handoffs.",
   "license": "Apache-2.0",
   "type": "module",
   "private": true,
   "bin": {
-    "ao": "dist/cli/index.js"
+    "hilvan": "dist/cli/index.js",
+    "hv": "dist/cli/index.js"
   },
   "files": [
     "dist",
@@ -40,5 +41,14 @@
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vitest": "^5.0.3"
-  }
+  },
+  "keywords": [
+    "ai",
+    "agents",
+    "claude-code",
+    "codex",
+    "orchestrator",
+    "cli",
+    "handoff"
+  ]
 }

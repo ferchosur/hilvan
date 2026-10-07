@@ -1,8 +1,8 @@
-# agent-orchestrator
+# Hilvan
 
-Herramienta para coordinar agentes y cuentas de IA y conservar la continuidad de las tareas mediante contexto y resultados revisables.
+**Hilvan** une agentes de IA y cuentas (Claude Code, Codex…) en un mismo flujo de trabajo: cada cuenta es una identidad aislada, el contexto pasa de un agente a otro en paquetes revisables, y tú decides qué se envía y a quién.
 
-> `agent-orchestrator` y “Orquestador de agentes de IA” son nombres de trabajo; el nombre de producto sigue abierto (D-005).
+> El nombre viene de *hilvanar*: unir piezas con puntadas para que el trabajo continúe. Comando: `hilvan` (alias `hv`).
 
 **Estado:** implementación del MVP (hito M0). Especificación 001 v1.0 `Approved`. Licencia [Apache-2.0](LICENSE).
 
@@ -41,7 +41,7 @@ flowchart LR
 ## Estructura
 
 ```
-agent-orchestrator/
+hilvan/   (carpeta local actual: agent-orchestrator/)
 ├── AGENTS.md            Reglas para agentes de IA (compartidas)
 ├── CLAUDE.md            Entrada de Claude Code (importa AGENTS.md y CONTEXTO.md)
 ├── CONTEXTO.md          Memoria viva: estado, decisiones, próximos pasos
@@ -56,7 +56,7 @@ agent-orchestrator/
 │   ├── research/        Investigación y benchmarking
 │   └── sessions/        Bitácora de sesiones de trabajo
 ├── spikes/              Pruebas de viabilidad desechables
-├── src/                 Código TypeScript (CLI `ao`)
+├── src/                 Código TypeScript (CLI `hilvan`)
 ├── tests/               Tests y fixtures
 └── .claude/             Configuración y skills compartidos de Claude Code
 ```
