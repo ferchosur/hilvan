@@ -167,6 +167,15 @@ describe('usage per profile (FR-016)', () => {
         runs: [
           run({ profileId: 'b', usage: { estimated: true, inputTokens: 5, outputTokens: 1 } }),
         ],
+        reviews: [
+          {
+            id: 'run_01JABCDEFGHJKMNPQRSTVWXYZ1',
+            profileId: 'a',
+            verdict: 'approve',
+            usage: { estimated: true, costUsd: 0.05 },
+            at: '2026-10-07T03:00:00.000Z',
+          },
+        ],
       },
     ] as never;
     const [a, b] = usageByProfile(tasks);
@@ -178,7 +187,8 @@ describe('usage per profile (FR-016)', () => {
       accepted: 1,
       states: { completed: 1, blocked: 1 },
     });
-    expect(a?.costUsd).toBeCloseTo(0.2);
+    expect(a?.costUsd).toBeCloseTo(0.25);
+    expect(a?.reviews).toBe(1);
     expect(a?.lastLimits?.windows[0]?.utilization).toBe(1);
     expect(b).toMatchObject({ profileId: 'b', costRuns: 0, discarded: 1 });
   });
