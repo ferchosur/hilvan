@@ -22,6 +22,8 @@ El producto lanza y controla CLIs de agentes (Claude Code, Codex) en Linux, Wind
 
 Herramientas: npm, tsup (build), Vitest (tests), Biome (lint + formato), zod (validación), commander (CLI), @clack/prompts (interacción), yaml.
 
+> **Nota de implementación (2026-10-06, M0):** el build usa `tsc` (TypeScript 7, compilador nativo) en lugar de tsup, cuya compatibilidad con TS 7 no está garantizada; se añade `cross-spawn` para lanzar de forma segura los *shims* `.cmd` de los CLIs instalados con npm en Windows. No cambia la decisión.
+
 ## Consecuencias
 
 - Positivas: una sola cadena de herramientas; contribuciones accesibles; los mismos tipos sirven al CLI y a la UI web.

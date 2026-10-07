@@ -255,7 +255,7 @@ Una tarea se define con un brief estructurado: objetivo, contexto, criterios de 
 
 Pendientes, no bloqueantes para el MVP:
 
-- **Q-011 — Nombre público:** elegir un nombre único, sin marcas de proveedores, antes de publicar el repositorio.
+- **Q-011 — Nombre público:** elegir un nombre único, sin marcas de proveedores ni de terceros, antes de publicar el repositorio. Propuesta en evaluación: "LOTA" (ver `CONTEXTO.md`).
 - **Q-012 — Monetización:** modelo de sostenibilidad del proyecto open source; se trabajará después del MVP.
 
 ## 12. Historial de revisión
