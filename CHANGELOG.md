@@ -10,6 +10,7 @@ Cambios notables del proyecto. Formato basado en [Keep a Changelog](https://keep
 
 ### Añadido
 
+- **`hilvan stats`:** uso por perfil en el proyecto con solo lo que reportan los CLIs: ejecuciones por estado, coste estimado, tokens, últimos límites, aceptadas y descartadas; incluye la calibración de Criterio. Limitación conocida: el consumo de las revisiones cruzadas aún no se agrega.
 - **Hook de preparación por worktree** (FR-018): `hilvan init --setup "npm ci"` se ejecuta sin shell, con timeout y auditoría, en cada worktree nuevo.
 - **M5 — revisión, revisión cruzada y aceptación:**
   - `hilvan review <tarea>` muestra el diff saneado, el riesgo según Criterio y las rutas sensibles marcadas, y registra el *head* revisado;

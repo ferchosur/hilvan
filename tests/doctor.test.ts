@@ -74,7 +74,8 @@ describe('lazy command loading', () => {
       'handoff',
       'review',
       'accept',
+      'stats',
     ]);
-    expect(selectGroups(['node', 'hilvan'])).toHaveLength(10);
+    expect(selectGroups(['node', 'hilvan'])).toHaveLength(11);
   });
 });
