@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { Command } from 'commander';
 import { profilesFile } from '../config/paths.js';
+import { registerCriterioCommands } from './criterio.js';
 import { defaultDoctorDeps, formatResults, hasFailures, runDoctor } from './doctor.js';
 import { registerProfileCommands } from './profile.js';
 
@@ -26,5 +27,6 @@ program
   });
 
 registerProfileCommands(program);
+registerCriterioCommands(program);
 
 await program.parseAsync();
