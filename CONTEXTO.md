@@ -1,88 +1,70 @@
 # Contexto para continuar el proyecto
 
-Última actualización: 2026-10-06
-Estado: **baseline aprobado (spec 001 v1.0)**. Diseño del MVP aceptado. **M0 terminado.** **M1 verificado en Linux** (`hilvan profile …` con Claude Code y Codex reales); Windows/WSL pendiente del spike 001. Siguiente: **M2** (tareas y ejecución).
+Última actualización: 2026-10-07
+Estado: **MVP en construcción. M0, M1 (Linux), Criterio, M2 y M3 terminados**, con e2e real verificado con Claude Code y Codex. Siguiente: **M4 (traspaso entre perfiles)** y **M5 (revisión y aceptación)**. Hay decisiones del usuario pendientes (ver abajo).
 
-Este documento resume el estado **actual**. Fuentes de verdad:
+Fuentes de verdad:
 
-- Requisitos: [`specs/001-product-requirements.md`](specs/001-product-requirements.md).
-- Decisiones técnicas: [`docs/adr/`](docs/adr/).
+- Requisitos: [`specs/001-product-requirements.md`](specs/001-product-requirements.md) (v1.2).
+- Decisiones: [`docs/adr/`](docs/adr/).
 - Diseño: [`docs/design/`](docs/design/).
+- Seguridad: [`docs/security/`](docs/security/).
 - Plan: [`docs/plans/001-mvp.md`](docs/plans/001-mvp.md).
 - Historia: [`docs/sessions/`](docs/sessions/).
 
-## Objetivo del producto
+## Producto
 
-**Hilvan** (D-025): herramienta open source (Apache-2.0) para coordinar agentes de IA entre proveedores y entre varias cuentas de una misma aplicación, conservando la continuidad de las tareas mediante paquetes de contexto revisables. Cada usuario elige qué aplicaciones conecta y cuántos perfiles configura. **Se posiciona como continuidad y gobierno, nunca como forma de sumar o eludir cuotas.**
+**Hilvan** (D-025): CLI open source (Apache-2.0) para coordinar agentes de IA entre proveedores y entre varias cuentas, con continuidad mediante contexto revisable. Cada cuenta es una identidad aislada; nada cambia de identidad sin el usuario. **Se posiciona como continuidad y gobierno, nunca como forma de sumar o eludir cuotas.** Debe funcionar en casi cualquier PC: ligero, sin modelos locales ni terceros (NFR-013).
 
-Caso de origen del usuario:
+Entornos del usuario:
 
-- **equipo de validación (Windows + WSL):** Claude corporativo (con MCP internos), Claude personal y Codex personal.
-- **Linux personal:** Claude y Codex.
+- **equipo de validación (Windows + WSL):** Claude corporativo, Claude personal y Codex personal.
+- **Este Linux:** Claude y Codex (reutilizando los logins por defecto).
 
-## Decisiones vigentes (resumen; detalle en spec y ADR)
+## Qué funciona hoy (`hilvan …`)
 
-| Tema | Decisión | Ref. |
-|---|---|---|
-| Lenguaje | TypeScript, Node ≥ 22; contrato JSON por stdio para permitir runners en Go en el futuro | D-013, ADR-0002 |
-| Superficie | CLI `hilvan` primero; UI web local en el incremento 2 | D-014, ADR-0003 |
-| SO | Linux, Windows nativo y WSL; macOS "best effort" | D-014 |
-| Agentes | Claude Code y Codex CLI, en proceso no interactivo (`claude -p` stream-json, `codex exec --json`) | D-015, D-016, ADR-0004 |
-| Entornos | Un orquestador con lanzadores `native`, `wsl` y `windows`; `ssh` en el incremento 2 | D-017, ADR-0005 |
-| Identidad | `CLAUDE_CONFIG_DIR` / `CODEX_HOME` por perfil; login con el CLI oficial; Hilvan nunca toca tokens | D-018, ADR-0006 |
-| Persistencia | Archivos: `profiles.yaml` y `policy.yaml` del usuario; `.hilvan/` por proyecto con `events.jsonl` | D-019, ADR-0007 |
-| Aislamiento | Worktree y rama por tarea que escribe; ejecución secuencial en el MVP | D-020, ADR-0008 |
-| Políticas | Clasificaciones configurables; política gestionada `enforced`; aprobación del paquete completo y editable, con hash | D-021–D-023, ADR-0009 |
-| Licencia | Apache-2.0, contribuciones con DCO | D-024, ADR-0010 |
-| Nombre | **Hilvan**; comando `hilvan` (alias `hv`); estado de proyecto en `.hilvan/` | D-025 |
-| Perplexity | Diferido: su API requiere créditos aparte y el usuario no los tiene | D-004 |
-
-Principios que siguen vigentes:
-
-- Elegibilidad antes de recomendar.
-- Ningún cambio silencioso de perfil.
-- Cuotas separadas.
-- Revisión humana antes de aceptar.
-
-## Hallazgos técnicos clave (spike 002, 2026-10-06)
-
-- `claude -p` emite `rate_limit_event` con el porcentaje de uso de las ventanas `five_hour` y `seven_day`: es un dato oficial de cuota por perfil.
-- `claude auth status` (JSON) identifica la cuenta. `codex login status` solo indica si hay sesión.
-- Tras SIGINT, Claude sale con código 0 y `result.is_error=true`: el estado final se decide por los eventos.
-- Hay que cerrar stdin (o enviar el prompt por stdin). `CODEX_HOME` debe existir y no puede estar bajo `/tmp`.
-- **El login por defecto de Claude guarda la cuenta en `~/.claude.json`, fuera de `~/.claude`.** Un perfil que lo reutiliza usa `configDir: null` y Hilvan *elimina* `CLAUDE_CONFIG_DIR`. Fijarla en `~/.claude` hace perder la identidad (descubierto en M1).
-- Términos de Anthropic: se permite que el usuario inicie sesión en el binario oficial sin modificar; está prohibido manejar tokens u ofrecer el login de Claude.ai. No se puede usar "Claude Code" en el nombre del producto.
-
-## Diferenciación (validada en la investigación de 2026-10-06)
-
-Ninguno de los orquestadores revisados (Orcha, vibe-kanban, claude-squad, herdr, codex-plugin-cc, entre otros) modela **varias cuentas del mismo proveedor como identidades con políticas y herramientas propias**. Los foros piden sobre todo continuidad al llegar a un límite, revisión cruzada entre proveedores, consumo visible, worktrees con limpieza automática y buen soporte de Windows. Todo eso está en el MVP (FR-015 a FR-019).
-
-## Estado de los documentos
-
-| Documento | Estado |
+| Comando | Qué hace |
 |---|---|
-| Spec 001 | **1.0 Approved** (etiqueta `spec-001-v1.0`) |
-| ADR-0001 a 0010 | Accepted |
-| Diseño (arquitectura, datos, adaptador, amenazas) | Accepted |
-| Plan 001 MVP (M0–M5) | Accepted |
-| Spike 001 (auth aislada) | In Progress: Linux parcial; **falta Windows/WSL en el equipo de validación** |
-| Spike 002 (invocación sin interfaz) | Done |
+| `doctor` | Comprueba Node, git, claude, codex y WSL, y avisa de permisos laxos en la configuración. |
+| `profile add/list/show/remove/login/check` | Un perfil por cuenta y entorno (`CLAUDE_CONFIG_DIR`/`CODEX_HOME`, o `configDir: null` = login por defecto), login oficial y verificación de la cuenta activa. |
+| `init` | Crea `.hilvan/` en un repositorio git (ignorado por git). |
+| `task new/list/show/log/run/cancel/discard/recommend` | Brief → Criterio sugiere tipo, complejidad y clasificación → ejecución en un worktree `hilvan/<tarea>` → consumo, límites, riesgo del diff y cumplimiento del brief → estados `blocked`/`uncertain` sin reintentos silenciosos. |
+| `policy show/check` | Política en capas (gestionada, usuario, proyecto) con `deny`/`require_approval`; `enforced` solo en la capa gestionada; la aprobación muestra el brief exacto. |
+| `criterio ask/teach/stats/reset` | Motor de decisión local (~30 µs/decisión) que aprende de las correcciones. |
+| `audit verify` | Verifica la cadena de hash de `.hilvan/events.jsonl`. |
 
-## Preguntas abiertas (no bloquean el MVP)
+Calidad: **144 tests**, TypeScript estricto, Biome y CI en Linux y Windows. Arranque de `--version`: 149 ms (antes 298).
 
-- **Q-012 — Monetización:** el usuario quiere tratarlo después del MVP.
-- Spike 001 en Windows: si el CLI guarda credenciales en el almacén del sistema y las comparte entre directorios, los perfiles de Windows tendrían que usar API key u otro usuario del sistema.
+## Decisiones vigentes (detalle en spec y ADR)
+
+TypeScript/Node ≥ 22 (ADR-0002, **en revisión por Q-013**) · CLI primero (0003) · adaptadores de proceso no interactivo (0004) · un orquestador con lanzadores native/wsl/windows (0005) · identidad por directorio de configuración del CLI oficial, sin tocar tokens (0006) · persistencia en archivos (0007) · worktree por tarea y ejecución secuencial (0008) · política en capas y aprobación (0009) · Apache-2.0 (0010) · Criterio (0011) · UI: TUI propia y web mínima (0012, **Proposed**).
+
+## Hallazgos técnicos clave
+
+- `claude -p` reporta el uso de las ventanas `five_hour` y `seven_day` (`rate_limit_event`). `claude auth status --json` identifica la cuenta. `codex login status` solo indica si hay sesión.
+- Claude sale con 0 tras SIGINT, así que el estado se decide por los eventos. Hay que cerrar stdin. `CODEX_HOME` debe existir y estar fuera de `/tmp`.
+- **El login por defecto de Claude guarda la cuenta en `~/.claude.json`.** Reutilizarlo exige *eliminar* `CLAUDE_CONFIG_DIR`, no apuntarla a `~/.claude`.
+- **E2E 2026-10-07:** en una tarea de solo lectura, Codex respondió sin leer el archivo y describió un README inexistente (alucinación). Es evidencia del valor de la revisión cruzada (FR-015, M5). Criterio no puede detectarlo por sí solo.
+- **Spike 003 (rendimiento):** Go arranca en 1 ms y usa 15 MB, frente a ~145 ms y 60–80 MB en Node; además genera un binario sin runtime. Python es lento en CPU y Java pesado.
+- **Spike 004:** web local en vivo con `node:http` + SSE y cero dependencias; 9 de 9 controles de seguridad verificados.
+
+## Decisiones pendientes del usuario
+
+1. **Q-013 — ¿Migrar a Go antes de M4?** Recomendación técnica: sí, por NFR-013 y para facilitar la instalación. El código TypeScript y sus tests servirían de especificación. Requiere instalar Go ≥ 1.23 (aquí hay 1.17).
+2. **ADR-0012 — UI:** aceptar `hilvan watch` (TUI propia) y `hilvan ui` (web local mínima).
+3. **Spike 001 en el equipo de validación:** verificar el aislamiento de cuentas en Windows y WSL (procedimiento en `spikes/001-auth-aislada/`).
+4. **Q-012 — Monetización** (después del MVP).
 
 ## Próximos pasos
 
-1. ~~M0~~ terminado: `npm run check` y `hilvan doctor` funcionan en Linux; la CI cubre Windows.
-2. El usuario ejecuta el **spike 001** en el equipo de validación (procedimiento en `spikes/001-auth-aislada/`).
-3. ~~M1 en Linux~~ hecho. Siguiente, **M2**: `hilvan init`, tareas con brief, ejecución con los adaptadores (stream-json / `exec --json`), worktrees, auditoría, consumo y límites.
-4. M2 a M5 según el [plan](docs/plans/001-mvp.md); después, la release 0.1.0.
+1. Que el usuario decida Q-013 y ADR-0012.
+2. **M4:** `hilvan handoff` con paquete de continuidad (resumen estructurado con `--json-schema`/`--output-schema` más hechos de git), detector de secretos, edición, aprobación y hash.
+3. **M5:** `hilvan review` (diff), `--by` (revisión cruzada de solo lectura), `accept`/`discard`, resultados que alimentan a Criterio.
+4. Catálogo de mensajes es/en, `hilvan watch` y release 0.1.0 (npm con provenance).
 
 ## Referencias
 
-- [Investigación de foros y herramientas (2026-10-06)](docs/research/2026-10-06-foros-y-herramientas.md)
-- [Estado y oportunidades (2026-10-04)](docs/research/estado-y-oportunidades.md): análisis de Orcha, codex-plugin-cc y del patrón Advisor/JEV.
-- [Glosario](docs/glosario.md)
-- Clones locales de referencia: `../orcha` (commit `b647cab`) y `../herdr`.
+- [Investigación de foros y herramientas](docs/research/2026-10-06-foros-y-herramientas.md) · [UI terminal y web](docs/research/2026-10-07-ui-terminal-y-web.md) · [estado y oportunidades](docs/research/estado-y-oportunidades.md)
+- [Análisis de riesgos](docs/security/analisis-de-riesgos.md) · [Requisitos SR](docs/security/requisitos.md) · [Patrones](docs/design/patrones.md)
+- [Glosario](docs/glosario.md) · [Bitácora](docs/sessions/)
+- Clones de referencia: `../orcha` (`b647cab`) y `../herdr`.
