@@ -4,7 +4,7 @@
 
 > *Hilvanar* (Spanish): to tack pieces together with loose stitches so the work can continue.
 
-**Status:** pre-release (MVP milestones M0–M2 done). Apache-2.0. Spanish documentation lives in [`README.md`](README.md) and [`docs/`](docs/).
+**Status:** pre-release — MVP milestones M0–M5 done on Linux (20/22 acceptance criteria verified). Apache-2.0. Spanish documentation lives in [`README.md`](README.md) and [`docs/`](docs/).
 
 ## Why
 
@@ -38,7 +38,7 @@ hilvan task run <id> --profile claude-personal
 
 ## Roadmap
 
-M3 eligibility and layered policy · M4 approved hand-offs between profiles · M5 diff review, accept/discard and cross-review · then a live TUI/web dashboard, SSH destinations and parallel runs. See [docs/plans/001-mvp.md](docs/plans/001-mvp.md).
+Done: eligibility and layered policy (M3), approved hand-offs between profiles (M4), diff review, accept/discard and cross-review (M5). Next: Windows/WSL validation, a live TUI/web dashboard, SSH destinations and parallel runs. See [docs/plans/001-mvp.md](docs/plans/001-mvp.md).
 
 ## Contributing
 
