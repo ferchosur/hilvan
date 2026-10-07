@@ -15,7 +15,7 @@
 | AC-007 | Ante un límite se pide decisión, sin cambio silencioso de perfil | ✔ | `tasks.test.ts` (*blocks on a usage limit and refuses to switch…*) |
 | AC-008 | El historial muestra perfil, contexto aprobado y resultado | ✔ | `task show`, auditoría con cadena de hash (`security.test.ts`, `tasks.test.ts`) |
 | AC-009 | Investigación con Perplexity y fuentes | ⏸ diferido | D-004 (sin créditos de API) |
-| AC-010 | Revisar los cambios antes de aceptarlos | ✔ | `review.test.ts` (*requires the current diff to be reviewed…*) |
+| AC-010 | Revisar los cambios antes de aceptarlos | ✔ | `review.test.ts` (*requires the current diff to be reviewed…*); e2e real: tarea de escritura con Claude → `review` → `accept` |
 | AC-011 | Cero, uno o varios perfiles por aplicación sin nombres fijos | ✔ | `profiles.test.ts`, `domain.test.ts` |
 | AC-012 | Perfil sin autorización o sin herramienta: excluido con motivo | ✔ | `policy.test.ts`; `hilvan task recommend` real |
 | AC-013 | Recomendación explicada y confirmación antes de reasignar | ✔ | `policy.test.ts` (*ranks only eligible…*); `criterio.test.ts` (ranking) |
@@ -26,7 +26,7 @@
 | AC-018 | Revisión de solo lectura por un segundo perfil, adjunta a la tarea | ✔ | `review.test.ts`; e2e real: Claude rechazó la respuesta alucinada de Codex |
 | AC-019 | Coste/tokens "estimados" o "no disponibles" por ejecución | ✔ | `tasks.test.ts` (uso y límites); e2e real (Claude con coste, Codex solo tokens) |
 | AC-020 | Proceso interrumpido → `uncertain`, sin reintento | ✔ | `adapters-run.test.ts` (*crash*), `tasks.test.ts` (*recovery*) |
-| AC-021 | Worktree propio; aceptar fusiona y limpia | ✔ | `tasks.test.ts`, `review.test.ts` (*accepting merges…*) |
+| AC-021 | Worktree propio; aceptar fusiona y limpia | ✔ | `tasks.test.ts`, `review.test.ts`; e2e real: `HELLO.md` creado por Claude en `hilvan/<tarea>`, fusionado con `--no-ff`, worktree eliminado |
 | AC-022 | Criterio sin red, menos de 5 ms y que aprende de correcciones | ✔ | `criterio.test.ts` (rendimiento y aprendizaje) |
 
 **Resultado:** 20 de 22 verificados, 1 parcial (AC-015, pendiente de Windows) y 1 diferido (AC-009).

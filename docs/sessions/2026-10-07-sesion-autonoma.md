@@ -51,6 +51,13 @@ Implementar todo lo posible con Hilvan ligero y sin terceros. Ampliar la investi
 
 **E2E real destacado:** Claude, como revisor cruzado, detectó y rechazó la respuesta alucinada de Codex.
 
+14. **`hilvan stats`**, que incluye el consumo de las revisiones cruzadas.
+15. **E2E real de escritura completo:** Claude crea `HELLO.md` en el worktree → commit en `hilvan/<tarea>` → `review` (riesgo 2.3/10) → `accept` fusiona en `main` y limpia. La ventana de 5 h de la cuenta pasó del 27 % al 55 % durante la sesión (incluye el trabajo de este agente).
+
+## Incidencia de proceso
+
+Se fusionó un commit (`fix/review-usage`) con un test fallando, porque el resultado de `npm run check` se filtraba con `grep` y la tubería ocultaba el código de error. Se corrigió en `fix/stats-test` (era la expectativa del test: la revisión con coste cuenta como ejecución con coste). Desde entonces, cada fusión exige `rc=0` de `npm run check`.
+
 ## Siguiente paso
 
 Decisiones del usuario: Q-013 (Go) y ADR-0012 (UI). Validación en Windows/WSL (spike 001).
