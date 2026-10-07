@@ -39,6 +39,7 @@ export function registerStatsCommand(program: Command): void {
           }
           if (u.accepted + u.discarded)
             console.log(`   outcomes: ${u.accepted} accepted, ${u.discarded} discarded`);
+          if (u.reviews) console.log(`   cross reviews performed: ${u.reviews}`);
         }
         console.log(
           `criterio: ${crit.examples.taskType} type examples · brier ${crit.brier === null ? 'n/a' : crit.brier.toFixed(3)}`,
