@@ -64,3 +64,20 @@ export function runCommand(
     child.on('close', (code) => finish({ code, stdout, stderr }));
   });
 }
+
+/** Runs a command attached to the user's terminal (interactive login) and returns its exit code. */
+export function runInteractive(
+  command: string,
+  args: readonly string[],
+  opts: Omit<RunOptions, 'timeoutMs'> = {},
+): Promise<number | null> {
+  return new Promise((resolve) => {
+    const child = spawn(command, [...args], {
+      env: opts.env ?? process.env,
+      cwd: opts.cwd,
+      stdio: 'inherit',
+    });
+    child.on('error', () => resolve(null));
+    child.on('close', (code) => resolve(code));
+  });
+}

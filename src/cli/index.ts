@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { Command } from 'commander';
 import { profilesFile } from '../config/paths.js';
 import { defaultDoctorDeps, formatResults, hasFailures, runDoctor } from './doctor.js';
+import { registerProfileCommands } from './profile.js';
 
 // Same relative location from src/cli (tsx) and dist/cli (build).
 const pkg = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')) as {
@@ -23,5 +24,7 @@ program
     console.log(opts.json ? JSON.stringify(results, null, 2) : formatResults(results));
     if (hasFailures(results)) process.exitCode = 1;
   });
+
+registerProfileCommands(program);
 
 await program.parseAsync();

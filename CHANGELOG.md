@@ -10,6 +10,7 @@ Cambios notables del proyecto. Formato basado en [Keep a Changelog](https://keep
 
 ### Añadido
 
+- **M1 — perfiles y destinos (Linux verificado):** `hilvan profile add|list|show|remove|login|check`; adaptadores claude-code y codex (aislamiento de entorno, login oficial, estado de autenticación); lanzadores `native`, `wsl` y `windows` (estos dos con tests unitarios, pendientes de verificar en Windows); `profiles.yaml` con escritura atómica (0600/0700); detección de directorios compartidos, de cuentas repetidas entre perfiles y de claves de API heredadas.
 - **M0 — esqueleto del CLI `hilvan`:** proyecto TypeScript (Node ≥ 22.12, ESM), Biome, Vitest, build con `tsc`, CI en Ubuntu y Windows con Node 22 y 24; esquemas zod de perfil, destino, tarea y máquina de estados; rutas de configuración por SO; carga validada de `profiles.yaml`; comando `hilvan doctor`.
 - **Especificación 001 v1.0 aprobada** (baseline): resuelve Q-001–Q-010 (D-013–D-024); FR-015–FR-019 (revisión cruzada, consumo visible, estados bloqueado/incierto, worktree por tarea, brief); NFR-010–NFR-012; AC-018–AC-021; R-006–R-008.
 - ADR-0002 a ADR-0010: stack, superficie, adaptadores, lanzadores, identidad, persistencia, worktrees, políticas y licencia.

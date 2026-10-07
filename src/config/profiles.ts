@@ -1,5 +1,6 @@
-import { readFile } from 'node:fs/promises';
-import { parse } from 'yaml';
+import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { parse, stringify } from 'yaml';
 import { z } from 'zod';
 import { type ProfilesFile, ProfilesFileSchema } from '../domain/index.js';
 
@@ -36,4 +37,14 @@ export async function loadProfiles(file: string): Promise<ProfilesFile> {
     throw err;
   }
   return parseProfiles(text, file);
+}
+
+/** Writes `profiles.yaml` atomically; the config directory is private to the user. */
+export async function saveProfiles(file: string, data: ProfilesFile): Promise<void> {
+  const valid = ProfilesFileSchema.parse(data);
+  await mkdir(path.dirname(file), { recursive: true, mode: 0o700 });
+  const tmp = `${file}.${process.pid}.tmp`;
+  const header = '# Hilvan profiles — managed with `hilvan profile`. Never put secrets here.\n';
+  await writeFile(tmp, header + stringify(valid), { mode: 0o600 });
+  await rename(tmp, file);
 }

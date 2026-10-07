@@ -1,7 +1,7 @@
 # Contexto para continuar el proyecto
 
 Última actualización: 2026-10-06
-Estado: **baseline aprobado (spec 001 v1.0)**. Diseño del MVP aceptado. Hito **M0 terminado** (esqueleto, `hilvan doctor`). Siguiente: **M1** (perfiles y destinos).
+Estado: **baseline aprobado (spec 001 v1.0)**. Diseño del MVP aceptado. **M0 terminado.** **M1 verificado en Linux** (`hilvan profile …` con Claude Code y Codex reales); Windows/WSL pendiente del spike 001. Siguiente: **M2** (tareas y ejecución).
 
 Este documento resume el estado **actual**. Fuentes de verdad:
 
@@ -50,6 +50,7 @@ Principios que siguen vigentes:
 - `claude auth status` (JSON) identifica la cuenta. `codex login status` solo indica si hay sesión.
 - Tras SIGINT, Claude sale con código 0 y `result.is_error=true`: el estado final se decide por los eventos.
 - Hay que cerrar stdin (o enviar el prompt por stdin). `CODEX_HOME` debe existir y no puede estar bajo `/tmp`.
+- **El login por defecto de Claude guarda la cuenta en `~/.claude.json`, fuera de `~/.claude`.** Un perfil que lo reutiliza usa `configDir: null` y Hilvan *elimina* `CLAUDE_CONFIG_DIR`. Fijarla en `~/.claude` hace perder la identidad (descubierto en M1).
 - Términos de Anthropic: se permite que el usuario inicie sesión en el binario oficial sin modificar; está prohibido manejar tokens u ofrecer el login de Claude.ai. No se puede usar "Claude Code" en el nombre del producto.
 
 ## Diferenciación (validada en la investigación de 2026-10-06)
@@ -76,7 +77,7 @@ Ninguno de los orquestadores revisados (Orcha, vibe-kanban, claude-squad, herdr,
 
 1. ~~M0~~ terminado: `npm run check` y `hilvan doctor` funcionan en Linux; la CI cubre Windows.
 2. El usuario ejecuta el **spike 001** en el equipo de validación (procedimiento en `spikes/001-auth-aislada/`).
-3. **M1:** perfiles, destinos y `profile check`.
+3. ~~M1 en Linux~~ hecho. Siguiente, **M2**: `hilvan init`, tareas con brief, ejecución con los adaptadores (stream-json / `exec --json`), worktrees, auditoría, consumo y límites.
 4. M2 a M5 según el [plan](docs/plans/001-mvp.md); después, la release 0.1.0.
 
 ## Referencias
