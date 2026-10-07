@@ -72,7 +72,18 @@ Plantilla de mensaje: `git config commit.template .gitmessage` (ya configurado a
 - `spec-NNN-vX.Y`: especificación aprobada.
 - `vX.Y.Z`: versiones del producto ([SemVer](https://semver.org/lang/es/)), cuando exista código.
 
-## 4. Seguridad
+### Certificado de origen (DCO)
+
+Las contribuciones se aceptan bajo Apache-2.0 y con [Developer Certificate of Origin](https://developercertificate.org/): firme cada commit con `git commit -s` (`Signed-off-by:`).
+
+## 4. Código
+
+- Requisitos: Node.js ≥ 22 y git.
+- `npm ci` para instalar dependencias. `npm run check` ejecuta lint, typecheck y tests, y debe pasar antes de cada commit.
+- `npm run dev -- <args>` ejecuta el CLI desde el código fuente; `npm run build` genera `dist/`.
+- Cada cambio de comportamiento va acompañado de tests. Los parsers de los adaptadores se prueban con fixtures reales (`tests/fixtures/`).
+
+## 5. Seguridad
 
 - Nunca versionar credenciales, tokens, cookies, `.env` ni directorios de perfil/autenticación de proveedores.
 - En spikes, use rutas de ejemplo y variables de entorno; documente *cómo* se aisló la autenticación, no los valores.

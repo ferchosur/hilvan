@@ -6,11 +6,11 @@ Instrucciones comunes para cualquier agente de IA (Claude Code, Codex u otros) q
 
 Herramienta para coordinar agentes y cuentas de IA y conservar la continuidad de las tareas mediante contexto y resultados revisables. Nombre de trabajo: `agent-orchestrator` (nombre de producto pendiente).
 
-**Fase actual: definición (SDD — requisitos).** No hay arquitectura aprobada ni implementación. La especificación 001 v0.3 está en `Draft`.
+**Fase actual: implementación del MVP.** La especificación 001 v1.0 está `Approved`, el diseño está en `docs/design/` y el plan en `docs/plans/001-mvp.md` (hitos M0–M5).
 
 ## Reglas obligatorias
 
-1. **No implementar sin baseline aprobado.** No crear código de producto (`src/`, paquetes, dependencias) mientras la especificación correspondiente no esté en estado `Approved`. Los spikes van en `spikes/` y son desechables.
+1. **Implementar solo lo aprobado.** El código de producto (`src/`, `tests/`) debe corresponder al alcance de una spec `Approved` y a un hito del plan. Lo que esté fuera de alcance requiere antes un cambio de spec o un ADR. Los spikes van en `spikes/` y son desechables.
 2. **La especificación es la fuente de verdad.** Si una conversación contradice `specs/`, señalarlo y proponer el cambio en la especificación; no lo resuelva de forma implícita.
 3. **No inventar decisiones.** Las preguntas abiertas (`Q-xxx`) se resuelven con la persona. Registre la respuesta como decisión (`D-xxx`) en la especificación o como ADR si es de arquitectura.
 4. **Distinguir hechos de supuestos.** No afirme capacidades, límites ni términos de proveedores sin fuente verificable y fecha de consulta.
@@ -24,12 +24,14 @@ Herramienta para coordinar agentes y cuentas de IA y conservar la continuidad de
 | `CONTEXTO.md` | **Memoria viva**: estado actual, decisiones, preguntas críticas y próximos pasos. Léalo primero. |
 | `specs/` | Especificaciones SDD numeradas (`NNN-nombre.md`). Fuente de verdad de requisitos. |
 | `docs/adr/` | Registros de decisiones de arquitectura (ADR), inmutables una vez aceptados. |
-| `docs/design/` | Diseño técnico (bloqueado hasta aprobar requisitos). |
+| `docs/design/` | Diseño técnico del MVP: arquitectura, modelo de datos, contrato de adaptador, amenazas. |
 | `docs/plans/` | Planes de implementación derivados del diseño aprobado. |
 | `docs/research/` | Análisis, benchmarking e informes de descubrimiento. |
 | `docs/sessions/` | Bitácora por sesión (append-only): qué se hizo, qué se decidió, qué sigue. |
 | `docs/glosario.md` | Terminología del dominio. Use estos términos de forma consistente. |
 | `spikes/` | Pruebas de viabilidad desechables, cada una con informe de resultados. |
+| `src/` | Código TypeScript por módulos (ver `docs/design/arquitectura.md`): `domain`, `config`, `store`, `launchers`, `adapters`, `policy`, `handoff`, `gitops`, `core`, `cli`. |
+| `tests/` | Tests de Vitest; `tests/fixtures/` contiene eventos reales de los CLIs. |
 | `CHANGELOG.md` | Cambios notables por versión de documentos y, más adelante, del producto. |
 
 ## Flujo de sesión
@@ -45,4 +47,5 @@ Herramienta para coordinar agentes y cuentas de IA y conservar la continuidad de
 - **Ramas:** `main` siempre coherente. Trabajo en `spec/NNN-…`, `adr/NNNN-…`, `spike/NNN-…`, `feat/…`.
 - **Versiones de especificación:** semver documental (`0.x` = Draft; `1.0` = baseline aprobado). Cada cambio de versión se refleja en el encabezado de la spec y en `CHANGELOG.md`.
 - **Identificadores estables:** `D-` decisión, `Q-` pregunta, `FR-` requisito funcional, `NFR-` no funcional, `AC-` criterio de aceptación, `R-` riesgo, `A-` supuesto. No reutilizar ni renumerar; marcar como `Obsoleto` si se retira.
+- **Código:** TypeScript `strict`, ESM, sin `any` implícito. `domain/` no hace E/S. Procesos con `spawn` y array de args (`shell:false`). Antes de hacer commit: `npm run check` (lint, typecheck y test).
 - **Fechas:** ISO 8601 (`2026-10-06`). Nunca fechas relativas ("ayer", "la semana pasada").
