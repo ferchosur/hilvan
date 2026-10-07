@@ -10,6 +10,12 @@ Cambios notables del proyecto. Formato basado en [Keep a Changelog](https://keep
 
 ### Añadido
 
+- **M4 — traspaso entre perfiles:**
+  - `hilvan handoff <tarea> --to <perfil> [--edit] [--approve] [--print]`;
+  - el paquete de continuidad se arma con lo que Hilvan observó: estado, ejecuciones, commits y archivos de la rama, y las afirmaciones del agente anterior **marcadas como no verificadas**. Funciona aunque el perfil de origen esté bloqueado por límite;
+  - secretos redactados, edición en `$EDITOR`, aprobación explícita, y se guarda y audita exactamente lo aprobado (sha256);
+  - la política (incluidas las reglas obligatorias) se evalúa entre el perfil de origen y el de destino;
+  - el nuevo perfil recibe el paquete en su prompt y nunca reanuda la sesión de otra identidad.
 - **M3 — elegibilidad, política y recomendación:**
   - política en capas: gestionada, de usuario y de proyecto;
   - reglas `deny` y `require_approval` con selectores por clasificación, perfil, etiqueta y aplicación;

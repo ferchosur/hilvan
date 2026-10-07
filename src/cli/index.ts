@@ -20,6 +20,7 @@ const GROUPS: Record<string, () => Promise<Register>> = {
   policy: async () => (await import('./policy.js')).registerPolicyCommands,
   init: async () => (await import('./task.js')).registerInitCommand,
   task: async () => (await import('./task.js')).registerTaskCommands,
+  handoff: async () => (await import('./handoff.js')).registerHandoffCommand,
 };
 
 export function selectGroups(argv: readonly string[]): string[] {
