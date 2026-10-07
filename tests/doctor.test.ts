@@ -68,9 +68,10 @@ describe('lazy command loading', () => {
       'profile',
       'criterio',
       'audit',
+      'policy',
       'init',
       'task',
     ]);
-    expect(selectGroups(['node', 'hilvan'])).toHaveLength(6);
+    expect(selectGroups(['node', 'hilvan'])).toHaveLength(7);
   });
 });

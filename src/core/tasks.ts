@@ -11,6 +11,7 @@ import {
   type Task,
   type TaskState,
 } from '../domain/index.js';
+import type { EffectivePolicy } from '../domain/policy.js';
 import {
   commitWorktree,
   createWorktree,
@@ -20,6 +21,7 @@ import {
   removeWorktree,
 } from '../gitops/index.js';
 import { buildInvocation, type HostContext } from '../launchers/index.js';
+import { type Evaluation, evaluate, mergePolicies } from '../policy/evaluate.js';
 import { redactSecrets } from '../security/secrets.js';
 import { type ProjectStore, processAlive } from '../store/project.js';
 
@@ -141,6 +143,13 @@ export function buildPrompt(task: Task, brief: string, cwd: string): string {
 
 export interface RunDeps {
   host: HostContext;
+  /** Effective layered policy (M3). Defaults to built-in classifications and no rules. */
+  policy?: EffectivePolicy;
+  /**
+   * Called when a rule requires explicit approval (FR-004). Receives the exact brief that
+   * will be sent. Without an approver, such runs are refused.
+   */
+  approve?: (evaluation: Evaluation, brief: string) => Promise<boolean>;
   git?: Git;
   criterio?: Criterio;
   runOptions?: RunOptions;
@@ -189,15 +198,35 @@ export async function runTask(
       `task ran with ${task.profileId}; continuing with ${profile.id} needs a handoff (M4)`,
     );
   }
-  const denied = eligibility(task, profile);
-  if (denied.length) {
+  const policy = deps.policy ?? mergePolicies({});
+  const evaluation = evaluate(policy, task, profile);
+  await store.audit({
+    type: 'policy.evaluated',
+    taskId,
+    profileId: profile.id,
+    data: {
+      eligible: evaluation.eligible,
+      requiresApproval: evaluation.requiresApproval,
+      exclusions: evaluation.exclusions.map((e) => e.source),
+    },
+  });
+  if (!evaluation.eligible) {
+    const enforced = evaluation.exclusions.some((e) => e.enforced);
+    throw new TaskError(
+      `profile ${profile.id} is not eligible: ${evaluation.exclusions.map((e) => e.reason).join('; ')}` +
+        (enforced ? ' (enforced by the managed policy; cannot be approved)' : ''),
+    );
+  }
+  if (evaluation.requiresApproval) {
+    const brief = await store.brief(taskId);
+    const ok = deps.approve ? await deps.approve(evaluation, brief) : false;
     await store.audit({
-      type: 'policy.denied',
+      type: ok ? 'approval.granted' : 'approval.denied',
       taskId,
       profileId: profile.id,
-      data: { reasons: denied },
+      data: { rules: evaluation.approvals.map((a) => a.ruleId) },
     });
-    throw new TaskError(denied.join('; '));
+    if (!ok) throw new TaskError('approval required and not granted; nothing was sent');
   }
 
   const runId = newRunId();
