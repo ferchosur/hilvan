@@ -7,7 +7,7 @@
 | SR | Requisito | Amenazas | Estado | Dónde / prueba |
 |---|---|---|---|---|
 | SR-001 | Toda salida de origen externo (agente, repositorio, rutas, títulos) se sanea antes de imprimirla: se eliminan CSI/OSC/DCS/APC, controles C0/C1 (salvo `\n` y `\t`) y caracteres bidi o de ancho cero. | T01, T02 | ✔ | `src/security/sanitize.ts` · `tests/security.test.ts` |
-| SR-002 | Los nombres de archivo y rama mostrados en aprobaciones y diffs pasan por SR-001 y por un marcado visible de caracteres no ASCII sospechosos. | T02 | ◐ (saneado; marcado en M5) | `sanitize.ts` |
+| SR-002 | Los nombres de archivo y rama mostrados en aprobaciones y diffs pasan por SR-001 y por un marcado visible de caracteres no ASCII sospechosos. | T02 | ◐ (saneado ✔; las rutas sensibles se marcan con ⚠ en `hilvan review`) | `sanitize.ts` |
 | SR-003 | Los procesos se lanzan con `spawn` y un array de argumentos, sin shell. El prompt viaja por stdin y nunca como argumento. Los valores controlados por el usuario que se pasan a git van tras `--` o validados. | T03, T18 | ✔ | `src/process/run.ts`, `src/adapters/runner.ts`, `src/gitops/` · tests |
 | SR-004 | En Windows, los `.cmd` se lanzan con escapado seguro (cross-spawn) y se rechazan argumentos con saltos de línea o caracteres nulos. | T04 | ✔ | `src/security/args.ts` · tests |
 | SR-005 | `hilvan doctor` avisa si `profiles.yaml` o `policy.yaml` son escribibles por el grupo u otros, o no pertenecen al usuario. | T05 | ✔ | `src/cli/doctor.ts` |
@@ -29,7 +29,7 @@
 | SR-021 | El modelo de Criterio se valida al cargar (esquema, tamaños, valores finitos) y sus pesos tienen un tope (±4). Ninguna decisión de Criterio puede ejecutar por sí sola acciones sensibles. Existe `hilvan criterio reset`. | T16 | ✔ | `src/config/criterio-store.ts`, `thresholds.ts` · tests |
 | SR-022 | Criterio no almacena texto: solo pesos por hash de señales. | T17 | ✔ | `features.ts` · test de persistencia |
 | SR-023 | Los nombres de rama y rutas de worktree se generan a partir de ids validados (`hilvan/tsk_<ulid>`) y nunca a partir de texto libre. | T18 | ✔ | `src/gitops/` (`hilvan/tsk_<ulid>`) · tests |
-| SR-024 | Aceptar una tarea exige que se haya mostrado su diff. Si Criterio estima un riesgo ≥ 7.5, se recomienda revisión cruzada antes de aceptar. | T19 | ☐ M5 | — |
+| SR-024 | Aceptar una tarea exige que se haya mostrado su diff. Si Criterio estima un riesgo ≥ 7.5, se recomienda revisión cruzada antes de aceptar. | T19 | ✔ | `src/core/review.ts` (`reviewedHead`, aviso de revisión cruzada si el riesgo ≥ 7.5) · tests |
 | SR-025 | Cada ejecución tiene un tiempo máximo configurable y una cancelación con escalado (SIGINT y luego SIGTERM). Los límites, la autenticación y la facturación detienen la tarea en `blocked`. | T20 | ✔ | `--timeout`, cancelación SIGINT→SIGTERM→SIGKILL, `blocked` · tests |
 | SR-026 | Las dependencias de ejecución son mínimas (hoy 5) y se revisan antes de añadir otras. `npm ci --ignore-scripts` en la CI, lockfile versionado, `npm audit` sin vulnerabilidades altas (0 el 2026-10-07) y verificación de firmas del registro (solo aviso: npm < 10 rechaza claves rotadas en 2025). | T21 | ✔ | `.github/workflows/ci.yml` |
 | SR-027 | Dependabot activo para npm y GitHub Actions. | T21, T22 | ✔ | `.github/dependabot.yml` |

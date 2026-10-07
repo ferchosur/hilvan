@@ -113,6 +113,19 @@ export const TaskSchema = z.object({
   worktree: z.string().nullable().default(null),
   runs: z.array(RunSummarySchema).default([]),
   handoffs: z.array(z.string().regex(/^ho_[0-9A-Z]{26}$/)).default([]),
+  /** Cross reviews attached to the task (FR-015). */
+  reviews: z
+    .array(
+      z.object({
+        id: z.string().regex(/^run_[0-9A-Z]{26}$/),
+        profileId: IdSchema,
+        verdict: z.enum(['approve', 'changes_requested', 'unknown']),
+        at: z.iso.datetime(),
+      }),
+    )
+    .default([]),
+  /** Branch head whose diff the user reviewed; accepting requires it to be current (SR-024). */
+  reviewedHead: z.string().nullable().default(null),
   /** Profiles the user already approved to receive this task's brief (run approval or hand-off). */
   approvedProfiles: z.array(IdSchema).default([]),
   createdAt: z.iso.datetime(),
