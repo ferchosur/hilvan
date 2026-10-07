@@ -120,6 +120,7 @@ export const TaskSchema = z.object({
         id: z.string().regex(/^run_[0-9A-Z]{26}$/),
         profileId: IdSchema,
         verdict: z.enum(['approve', 'changes_requested', 'unknown']),
+        usage: UsageSchema.optional(),
         at: z.iso.datetime(),
       }),
     )
