@@ -20,6 +20,8 @@ Si trabaja con un agente de IA, las reglas están en [AGENTS.md](AGENTS.md) (Cla
 
 ```bash
 npm ci && npm run build && npm link     # instala los comandos `hilvan` y `hv`
+# sin sudo (si el prefijo global de npm es del sistema):
+#   chmod +x dist/cli/main.js && ln -sf "$PWD/dist/cli/main.js" ~/.local/bin/hilvan && ln -sf "$PWD/dist/cli/main.js" ~/.local/bin/hv
 hilvan doctor                           # comprueba Node, git, Claude Code, Codex y WSL
 
 # Un perfil por cuenta y entorno
