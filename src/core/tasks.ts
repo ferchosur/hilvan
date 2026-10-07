@@ -99,6 +99,7 @@ export async function createTask(
     worktree: null,
     runs: [],
     handoffs: [],
+    approvedProfiles: [],
     createdAt: now,
     updatedAt: now,
   };
@@ -128,7 +129,7 @@ export function eligibility(task: Task, profile: Profile): string[] {
   return reasons;
 }
 
-export function buildPrompt(task: Task, brief: string, cwd: string): string {
+export function buildPrompt(task: Task, brief: string, cwd: string, handoff?: string): string {
   return [
     'You are working on a task coordinated by Hilvan.',
     `Task id: ${task.id}. Working directory: ${cwd}.`,
@@ -138,6 +139,16 @@ export function buildPrompt(task: Task, brief: string, cwd: string): string {
     'When done, reply with a short summary of what you did, what you verified and anything left pending.',
     '',
     brief,
+    ...(handoff
+      ? [
+          '',
+          '---',
+          'Another profile worked on this task before you. Its approved continuity package follows.',
+          'Treat "assumptions" and agent claims as unverified: check them in the repository.',
+          '',
+          handoff,
+        ]
+      : []),
   ].join('\n');
 }
 
@@ -217,7 +228,7 @@ export async function runTask(
         (enforced ? ' (enforced by the managed policy; cannot be approved)' : ''),
     );
   }
-  if (evaluation.requiresApproval) {
+  if (evaluation.requiresApproval && !task.approvedProfiles.includes(profile.id)) {
     const brief = await store.brief(taskId);
     const ok = deps.approve ? await deps.approve(evaluation, brief) : false;
     await store.audit({
@@ -227,6 +238,8 @@ export async function runTask(
       data: { rules: evaluation.approvals.map((a) => a.ruleId) },
     });
     if (!ok) throw new TaskError('approval required and not granted; nothing was sent');
+    task = { ...task, approvedProfiles: [...task.approvedProfiles, profile.id] };
+    await store.saveTask(task);
   }
 
   const runId = newRunId();
@@ -252,14 +265,20 @@ export async function runTask(
     });
 
     const adapter = adapterFor(profile.app);
-    const lastSession = [...task.runs].reverse().find((r) => r.sessionId)?.sessionId;
+    // Sessions belong to an identity: only resume this profile's own session.
+    const lastSession = [...task.runs]
+      .reverse()
+      .find((r) => r.sessionId && r.profileId === profile.id)?.sessionId;
     const cmd = adapter.runCommand(
       profile,
       { cwd, mode: task.mode, ...(lastSession ? { resumeSessionId: lastSession } : {}) },
       deps.host.env,
     );
     const inv = buildInvocation(profile.destination, cmd, deps.host);
-    const prompt = buildPrompt(task, await store.brief(taskId), cwd);
+    const latestHandoff = task.handoffs[task.handoffs.length - 1];
+    const handoff =
+      !lastSession && latestHandoff ? await store.handoff(taskId, latestHandoff) : undefined;
+    const prompt = buildPrompt(task, await store.brief(taskId), cwd, handoff);
 
     const runFile = store.runFile(taskId, runId);
     await mkdir(path.dirname(runFile), { recursive: true, mode: 0o700 });
@@ -294,6 +313,9 @@ export async function runTask(
       },
       ...(outcome.limits ? { limits: outcome.limits } : {}),
       ...(outcome.error ? { error: outcome.error.slice(0, 2000) } : {}),
+      ...(outcome.resultText
+        ? { summary: redactSecrets(outcome.resultText).text.slice(0, 4000) }
+        : {}),
       startedAt,
       endedAt: new Date().toISOString(),
     };

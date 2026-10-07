@@ -89,6 +89,8 @@ export const RunSummarySchema = z.object({
   /** Criterio estimate that the run met the brief. */
   meetsCriteria: z.number().min(0).max(1).optional(),
   error: z.string().max(2000).optional(),
+  /** Agent's final summary, secrets redacted, truncated. An unverified claim. */
+  summary: z.string().max(4000).optional(),
   startedAt: z.iso.datetime(),
   endedAt: z.iso.datetime().optional(),
 });
@@ -110,7 +112,9 @@ export const TaskSchema = z.object({
   branch: z.string().nullable().default(null),
   worktree: z.string().nullable().default(null),
   runs: z.array(RunSummarySchema).default([]),
-  handoffs: z.array(z.string()).default([]),
+  handoffs: z.array(z.string().regex(/^ho_[0-9A-Z]{26}$/)).default([]),
+  /** Profiles the user already approved to receive this task's brief (run approval or hand-off). */
+  approvedProfiles: z.array(IdSchema).default([]),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
 });
