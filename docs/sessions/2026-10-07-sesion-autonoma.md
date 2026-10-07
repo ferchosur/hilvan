@@ -41,6 +41,16 @@ Implementar todo lo posible con Hilvan ligero y sin terceros. Ampliar la investi
 - Nuevas: Q-013 (Go) y ADR-0012 (UI, Proposed).
 - Siguen abiertas: Q-012 y el spike 001 en Windows.
 
+## Continuación — M4, M5 y cierre del MVP
+
+9. **Panorama 2026** de orquestadores y gestores de cuentas: CCS, el más cercano en cuentas, usa un proxy local de OAuth (riesgo de términos de uso) y no tiene gobierno de datos. ComposioHQ usa el nombre "agent-orchestrator".
+10. **M4:** `hilvan handoff` con paquete mecánico (funciona aunque el origen esté bloqueado), afirmaciones del agente marcadas como no verificadas, secretos redactados, edición, aprobación, sha256 y política origen → destino.
+11. **M5:** `hilvan review` (diff, riesgo y rutas sensibles), `--by` (revisión cruzada) y `accept` (exige el diff revisado, checkout limpio y rama base). Criterio aprende de aceptar y descartar.
+12. **FR-018:** hook de preparación por worktree.
+13. **Matriz de verificación:** 20 de 22 AC verificados.
+
+**E2E real destacado:** Claude, como revisor cruzado, detectó y rechazó la respuesta alucinada de Codex.
+
 ## Siguiente paso
 
-Decisión del usuario sobre Q-013 y ADR-0012; después, M4 (traspaso).
+Decisiones del usuario: Q-013 (Go) y ADR-0012 (UI). Validación en Windows/WSL (spike 001).
