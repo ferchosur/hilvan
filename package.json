@@ -6,8 +6,8 @@
   "type": "module",
   "private": true,
   "bin": {
-    "hilvan": "dist/cli/index.js",
-    "hv": "dist/cli/index.js"
+    "hilvan": "dist/cli/main.js",
+    "hv": "dist/cli/main.js"
   },
   "files": [
     "dist",
@@ -19,7 +19,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "dev": "tsx src/cli/index.ts",
+    "dev": "tsx src/cli/main.ts",
     "lint": "biome check .",
     "format": "biome check --write .",
     "typecheck": "tsc -p tsconfig.json",
