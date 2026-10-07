@@ -10,6 +10,18 @@ Cambios notables del proyecto. Formato basado en [Keep a Changelog](https://keep
 
 ### Añadido
 
+- **Seguridad:**
+  - [análisis de riesgos](docs/security/analisis-de-riesgos.md): 25 amenazas STRIDE con matriz de riesgo;
+  - [requisitos SR-001…SR-031](docs/security/requisitos.md) trazados a pruebas;
+  - saneado de secuencias ANSI, OSC, bidi y de ancho cero en la salida a terminal;
+  - detector y redactor de secretos;
+  - lectura y escritura seguras (sin symlinks, `O_NOFOLLOW`, `O_EXCL`, 0600/0700, límites de tamaño);
+  - límites en YAML (alias, claves únicas, tamaño) y en flujos JSONL;
+  - argumentos sin saltos de línea ni bytes NUL;
+  - auditoría con cadena de hash y `hilvan audit verify`;
+  - `doctor` avisa de permisos laxos;
+  - CI con acciones fijadas por SHA, permisos mínimos, `--ignore-scripts` y `npm audit`;
+  - Dependabot y `SECURITY.md`.
 - **Criterio** (ADR-0011, FR-020, spec 001 v1.2): motor de decisión local al estilo JEV, sin red ni dependencias. Responde preguntas tipadas (tipo de tarea, complejidad, sensibilidad de los datos, riesgo del diff, cumplimiento del brief) con confianza y explicación. Combina reglas en español e inglés con regresión logística en línea, ordena perfiles con Beta y muestreo de Thompson, decide por umbrales si actuar solo, confirmar o escalar, y mide su calibración con Brier. Unos 30 µs por decisión. Comandos `hilvan criterio ask|teach|stats|reset`.
 - **M1 — perfiles y destinos (Linux verificado):** `hilvan profile add|list|show|remove|login|check`; adaptadores claude-code y codex (aislamiento de entorno, login oficial, estado de autenticación); lanzadores `native`, `wsl` y `windows` (estos dos con tests unitarios, pendientes de verificar en Windows); `profiles.yaml` con escritura atómica (0600/0700); detección de directorios compartidos, de cuentas repetidas entre perfiles y de claves de API heredadas.
 - **M0 — esqueleto del CLI `hilvan`:** proyecto TypeScript (Node ≥ 22.12, ESM), Biome, Vitest, build con `tsc`, CI en Ubuntu y Windows con Node 22 y 24; esquemas zod de perfil, destino, tarea y máquina de estados; rutas de configuración por SO; carga validada de `profiles.yaml`; comando `hilvan doctor`.

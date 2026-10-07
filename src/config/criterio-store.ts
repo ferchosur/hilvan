@@ -1,7 +1,7 @@
-import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod';
 import { Criterio, type CriterioState, TASK_TYPES } from '../criterio/index.js';
+import { readTextSafe, UnsafePathError, writeFileAtomic } from '../security/fs.js';
 
 const SoftmaxStateSchema = z.object({
   classes: z.number().int().min(2).max(64),
@@ -41,16 +41,17 @@ export function criterioFile(configDir: string): string {
 
 /** Loads the learned model; a missing or invalid file yields a fresh engine (rules only). */
 export async function loadCriterio(file: string): Promise<{ engine: Criterio; warning?: string }> {
-  let text: string;
+  let text: string | null;
   try {
-    text = await readFile(file, 'utf8');
+    text = await readTextSafe(file, MAX_MODEL_BYTES);
   } catch (err) {
-    if ((err as NodeJS.ErrnoException).code === 'ENOENT') return { engine: new Criterio() };
+    if (err instanceof UnsafePathError) {
+      const reason = /exceeds/.test(err.message) ? 'is too large' : 'is not a regular file';
+      return { engine: new Criterio(), warning: `${file} ${reason}; ignored` };
+    }
     throw err;
   }
-  if (text.length > MAX_MODEL_BYTES) {
-    return { engine: new Criterio(), warning: `${file} is too large; ignored` };
-  }
+  if (text === null) return { engine: new Criterio() };
   try {
     const state = CriterioStateSchema.parse(JSON.parse(text)) as CriterioState;
     return { engine: new Criterio(state) };
@@ -60,8 +61,5 @@ export async function loadCriterio(file: string): Promise<{ engine: Criterio; wa
 }
 
 export async function saveCriterio(file: string, engine: Criterio): Promise<void> {
-  await mkdir(path.dirname(file), { recursive: true, mode: 0o700 });
-  const tmp = `${file}.${process.pid}.tmp`;
-  await writeFile(tmp, JSON.stringify(engine.toJSON()), { mode: 0o600 });
-  await rename(tmp, file);
+  await writeFileAtomic(file, JSON.stringify(engine.toJSON()));
 }

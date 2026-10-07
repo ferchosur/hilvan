@@ -4,6 +4,7 @@
 - **Fecha:** 2026-10-06
 - **Método:** STRIDE ligero sobre los límites de confianza del MVP local.
 - **Relacionado:** NFR-001, NFR-002, NFR-008, NFR-010, NFR-011, ADR-0006, ADR-0009
+- **Ampliado por:** [análisis de riesgos (2026-10-07)](../security/analisis-de-riesgos.md) y [requisitos de seguridad SR-001…SR-031](../security/requisitos.md). Este documento resume el diseño; el análisis detallado y el estado de los controles están allí.
 
 ## 1. Activos y límites de confianza
 
