@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TASK_TYPES } from '../criterio/types.js';
 import { IdSchema } from './profile.js';
 
 /** Task lifecycle (docs/design/modelo-de-datos.md §5). */
@@ -59,6 +60,21 @@ export const UsageSchema = z.object({
 });
 export type Usage = z.infer<typeof UsageSchema>;
 
+export const LimitWindowSchema = z.object({
+  name: z.string(),
+  utilization: z.number().min(0).max(1),
+  resetsAt: z.number().optional(),
+});
+export type LimitWindow = z.infer<typeof LimitWindowSchema>;
+
+export const DiffSummarySchema = z.object({
+  filesChanged: z.number().int().nonnegative(),
+  linesAdded: z.number().int().nonnegative(),
+  linesDeleted: z.number().int().nonnegative(),
+  paths: z.array(z.string()).max(2000),
+});
+export type DiffSummary = z.infer<typeof DiffSummarySchema>;
+
 export const RunSummarySchema = z.object({
   id: z.string().regex(/^run_[0-9A-Z]{26}$/),
   profileId: IdSchema,
@@ -66,6 +82,13 @@ export const RunSummarySchema = z.object({
   blockedReason: BlockedReasonSchema.optional(),
   sessionId: z.string().optional(),
   usage: UsageSchema.optional(),
+  limits: z.array(LimitWindowSchema).optional(),
+  diff: DiffSummarySchema.optional(),
+  /** Criterio diff risk, 2..10. */
+  risk: z.number().min(2).max(10).optional(),
+  /** Criterio estimate that the run met the brief. */
+  meetsCriteria: z.number().min(0).max(1).optional(),
+  error: z.string().max(2000).optional(),
   startedAt: z.iso.datetime(),
   endedAt: z.iso.datetime().optional(),
 });
@@ -78,7 +101,11 @@ export const TaskSchema = z.object({
   /** `write` tasks run in their own git worktree (ADR-0008). */
   mode: z.enum(['write', 'read']),
   requires: z.array(IdSchema).default([]),
+  taskType: z.enum(TASK_TYPES).optional(),
+  complexity: z.number().min(2).max(10).optional(),
+  criteriaCount: z.number().int().nonnegative().default(0),
   profileId: IdSchema.nullable().default(null),
+  baseBranch: z.string().nullable().default(null),
   state: TaskStateSchema,
   branch: z.string().nullable().default(null),
   worktree: z.string().nullable().default(null),

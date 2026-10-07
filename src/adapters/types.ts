@@ -1,5 +1,6 @@
 import type { App, Profile } from '../domain/index.js';
 import type { Command } from '../launchers/index.js';
+import type { AgentEvent } from './events.js';
 
 /** Identity reported by the agent CLI for a profile; never contains credentials. */
 export interface AuthStatus {
@@ -35,4 +36,17 @@ export interface AgentAdapter {
   loginCommand(profile: Profile, hostEnv: NodeJS.ProcessEnv): Command;
   authStatusCommand(profile: Profile, hostEnv: NodeJS.ProcessEnv): Command;
   parseAuthStatus(stdout: string, stderr: string, exitCode: number | null): AuthStatus;
+  /** Non-interactive run; the prompt is written to stdin (SR-003). */
+  runCommand(profile: Profile, req: RunSpec, hostEnv: NodeJS.ProcessEnv): Command;
+  /** Fresh stateful line parser for one run. */
+  createParser(): (line: string) => AgentEvent[];
+}
+
+export interface RunSpec {
+  /** Working directory inside the destination environment. */
+  cwd: string;
+  /** `write` may edit files (worktree); `read` must not. */
+  mode: 'write' | 'read';
+  resumeSessionId?: string;
+  model?: string | null;
 }
