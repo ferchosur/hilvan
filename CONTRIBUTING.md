@@ -81,7 +81,10 @@ Las contribuciones se aceptan bajo Apache-2.0 y con [Developer Certificate of Or
 - Requisitos: Node.js ≥ 22 y git.
 - `npm ci` para instalar dependencias. `npm run check` ejecuta lint, typecheck y tests, y debe pasar antes de cada commit.
 - `npm run dev -- <args>` ejecuta el CLI desde el código fuente; `npm run build` genera `dist/`.
-- Cada cambio de comportamiento va acompañado de tests. Los parsers de los adaptadores se prueban con fixtures reales (`tests/fixtures/`).
+- Cada cambio de comportamiento va acompañado de tests. Los parsers de los adaptadores se prueban con fixtures reales (`tests/fixtures/`), y los escenarios difíciles con el agente simulado `tests/fixtures/fake-agent.mjs`.
+- Siga los [patrones de diseño](docs/design/patrones.md): núcleo puro, adaptadores intercambiables, dependencias inyectadas y carga perezosa en el CLI.
+- **Seguridad:** toda funcionalidad nueva añade sus amenazas a `docs/security/analisis-de-riesgos.md` y sus requisitos a `docs/security/requisitos.md` en el mismo PR.
+- **Dependencias:** justifique cada dependencia de ejecución nueva con su coste de arranque (ver el spike 003).
 
 ## 5. Seguridad
 
