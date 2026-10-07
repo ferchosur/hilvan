@@ -100,6 +100,8 @@ export async function createTask(
     runs: [],
     handoffs: [],
     approvedProfiles: [],
+    reviews: [],
+    reviewedHead: null,
     createdAt: now,
     updatedAt: now,
   };
@@ -401,9 +403,12 @@ export async function discardTask(
   store: ProjectStore,
   taskId: string,
   git: Git = defaultGit,
+  /** Called with the task before it is discarded, e.g. to teach Criterio a rejection. */
+  onRejected?: (task: Task) => void,
 ): Promise<Task> {
   let task = await store.loadTask(taskId);
   if (task.state === 'running') throw new TaskError('task is running; cancel it first');
+  if (task.state === 'in_review') onRejected?.(task);
   if (task.worktree) await removeWorktree(store.root, task.id, git);
   task = { ...task, state: 'discarded', worktree: null, branch: null };
   await store.saveTask(task);

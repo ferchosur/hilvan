@@ -21,6 +21,8 @@ const GROUPS: Record<string, () => Promise<Register>> = {
   init: async () => (await import('./task.js')).registerInitCommand,
   task: async () => (await import('./task.js')).registerTaskCommands,
   handoff: async () => (await import('./handoff.js')).registerHandoffCommand,
+  review: async () => (await import('./review.js')).registerReviewCommands,
+  accept: async () => (await import('./review.js')).registerReviewCommands,
 };
 
 export function selectGroups(argv: readonly string[]): string[] {
@@ -36,9 +38,15 @@ export async function run(argv: readonly string[] = process.argv): Promise<void>
     .name('hilvan')
     .description('Coordinate AI coding agents across providers and accounts.')
     .version(pkg.version);
+  // Several command names can share one module (review/accept): register each module once.
+  const registered = new Set<Register>();
   for (const name of selectGroups(argv)) {
     const load = GROUPS[name];
-    if (load) (await load())(program);
+    if (!load) continue;
+    const register = await load();
+    if (registered.has(register)) continue;
+    registered.add(register);
+    register(program);
   }
   await program.parseAsync([...argv]);
 }
