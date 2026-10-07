@@ -23,6 +23,7 @@ const GROUPS: Record<string, () => Promise<Register>> = {
   handoff: async () => (await import('./handoff.js')).registerHandoffCommand,
   review: async () => (await import('./review.js')).registerReviewCommands,
   accept: async () => (await import('./review.js')).registerReviewCommands,
+  stats: async () => (await import('./stats.js')).registerStatsCommand,
 };
 
 export function selectGroups(argv: readonly string[]): string[] {

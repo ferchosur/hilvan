@@ -136,3 +136,50 @@ describe.runIf(process.platform !== 'win32')('review, cross review and accept (M
     });
   });
 });
+
+describe('usage per profile (FR-016)', () => {
+  it('aggregates reported cost, tokens, latest limits and outcomes', async () => {
+    const { usageByProfile } = await import('../src/core/stats.js');
+    const run = (over: Record<string, unknown>) => ({
+      id: 'run_01JABCDEFGHJKMNPQRSTVWXYZ0',
+      profileId: 'a',
+      state: 'completed',
+      startedAt: '2026-10-07T01:00:00.000Z',
+      usage: { estimated: true, costUsd: 0.1, inputTokens: 10, outputTokens: 2 },
+      ...over,
+    });
+    const tasks = [
+      {
+        profileId: 'a',
+        state: 'accepted',
+        runs: [
+          run({}),
+          run({
+            state: 'blocked',
+            startedAt: '2026-10-07T02:00:00.000Z',
+            limits: [{ name: 'five_hour', utilization: 1 }],
+          }),
+        ],
+      },
+      {
+        profileId: 'b',
+        state: 'discarded',
+        runs: [
+          run({ profileId: 'b', usage: { estimated: true, inputTokens: 5, outputTokens: 1 } }),
+        ],
+      },
+    ] as never;
+    const [a, b] = usageByProfile(tasks);
+    expect(a).toMatchObject({
+      profileId: 'a',
+      runs: 2,
+      costRuns: 2,
+      inputTokens: 20,
+      accepted: 1,
+      states: { completed: 1, blocked: 1 },
+    });
+    expect(a?.costUsd).toBeCloseTo(0.2);
+    expect(a?.lastLimits?.windows[0]?.utilization).toBe(1);
+    expect(b).toMatchObject({ profileId: 'b', costRuns: 0, discarded: 1 });
+  });
+});
