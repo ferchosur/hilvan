@@ -56,7 +56,7 @@ rules:
 └── tasks/<taskId>/
     ├── task.json
     ├── brief.md
-    ├── handoff-<n>.md  paquetes aprobados (inmutables)
+    ├── handoffs/<ho_id>.md  paquetes aprobados (inmutables, con sha256 en front matter)
     ├── reviews/<runId>.md
     └── runs/<runId>.jsonl   eventos normalizados + crudos
 ```

@@ -71,7 +71,8 @@ describe('lazy command loading', () => {
       'policy',
       'init',
       'task',
+      'handoff',
     ]);
-    expect(selectGroups(['node', 'hilvan'])).toHaveLength(7);
+    expect(selectGroups(['node', 'hilvan'])).toHaveLength(8);
   });
 });

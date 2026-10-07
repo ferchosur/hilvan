@@ -90,6 +90,18 @@ export class ProjectStore {
     return TaskSchema.parse(JSON.parse(text));
   }
 
+  handoffFile(taskId: string, handoffId: string): string {
+    if (!/^ho_[0-9A-Z]{26}$/.test(handoffId))
+      throw new ProjectError(`invalid hand-off id "${handoffId}"`);
+    return path.join(this.taskDir(taskId), 'handoffs', `${handoffId}.md`);
+  }
+
+  async handoff(taskId: string, handoffId: string): Promise<string> {
+    const text = await readTextSafe(this.handoffFile(taskId, handoffId), MAX_JSON);
+    if (text === null) throw new ProjectError(`missing hand-off ${handoffId}`);
+    return text;
+  }
+
   async brief(id: string): Promise<string> {
     return (await readTextSafe(path.join(this.taskDir(id), 'brief.md'), MAX_JSON)) ?? '';
   }
