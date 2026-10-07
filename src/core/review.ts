@@ -142,7 +142,18 @@ export async function crossReview(
       ...task,
       reviews: [
         ...task.reviews,
-        { id: runId, profileId: reviewer.id, verdict, at: new Date().toISOString() },
+        {
+          id: runId,
+          profileId: reviewer.id,
+          verdict,
+          usage: {
+            estimated: true,
+            ...(outcome.costUsd !== undefined ? { costUsd: outcome.costUsd } : {}),
+            ...(outcome.inputTokens !== undefined ? { inputTokens: outcome.inputTokens } : {}),
+            ...(outcome.outputTokens !== undefined ? { outputTokens: outcome.outputTokens } : {}),
+          },
+          at: new Date().toISOString(),
+        },
       ],
     };
     await store.saveTask(task);

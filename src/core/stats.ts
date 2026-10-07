@@ -12,6 +12,8 @@ export interface ProfileUsage {
   lastLimits?: { at: string; windows: LimitWindow[] };
   accepted: number;
   discarded: number;
+  /** Cross reviews performed by this profile (their usage is included above). */
+  reviews: number;
 }
 
 export function usageByProfile(tasks: readonly Task[]): ProfileUsage[] {
@@ -29,6 +31,7 @@ export function usageByProfile(tasks: readonly Task[]): ProfileUsage[] {
         outputTokens: 0,
         accepted: 0,
         discarded: 0,
+        reviews: 0,
       };
       by.set(id, u);
     }
@@ -48,6 +51,16 @@ export function usageByProfile(tasks: readonly Task[]): ProfileUsage[] {
       if (r.limits?.length && (!u.lastLimits || r.startedAt > u.lastLimits.at)) {
         u.lastLimits = { at: r.startedAt, windows: r.limits };
       }
+    }
+    for (const r of t.reviews ?? []) {
+      const u = get(r.profileId);
+      u.reviews++;
+      if (r.usage?.costUsd !== undefined) {
+        u.costUsd += r.usage.costUsd;
+        u.costRuns++;
+      }
+      u.inputTokens += r.usage?.inputTokens ?? 0;
+      u.outputTokens += r.usage?.outputTokens ?? 0;
     }
     if (t.profileId && (t.state === 'accepted' || t.state === 'discarded')) {
       const u = get(t.profileId);
