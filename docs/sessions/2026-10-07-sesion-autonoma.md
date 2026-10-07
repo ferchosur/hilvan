@@ -58,6 +58,27 @@ Implementar todo lo posible con Hilvan ligero y sin terceros. Ampliar la investi
 
 Se fusionó un commit (`fix/review-usage`) con un test fallando, porque el resultado de `npm run check` se filtraba con `grep` y la tubería ocultaba el código de error. Se corrigió en `fix/stats-test` (era la expectativa del test: la revisión con coste cuenta como ejecución con coste). Desde entonces, cada fusión exige `rc=0` de `npm run check`.
 
+## Continuación — FR-021 e instalación
+
+16. **FR-021 / ADR-0013 (a petición del usuario):**
+    - perfil reservado: la cuenta corporativa solo recibe tareas que requieren sus herramientas;
+    - Criterio infiere las herramientas requeridas, con confirmación y aprendizaje;
+    - comandos `profile tools/set` y `task requires`.
+17. **Hallazgo de seguridad verificado en real:** `--strict-mcp-config` no impedía los hooks del repositorio y apagaba los conectores de la cuenta. Ahora se usa `--setting-sources user`, que bloquea el hook y el `.mcp.json` hostiles y conserva los conectores. Se retiró la confianza por hash de SR-012.
+18. **Instalación:** `hilvan` y `hv` enlazados en `~/.local/bin` (sin sudo). Hay que reconstruir tras cambiar el código.
+19. La ventana de 5 h de la cuenta de Claude llegó al 78 % con las pruebas reales. Desde ese punto no se lanzaron más ejecuciones reales.
+
 ## Siguiente paso
 
-Decisiones del usuario: Q-013 (Go) y ADR-0012 (UI). Validación en Windows/WSL (spike 001).
+1. Decisiones del usuario: Q-013 (¿Go?) y ADR-0012 (UI).
+2. Crear los perfiles reales en este PC (`~/.config/hilvan` está vacío).
+3. PC del trabajo (spike 001):
+   - comprobar el aislamiento de cuentas en Windows y WSL;
+   - comprobar que `hilvan profile tools claude-corp` ve los MCP de la organización y que siguen activos con `--setting-sources user`;
+   - después, `--apply` y `profile set claude-corp --routing reserved`.
+4. Backlog:
+   - resumen estructurado del agente de origen en el traspaso;
+   - catálogo de mensajes es/en;
+   - `hilvan watch`/`ui` (si se acepta ADR-0012);
+   - lanzador SSH;
+   - release 0.1.0.
