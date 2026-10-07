@@ -1,0 +1,19 @@
+{
+  "name": "hilvan-spike-005",
+  "description": "Mods desechables del spike 005 de Hilvan",
+  "owner": {
+    "name": "Hilvan spike 005"
+  },
+  "plugins": [
+    {
+      "name": "hv-canary",
+      "source": "./canary",
+      "description": "Observa: registra carga, turnos y llamadas a herramientas"
+    },
+    {
+      "name": "hv-override",
+      "source": "./override",
+      "description": "Interviene: aprueba un Bash concreto y cambia el modelo"
+    }
+  ]
+}

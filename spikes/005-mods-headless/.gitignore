@@ -1,0 +1,3 @@
+# Salidas locales del spike (pueden contener rutas o datos de sesión)
+out/
+*.log

@@ -1,0 +1,6 @@
+{
+  "name": "hv-canary",
+  "version": "0.1.0",
+  "description": "Spike 005 (desechable): registra en un archivo cuándo se carga y qué eventos ve",
+  "author": { "name": "Hilvan spike 005" }
+}

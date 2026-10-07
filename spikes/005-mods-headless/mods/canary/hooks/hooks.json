@@ -1,0 +1,4 @@
+{
+  "description": "Spike 005: hooks module de hv-canary",
+  "modules": ["./register.js"]
+}

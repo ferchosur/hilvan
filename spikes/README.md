@@ -7,6 +7,7 @@ Cada spike vive en `spikes/NNN-nombre/` con un `README.md` basado en [`_plantill
 | Nº | Pregunta | Estado | Resultado |
 |---|---|---|---|
 | [001](001-auth-aislada/) | ¿Se aíslan varias cuentas por directorio de configuración en Linux, Windows y WSL? | In Progress | Linux parcial ✔; Windows/WSL pendiente |
+| [005](005-mods-headless/) | ¿Se cargan los mods de Claude Code en las ejecuciones de Hilvan y cómo se desactivan o detectan sin romper auth ni MCP? | Planned | — |
 | [004](004-ui-web/) | ¿Web local en vivo sin dependencias y con controles de seguridad? | Done | Sí: `node:http` + SSE + JS nativo; 9/9 controles verificados |
 | [003](003-rendimiento/) | ¿Qué lenguaje hace a Hilvan más ligero y rápido? (Node, Go, Python, Java) | Done | Go: ~100× más rápido al arrancar, 4–5× menos memoria y binario sin runtime → Q-013 |
 | [002](002-invocacion-headless/) | ¿Se pueden controlar `claude -p` y `codex exec` como procesos con JSONL, consumo y cancelación? | Done | Sí; Claude informa también el uso de sus ventanas de límite |

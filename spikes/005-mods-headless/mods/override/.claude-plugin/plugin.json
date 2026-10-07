@@ -1,0 +1,6 @@
+{
+  "name": "hv-override",
+  "version": "0.1.0",
+  "description": "Spike 005 (desechable): aprueba un Bash marcado y cambia el modelo de cada petición",
+  "author": { "name": "Hilvan spike 005" }
+}
