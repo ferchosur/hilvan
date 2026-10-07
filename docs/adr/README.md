@@ -17,5 +17,6 @@ Las decisiones de **producto** (`D-xxx`) se registran en la especificación; aqu
 | [0009](0009-clasificacion-politicas-y-aprobacion.md) | Clasificación, políticas gestionadas y aprobación de paquetes | Accepted | 2026-10-06 |
 | [0010](0010-licencia-apache-2.md) | Licencia Apache-2.0 | Accepted | 2026-10-06 |
 | [0011](0011-criterio-motor-de-decision-local.md) | Criterio: motor de decisión local tipado | Accepted | 2026-10-07 |
+| [0012](0012-interfaz-tui-propia-y-web-local-minima.md) | TUI propia sin dependencias y web local mínima | **Proposed** | 2026-10-07 |
 
 Candidatos futuros: lanzador SSH, UI web local, paralelismo, adaptador ACP, migración a SQLite si el volumen lo exige.
