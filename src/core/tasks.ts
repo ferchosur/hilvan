@@ -22,6 +22,7 @@ import {
 } from '../gitops/index.js';
 import { buildInvocation, type HostContext } from '../launchers/index.js';
 import { type Evaluation, evaluate, mergePolicies } from '../policy/evaluate.js';
+import { runCommand } from '../process/run.js';
 import { redactSecrets } from '../security/secrets.js';
 import { type ProjectStore, processAlive } from '../store/project.js';
 
@@ -253,6 +254,9 @@ export async function runTask(
       if (!task.worktree) {
         const wt = await createWorktree(store.root, task.id, task.baseBranch ?? 'HEAD', git);
         task = { ...task, worktree: wt.path, branch: wt.branch };
+        // Persist the worktree first, so a failing hook never leaves an untracked worktree.
+        await store.saveTask(task);
+        await runSetupHook(store, task.id, wt.path);
       }
       cwd = task.worktree as string;
     }
@@ -355,6 +359,30 @@ export async function runTask(
     return { task, run, outcome };
   } finally {
     await store.releaseLock();
+  }
+}
+
+/**
+ * FR-018: optional per-project setup command run once in each new worktree (e.g. `npm ci`).
+ * Declared by the user in `.hilvan/project.json`; runs without a shell, with a timeout.
+ */
+export async function runSetupHook(
+  store: ProjectStore,
+  taskId: string,
+  worktree: string,
+): Promise<void> {
+  const project = await store.project();
+  const [cmd, ...args] = project.setupHook ?? [];
+  if (!cmd) return;
+  const r = await runCommand(cmd, args, { cwd: worktree, timeoutMs: 15 * 60_000 });
+  await store.audit({
+    type: 'worktree.setup',
+    taskId,
+    data: { command: [cmd, ...args].join(' '), exitCode: r.code, error: r.error },
+  });
+  if (r.code !== 0) {
+    const detail = (r.stderr || r.stdout).trim().split('\n').slice(-1)[0] ?? r.error ?? '';
+    throw new TaskError(`setup hook "${[cmd, ...args].join(' ')}" failed: ${detail}`);
   }
 }
 
