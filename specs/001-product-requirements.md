@@ -1,7 +1,7 @@
 # 001 — Requisitos de producto
 
 - **Estado:** Approved
-- **Versión:** 1.1
+- **Versión:** 1.2
 - **Fecha:** 2026-10-06
 - **Aprobado por / fecha:** Fernando Giraldo, 2026-10-06 (aprobación del plan que resuelve Q-001–Q-010)
 - **Relacionado:** [investigación 2026-10-06](../docs/research/2026-10-06-foros-y-herramientas.md), [ADR-0002–0010](../docs/adr/README.md), [plan MVP](../docs/plans/001-mvp.md)
@@ -124,7 +124,7 @@ Antes de recomendar o asignar un perfil, el sistema debe comprobar que la polít
 
 ### FR-012 — Criterios de recomendación
 
-Solo entre perfiles elegibles, el sistema puede ordenar o recomendar opciones considerando capacidad suficiente, disponibilidad, consumo o costo conocido y preferencia del usuario. Debe indicar qué señales conocidas sustentan la recomendación y no presentar como conocidos datos que el proveedor no expone.
+Solo entre perfiles elegibles, el sistema puede ordenar o recomendar opciones considerando capacidad suficiente, disponibilidad, consumo o costo conocido, historial de resultados por tipo de tarea y preferencia del usuario. Debe indicar qué señales conocidas sustentan la recomendación y no presentar como conocidos datos que el proveedor no expone. **El margen de cuota no puede ser el factor que diferencie entre perfiles de la misma aplicación para el mismo tipo de trabajo**, porque Hilvan no se usa para rotar cuentas y esquivar límites. El resultado de cada tarea (aceptada, rechazada, bloqueada, coste, duración) se registra para mejorar las recomendaciones.
 
 ### FR-013 — Destino de ejecución del perfil
 
@@ -186,6 +186,10 @@ Cada tarea que puede modificar archivos se ejecuta en un git worktree y rama pro
 
 Una tarea se define con un brief estructurado: objetivo, contexto, criterios de aceptación, restricciones y clasificación. El brief forma parte del paquete que recibe el perfil.
 
+### FR-020 — Decisiones locales tipadas (Criterio)
+
+El sistema debe responder a preguntas acotadas (elección, puntuación 2–10, sí/no) con un valor, una confianza y las señales que la sustentan, usando solo información local. Cada decisión se clasifica como automática, a confirmar o a escalar según umbrales configurables. Las decisiones que envían datos a otro perfil o cambian de perfil siempre requieren confirmación. El sistema aprende de los resultados y correcciones del usuario y muestra su calibración.
+
 ## 8. Requisitos no funcionales
 
 - **NFR-001 — Secretos:** credenciales y tokens se guardan en almacenamiento seguro del sistema operativo o mecanismo equivalente; no se escriben en registros ni archivos de proyecto.
@@ -200,6 +204,7 @@ Una tarea se define con un brief estructurado: objetivo, contexto, criterios de 
 - **NFR-010 — Cumplimiento de términos:** el producto ejecuta los CLIs oficiales sin modificar, no ofrece el inicio de sesión del proveedor dentro del producto, no recoge ni almacena credenciales o tokens de sesión, y no intermedia ni revende uso.
 - **NFR-011 — Configuración explícita del agente:** las ejecuciones no deben cargar servidores MCP ni hooks no declarados para el perfil (p. ej. usar configuración MCP estricta), para evitar que un repositorio ajeno amplíe las herramientas de un perfil.
 - **NFR-012 — Multiplataforma:** las pruebas automáticas se ejecutan en Linux y Windows.
+- **NFR-013 — Ligereza:** Hilvan funciona en equipos modestos sin modelos locales ni servicios externos propios. Cada decisión de Criterio tarda menos de 5 ms. El arranque del CLI y la memoria tienen presupuestos medidos en las pruebas.
 
 ## 9. Criterios de aceptación del MVP
 
@@ -224,6 +229,7 @@ Una tarea se define con un brief estructurado: objetivo, contexto, criterios de 
 - **AC-019:** tras cada ejecución, la tarea muestra el coste o tokens reportados por el CLI con la etiqueta "estimado", o "no disponible" si el CLI no lo reporta.
 - **AC-020:** si se interrumpe el proceso del agente sin resultado final, la tarea queda en `uncertain` y no se reintenta automáticamente.
 - **AC-021:** una tarea que modifica código trabaja en su propio worktree; al aceptarla se fusiona su rama y al aceptarla o descartarla se elimina el worktree.
+- **AC-022:** con red deshabilitada, Criterio sugiere tipo de tarea, complejidad y riesgo con confianza y explicación, en menos de 5 ms por decisión. Una corrección del usuario cambia las sugerencias posteriores para entradas similares.
 
 ## 10. Riesgos y supuestos
 
@@ -260,6 +266,7 @@ Pendientes, no bloqueantes para el MVP:
 
 ## 12. Historial de revisión
 
+- **1.2 (2026-10-07):** FR-020 (Criterio), NFR-013 (ligereza), AC-022; FR-012 con regla de cuotas por aplicación y registro de resultados. ADR-0011.
 - **1.1 (2026-10-06):** nombre de producto Hilvan (D-025, resuelve Q-011). Sin cambios de alcance.
 - **1.0 (2026-10-06):** baseline aprobado. Resuelve Q-001–Q-010 (D-013–D-024), difiere Perplexity (D-004), añade FR-015–FR-019, NFR-010–NFR-012, AC-018–AC-021, R-006–R-008. Autoriza diseño e implementación del alcance de la sección 6 según el [plan MVP](../docs/plans/001-mvp.md).
 - **0.3 (2026-10-06):** destinos y adaptadores de ejecución (D-011, D-012).
