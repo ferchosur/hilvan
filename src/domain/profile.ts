@@ -59,12 +59,36 @@ export const ProfileSchema = z.object({
   tags: z.array(IdSchema).default([]),
   tools: z
     .object({
-      /** MCP configuration file passed with --strict-mcp-config (NFR-011). */
+      /**
+       * Which MCP servers the agent may load (ADR-0013). Repository-provided settings, hooks and
+       * `.mcp.json` are never loaded (`--setting-sources user`).
+       * - account: the account's own servers, incl. organisation-managed connectors (default)
+       * - profile: only `mcpConfig`
+       * - none: no MCP servers
+       */
+      mcp: z.enum(['account', 'profile', 'none']).default('account'),
+      /** MCP configuration file used when `mcp: profile`. */
       mcpConfig: z.string().min(1).optional(),
       /** Capabilities declared for eligibility checks (FR-006, FR-011). */
       provides: z.array(IdSchema).default([]),
+      /** Words that reveal a task needs a tool, e.g. jira: [ticket, incidencia] (FR-021). */
+      aliases: z.record(IdSchema, z.array(z.string().min(2).max(60)).max(50)).default({}),
     })
-    .default({ provides: [] }),
+    .superRefine((t, ctx) => {
+      if (t.mcp === 'profile' && !t.mcpConfig) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['mcpConfig'],
+          message: 'required when mcp is "profile"',
+        });
+      }
+    })
+    .default({ mcp: 'account', provides: [], aliases: {} }),
+  /**
+   * Routing role (FR-021): `reserved` profiles are only recommended when a task requires a tool
+   * that they provide; everything else goes to `default` profiles.
+   */
+  routing: z.enum(['default', 'reserved']).default('default'),
   model: z.string().min(1).nullable().default(null),
   /** Tie-breaker among eligible profiles; higher is preferred. */
   preference: z.number().int().default(0),

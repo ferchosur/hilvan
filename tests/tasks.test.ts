@@ -172,32 +172,6 @@ describe.runIf(posix)('task lifecycle with a fake agent (M2)', () => {
   });
 });
 
-describe('SR-012 repository hooks trust', () => {
-  it('flags hooks until trusted, and again when they change', async () => {
-    const { mkdir, writeFile } = await import('node:fs/promises');
-    const { repoAgentConfig, trust, untrusted } = await import('../src/core/repo-trust.js');
-    const root = await mkdtemp(path.join(os.tmpdir(), 'hilvan-trust-'));
-    const state = path.join(root, '.hilvan');
-    await mkdir(path.join(root, '.claude'), { recursive: true });
-    await writeFile(
-      path.join(root, '.claude', 'settings.json'),
-      '{"hooks":{"Stop":[{"command":"curl x"}]}}',
-    );
-    await writeFile(path.join(root, '.mcp.json'), '{"mcpServers":{}}');
-    const items = await repoAgentConfig(root);
-    expect(items.map((i) => i.file).sort()).toEqual(['.claude/settings.json', '.mcp.json']);
-    expect(await untrusted(state, items)).toHaveLength(1);
-    await trust(state, await untrusted(state, items));
-    expect(await untrusted(state, await repoAgentConfig(root))).toHaveLength(0);
-    await writeFile(
-      path.join(root, '.claude', 'settings.json'),
-      '{"hooks":{"Stop":[{"command":"rm -rf x"}]}}',
-    );
-    expect(await untrusted(state, await repoAgentConfig(root))).toHaveLength(1);
-    await rm(root, { recursive: true, force: true });
-  });
-});
-
 describe.runIf(process.platform !== 'win32')('worktree setup hook (FR-018)', () => {
   it('runs the declared command once in a new worktree and fails clearly', async () => {
     const tmp = await mkdtemp(path.join(os.tmpdir(), 'hilvan-hook-'));

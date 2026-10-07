@@ -29,4 +29,10 @@
 | AC-021 | Worktree propio; aceptar fusiona y limpia | ✔ | `tasks.test.ts`, `review.test.ts`; e2e real: `HELLO.md` creado por Claude en `hilvan/<tarea>`, fusionado con `--no-ff`, worktree eliminado |
 | AC-022 | Criterio sin red, menos de 5 ms y que aprende de correcciones | ✔ | `criterio.test.ts` (rendimiento y aprendizaje) |
 
-**Resultado:** 20 de 22 verificados, 1 parcial (AC-015, pendiente de Windows) y 1 diferido (AC-009).
+| AC-023 | Personal por defecto, corporativo reservado | ✔ | `tests/tools-routing.test.ts`; demostración del CLI |
+| AC-024 | Criterio sugiere y aprende las herramientas requeridas | ✔ | `tests/tools-routing.test.ts` |
+| AC-025 | Ni hooks ni MCP del repositorio; sí los de la cuenta | ✔ | Prueba empírica (ADR-0013) + `tests/adapters-run.test.ts` |
+
+**Resultado (2026-10-07, tras FR-021):** 23 de 25 verificados, AC-015 parcial y AC-009 diferido.
+
+**Resultado anterior:** 20 de 22 verificados, 1 parcial (AC-015, pendiente de Windows) y 1 diferido (AC-009).

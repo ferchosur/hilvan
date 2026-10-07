@@ -38,8 +38,16 @@ export interface AgentAdapter {
   parseAuthStatus(stdout: string, stderr: string, exitCode: number | null): AuthStatus;
   /** Non-interactive run; the prompt is written to stdin (SR-003). */
   runCommand(profile: Profile, req: RunSpec, hostEnv: NodeJS.ProcessEnv): Command;
+  /** Lists the MCP servers configured for the account (no model call). */
+  listToolsCommand(profile: Profile, hostEnv: NodeJS.ProcessEnv): Command;
+  parseToolList(stdout: string): DiscoveredTool[];
   /** Fresh stateful line parser for one run. */
   createParser(): (line: string) => AgentEvent[];
+}
+
+export interface DiscoveredTool {
+  name: string;
+  status: 'connected' | 'failed' | 'pending' | 'unknown';
 }
 
 export interface RunSpec {

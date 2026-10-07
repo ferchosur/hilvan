@@ -13,6 +13,7 @@ import {
   currentHost,
   defaultConfigDir,
   describeDestination,
+  discoverTools,
   ensureConfigDir,
   expandHome,
   findProfile,
@@ -23,6 +24,7 @@ import {
 import { AppSchema, type Profile, ProfileSchema } from '../domain/index.js';
 import { buildInvocation } from '../launchers/index.js';
 import { runCommand, runInteractive } from '../process/run.js';
+import { sanitizeForTerminal } from '../security/sanitize.js';
 
 export const DEFAULT_CLASSIFICATIONS = ['public', 'personal', 'corporate', 'confidential'];
 
@@ -61,6 +63,22 @@ interface AddOptions {
   provides?: string[];
   model?: string;
   preference?: string;
+  routing?: string;
+  mcp?: string;
+  alias?: string[];
+}
+
+const collect = (v: string, prev: string[] = []) => [...prev, v];
+
+/** `--alias jira=ticket,incidencia` (repeatable) → { jira: ['ticket', 'incidencia'] }. */
+export function parseAliases(items: readonly string[] = []): Record<string, string[]> {
+  const out: Record<string, string[]> = {};
+  for (const item of items) {
+    const [tool, words] = item.split('=');
+    if (!tool || !words) throw new Error(`--alias must look like tool=word1,word2 (got "${item}")`);
+    out[tool.trim()] = [...(out[tool.trim()] ?? []), ...list(words)];
+  }
+  return out;
 }
 
 async function promptMissing(o: AddOptions): Promise<AddOptions> {
@@ -140,7 +158,13 @@ export function buildProfile(o: AddOptions): Profile {
     },
     accepts: o.accepts ?? [],
     tags: o.tags ?? [],
-    tools: { ...(o.mcpConfig ? { mcpConfig: o.mcpConfig } : {}), provides: o.provides ?? [] },
+    tools: {
+      mcp: o.mcp ?? (o.mcpConfig ? 'profile' : 'account'),
+      ...(o.mcpConfig ? { mcpConfig: o.mcpConfig } : {}),
+      provides: o.provides ?? [],
+      aliases: parseAliases(o.alias),
+    },
+    routing: o.routing ?? 'default',
     model: o.model ?? null,
     preference: o.preference ? Number(o.preference) : 0,
   });
@@ -158,6 +182,8 @@ function checkDeps(): CheckDeps {
     configDirIssues: (dir) => configDirIssues(dir),
   };
 }
+
+const sanitizeName = (n: string) => sanitizeForTerminal(n, { multiline: false, maxLength: 80 });
 
 /** Human label for a profile's config dir. */
 export function dirLabel(p: Profile): string {
@@ -205,7 +231,17 @@ export function registerProfileCommands(program: Command): void {
     .option('--use-default-login', "reuse the CLI's default directory (~/.claude or ~/.codex)")
     .option('--auth <mode>', 'subscription | api-key', 'subscription')
     .option('--api-key-env <VAR>', 'environment variable holding the API key (api-key mode)')
-    .option('--mcp-config <file>', 'MCP servers for this profile (Claude Code)')
+    .option(
+      '--mcp <mode>',
+      'account (its own MCP servers, default) | profile (only --mcp-config) | none',
+    )
+    .option('--mcp-config <file>', 'MCP servers for this profile (implies --mcp profile)')
+    .option('--routing <role>', 'default | reserved (only for tasks that need its tools)')
+    .option(
+      '--alias <tool=words>',
+      'words that reveal a tool is needed, e.g. jira=ticket,incidencia (repeatable)',
+      collect,
+    )
     .option('--provides <list>', 'declared capabilities/tools, e.g. jira,confluence', list)
     .option('--model <model>', 'default model')
     .option('--preference <n>', 'tie-breaker among eligible profiles (higher first)')
@@ -225,6 +261,112 @@ export function registerProfileCommands(program: Command): void {
           `  next: hilvan profile login ${prof.id}   then: hilvan profile check ${prof.id}`,
         );
         if (isInteractive() && !opts.id) p.outro('Done.');
+      } catch (err) {
+        fail(err);
+      }
+    });
+
+  profile
+    .command('set <id>')
+    .description('Change routing, MCP mode, tools or aliases of an existing profile.')
+    .option('--routing <role>', 'default | reserved')
+    .option('--mcp <mode>', 'account | profile | none')
+    .option('--mcp-config <file>', 'MCP servers file for --mcp profile')
+    .option('--provides <list>', 'replace the declared tools, e.g. jira,confluence', list)
+    .option(
+      '--alias <tool=words>',
+      'add aliases, e.g. jira=ticket,incidencia (repeatable)',
+      collect,
+    )
+    .option('--accepts <list>', 'replace the accepted classifications', list)
+    .option('--preference <n>', 'tie-breaker among eligible profiles')
+    .action(
+      async (
+        id: string,
+        o: {
+          routing?: string;
+          mcp?: string;
+          mcpConfig?: string;
+          provides?: string[];
+          alias?: string[];
+          accepts?: string[];
+          preference?: string;
+        },
+      ) => {
+        try {
+          const file = profilesFile();
+          const data = await loadProfiles(file);
+          const cur = findProfile(data, id);
+          const aliases = { ...cur.tools.aliases };
+          for (const [tool, words] of Object.entries(parseAliases(o.alias))) {
+            aliases[tool] = [...new Set([...(aliases[tool] ?? []), ...words])];
+          }
+          const next = ProfileSchema.parse({
+            ...cur,
+            ...(o.routing ? { routing: o.routing } : {}),
+            ...(o.accepts ? { accepts: o.accepts } : {}),
+            ...(o.preference ? { preference: Number(o.preference) } : {}),
+            tools: {
+              ...cur.tools,
+              ...(o.mcp ? { mcp: o.mcp } : {}),
+              ...(o.mcpConfig ? { mcpConfig: o.mcpConfig } : {}),
+              ...(o.provides ? { provides: o.provides } : {}),
+              aliases,
+            },
+          });
+          await saveProfiles(file, {
+            ...data,
+            profiles: data.profiles.map((p) => (p.id === id ? next : p)),
+          });
+          console.log(
+            `✔ ${id}: routing ${next.routing} · mcp ${next.tools.mcp} · provides ${next.tools.provides.join(', ') || '—'}`,
+          );
+        } catch (err) {
+          fail(err);
+        }
+      },
+    );
+
+  profile
+    .command('tools <id>')
+    .description(
+      "List the MCP servers the account itself has configured and compare with 'provides'.",
+    )
+    .option('--apply', "add discovered servers to the profile's provides")
+    .action(async (id: string, o: { apply?: boolean }) => {
+      try {
+        const file = profilesFile();
+        const data = await loadProfiles(file);
+        const prof = findProfile(data, id);
+        const d = await discoverTools(prof, checkDeps());
+        if (d.error) throw new Error(`could not list MCP servers: ${d.error}`);
+        if (!d.discovered.length) console.log(`${id}: no MCP servers configured in this account`);
+        for (const t of d.discovered) {
+          const mark = prof.tools.provides.includes(t.id) ? '✔' : '+';
+          console.log(`${mark} ${t.id}  (${sanitizeName(t.name)}, ${t.status})`);
+        }
+        for (const s of d.stale)
+          console.log(`? ${s}  declared in provides but not configured in the account`);
+        if (prof.tools.mcp !== 'account' && d.discovered.length) {
+          console.log(
+            `! mcp mode is "${prof.tools.mcp}": these account servers are NOT loaded in Hilvan runs`,
+          );
+        }
+        if (o.apply && d.missing.length) {
+          const next = ProfileSchema.parse({
+            ...prof,
+            tools: { ...prof.tools, provides: [...prof.tools.provides, ...d.missing] },
+          });
+          await saveProfiles(file, {
+            ...data,
+            profiles: data.profiles.map((p) => (p.id === id ? next : p)),
+          });
+          console.log(`✔ added to provides: ${d.missing.join(', ')}`);
+        } else if (d.missing.length) {
+          console.log(
+            `  next: hilvan profile tools ${id} --apply   (then: hilvan profile set ${id} --routing reserved)`,
+          );
+        }
       } catch (err) {
         fail(err);
       }

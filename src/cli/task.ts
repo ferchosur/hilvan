@@ -7,7 +7,6 @@ import { defaultPolicyPaths, loadEffectivePolicy } from '../config/policy.js';
 import { loadProfiles } from '../config/profiles.js';
 import { currentHost, describeDestination, findProfile } from '../core/profiles.js';
 import { recommend } from '../core/recommend.js';
-import { repoAgentConfig, trust, untrusted } from '../core/repo-trust.js';
 import {
   type Brief,
   cancelTask,
@@ -17,7 +16,7 @@ import {
   runTask,
   suggest,
 } from '../core/tasks.js';
-import { TASK_TYPES, type TaskType } from '../criterio/index.js';
+import { buildToolCatalog, TASK_TYPES, type TaskType } from '../criterio/index.js';
 import type { RunSummary, Task } from '../domain/index.js';
 import { currentBranch, repoRoot } from '../gitops/index.js';
 import { sanitizeForTerminal } from '../security/sanitize.js';
@@ -174,6 +173,45 @@ export function registerTaskCommands(program: Command): void {
           };
           const file = criterioFile(userConfigDir());
           const { engine } = await loadCriterio(file);
+          // FR-021: which tools does this brief need? Routing depends on it, so the user confirms.
+          const catalog = buildToolCatalog((await loadProfiles(profilesFile())).profiles);
+          const signals = {
+            title,
+            text: [objective, ...(o.criteria ?? []), ...(o.constraint ?? [])]
+              .filter(Boolean)
+              .join('\n'),
+          };
+          let toolsLearned = false;
+          let toolHint = '';
+          if (Object.keys(catalog).length) {
+            const t = engine.requiredTools(signals, catalog);
+            if (o.requires) {
+              engine.learnRequiredTools(signals, catalog, o.requires);
+              toolsLearned = true;
+            } else if (t.value.length && process.stdin.isTTY && process.stdout.isTTY) {
+              const p = await import('@clack/prompts');
+              const picked = await p.multiselect({
+                message: `Criterio thinks this task needs: ${t.value.join(', ')}. Confirm the tools it requires`,
+                options: t.perTool.map((x) => ({
+                  value: x.tool,
+                  label: x.tool,
+                  hint: `p=${x.p.toFixed(2)}${x.why[0] ? ` · ${x.why[0].signal}` : ''}`,
+                })),
+                initialValues: t.value,
+                required: false,
+              });
+              if (!p.isCancel(picked)) {
+                brief.requires = picked as string[];
+                engine.learnRequiredTools(signals, catalog, picked as string[]);
+                toolsLearned = true;
+              }
+            } else if (t.value.length) {
+              toolHint = `  ! Criterio thinks this task needs ${t.value.join(', ')} (${t.why
+                .slice(0, 2)
+                .map((w) => w.signal)
+                .join('; ')}). If so, re-create it with --requires ${t.value.join(',')}`;
+            }
+          }
           const s = suggest(engine, brief);
           const explicitType = o.type as TaskType | undefined;
           const typeDisp = engine.dispose(s.taskType, 'label');
@@ -187,7 +225,7 @@ export function registerTaskCommands(program: Command): void {
             },
             explicitType ? engine : undefined,
           );
-          if (explicitType) await saveCriterio(file, engine);
+          if (explicitType || toolsLearned) await saveCriterio(file, engine);
 
           console.log(`✔ task ${short(created.id)} created: ${clean(title)}`);
           console.log(
@@ -203,7 +241,11 @@ export function registerTaskCommands(program: Command): void {
                 )}). Re-create with --classification ${s.classification.value} if it applies.`,
             );
           }
-          console.log(`  next: hilvan task run ${short(created.id)} --profile <id>`);
+          if (created.requires.length) console.log(`  requires: ${created.requires.join(', ')}`);
+          if (toolHint) console.log(toolHint);
+          console.log(
+            `  next: hilvan task recommend ${short(created.id)}   (or: hilvan task run ${short(created.id)} --profile <id>)`,
+          );
         } catch (err) {
           fail(err);
         }
@@ -267,107 +309,90 @@ export function registerTaskCommands(program: Command): void {
     .requiredOption('-p, --profile <id>', 'profile that runs the task')
     .option('--timeout <minutes>', 'cancel the run after this many minutes', '60')
     .option(
-      '--trust-repo-hooks',
-      'accept hooks defined by this repository (.claude/settings*.json)',
-    )
-    .option(
       '--approve',
       'approve sending the brief when a policy rule requires approval (non-interactive)',
     )
-    .action(
-      async (
-        ref: string,
-        o: { profile: string; timeout: string; trustRepoHooks?: boolean; approve?: boolean },
-      ) => {
-        try {
-          const store = await openStore();
-          const taskId = await store.resolveTaskId(ref);
-          const profile = findProfile(await loadProfiles(profilesFile()), o.profile);
-          const { engine } = await loadCriterio(criterioFile(userConfigDir()));
-          if (profile.app === 'claude-code') {
-            // SR-012: repository hooks run without a trust dialog in `claude -p`.
-            const pending = await untrusted(store.dir, await repoAgentConfig(store.root));
-            if (pending.length && !o.trustRepoHooks) {
-              for (const i of pending) console.error(`! ${i.file} ${i.risk}`);
-              throw new Error(
-                'review those hooks; if you trust them, re-run with --trust-repo-hooks (remembered until the file changes)',
-              );
-            }
-            if (pending.length) {
-              await trust(store.dir, pending);
-              await store.audit({
-                type: 'repo_config.trusted',
-                data: { files: pending.map((i) => `${i.file}:${i.sha256.slice(0, 12)}`) },
-              });
-            }
-          }
-          console.log(
-            `→ running ${short(taskId)} with ${profile.id} (${profile.app} @ ${profile.destination.launcher})`,
-          );
-          let cancel: (() => void) | undefined;
-          const onSigint = () => {
-            console.error('\n! cancelling… (Ctrl+C again to force)');
-            if (cancel) cancel();
-            process.removeListener('SIGINT', onSigint);
-          };
-          process.on('SIGINT', onSigint);
-          const policy = await loadEffectivePolicy(defaultPolicyPaths(store.root));
-          for (const w of policy.warnings) console.error(`! policy: ${w}`);
-          const report = await runTask(store, taskId, profile, {
-            host: currentHost(),
-            policy,
-            approve: async (ev, brief) => {
-              console.log(`\n? ${profile.id} needs your approval to receive this task:`);
-              for (const a of ev.approvals) {
-                console.log(`  · ${clean(a.reason, 200)} [rule ${a.ruleId}, ${a.layer}]`);
-              }
-              console.log('──── exactly what will be sent (brief) ────');
-              console.log(sanitizeForTerminal(brief));
-              console.log('───────────────────────────────────────────');
-              if (o.approve) return true;
-              if (!process.stdin.isTTY) return false;
-              const p = await import('@clack/prompts');
-              const ok = await p.confirm({
-                message: `Send it to ${profile.id}?`,
-                initialValue: false,
-              });
-              return ok === true;
-            },
-            criterio: engine,
-            runOptions: { timeoutMs: Number(o.timeout) * 60_000 },
-            onEvent: printEvent,
-            onStart: (h) => {
-              cancel = () => h.cancel();
-            },
-          });
-          process.removeListener('SIGINT', onSigint);
-          console.log(`\n${report.run.state === 'completed' ? '✔' : '!'} ${formatRun(report.run)}`);
-          if (report.run.error) console.log(`  error: ${clean(report.run.error, 300)}`);
-          if (
-            report.run.risk !== undefined &&
-            engine.dispose(
-              { value: report.run.risk, p: 0.8, why: [], source: 'rules' },
-              'suggest_review',
-              report.run.risk,
-            ) === 'escalate'
-          ) {
-            console.log(
-              '  ! high-risk diff: ask another profile to review it before accepting (cross review, M5).',
+    .action(async (ref: string, o: { profile: string; timeout: string; approve?: boolean }) => {
+      try {
+        const store = await openStore();
+        const taskId = await store.resolveTaskId(ref);
+        const profile = findProfile(await loadProfiles(profilesFile()), o.profile);
+        const { engine } = await loadCriterio(criterioFile(userConfigDir()));
+        if (profile.routing === 'reserved') {
+          const t = await store.loadTask(taskId);
+          const needed = t.requires.filter((r) => profile.tools.provides.includes(r));
+          if (!needed.length) {
+            console.error(
+              `! ${profile.id} is reserved for tasks that need its tools (${profile.tools.provides.join(', ') || 'none declared'}); this task does not require them.`,
             );
           }
-          const next =
-            report.task.state === 'in_review'
-              ? `review the changes on branch ${report.task.branch ?? '(read-only task)'}`
-              : report.task.state === 'blocked'
-                ? 'decide: wait for the limit to reset, or hand off to another profile (M4)'
-                : `inspect with: hilvan task log ${short(taskId)}`;
-          console.log(`  task is now ${report.task.state}; next: ${next}`);
-          if (report.run.state !== 'completed') process.exitCode = 1;
-        } catch (err) {
-          fail(err);
         }
-      },
-    );
+        console.log(
+          `→ running ${short(taskId)} with ${profile.id} (${profile.app} @ ${profile.destination.launcher})`,
+        );
+        let cancel: (() => void) | undefined;
+        const onSigint = () => {
+          console.error('\n! cancelling… (Ctrl+C again to force)');
+          if (cancel) cancel();
+          process.removeListener('SIGINT', onSigint);
+        };
+        process.on('SIGINT', onSigint);
+        const policy = await loadEffectivePolicy(defaultPolicyPaths(store.root));
+        for (const w of policy.warnings) console.error(`! policy: ${w}`);
+        const report = await runTask(store, taskId, profile, {
+          host: currentHost(),
+          policy,
+          approve: async (ev, brief) => {
+            console.log(`\n? ${profile.id} needs your approval to receive this task:`);
+            for (const a of ev.approvals) {
+              console.log(`  · ${clean(a.reason, 200)} [rule ${a.ruleId}, ${a.layer}]`);
+            }
+            console.log('──── exactly what will be sent (brief) ────');
+            console.log(sanitizeForTerminal(brief));
+            console.log('───────────────────────────────────────────');
+            if (o.approve) return true;
+            if (!process.stdin.isTTY) return false;
+            const p = await import('@clack/prompts');
+            const ok = await p.confirm({
+              message: `Send it to ${profile.id}?`,
+              initialValue: false,
+            });
+            return ok === true;
+          },
+          criterio: engine,
+          runOptions: { timeoutMs: Number(o.timeout) * 60_000 },
+          onEvent: printEvent,
+          onStart: (h) => {
+            cancel = () => h.cancel();
+          },
+        });
+        process.removeListener('SIGINT', onSigint);
+        console.log(`\n${report.run.state === 'completed' ? '✔' : '!'} ${formatRun(report.run)}`);
+        if (report.run.error) console.log(`  error: ${clean(report.run.error, 300)}`);
+        if (
+          report.run.risk !== undefined &&
+          engine.dispose(
+            { value: report.run.risk, p: 0.8, why: [], source: 'rules' },
+            'suggest_review',
+            report.run.risk,
+          ) === 'escalate'
+        ) {
+          console.log(
+            '  ! high-risk diff: ask another profile to review it before accepting (cross review, M5).',
+          );
+        }
+        const next =
+          report.task.state === 'in_review'
+            ? `review the changes on branch ${report.task.branch ?? '(read-only task)'}`
+            : report.task.state === 'blocked'
+              ? 'decide: wait for the limit to reset, or hand off to another profile (M4)'
+              : `inspect with: hilvan task log ${short(taskId)}`;
+        console.log(`  task is now ${report.task.state}; next: ${next}`);
+        if (report.run.state !== 'completed') process.exitCode = 1;
+      } catch (err) {
+        fail(err);
+      }
+    });
 
   task
     .command('recommend <id>')
@@ -383,6 +408,11 @@ export function registerTaskCommands(program: Command): void {
         const { engine } = await loadCriterio(criterioFile(userConfigDir()));
         const policy = await loadEffectivePolicy(defaultPolicyPaths(store.root));
         const rec = recommend(policy, t, profiles, engine, await store.listTasks());
+        // FR-021: warn when the brief seems to need a tool the task does not declare.
+        const catalog = buildToolCatalog(profiles);
+        const inferred = engine
+          .requiredTools({ title: t.title, text: await store.brief(t.id) }, catalog)
+          .value.filter((x) => !t.requires.includes(x));
         if (o.json) {
           const out = {
             taskType: rec.taskType,
@@ -415,11 +445,46 @@ export function registerTaskCommands(program: Command): void {
           );
           console.log(`  ✖ ${x.profile.id}: ${reasons.join('; ')}`);
         }
+        if (inferred.length) {
+          console.log(
+            `  ! Criterio thinks this task also needs ${inferred.join(', ')}; if so: hilvan task requires ${short(t.id)} ${[...t.requires, ...inferred].join(',')}`,
+          );
+        }
         if (rec.ranked[0]) {
           console.log(
             `  next: hilvan task run ${short(t.id)} --profile ${rec.ranked[0].profile.id}  (you decide; nothing runs automatically)`,
           );
         }
+      } catch (err) {
+        fail(err);
+      }
+    });
+
+  task
+    .command('requires <id> <tools>')
+    .description('Set the tools a task requires (comma list, or "none"); Criterio learns from it.')
+    .action(async (ref: string, tools: string) => {
+      try {
+        const store = await openStore();
+        const t = await store.loadTask(await store.resolveTaskId(ref));
+        if (t.runs.length)
+          throw new Error('the task already ran; create a new task or hand it off');
+        const requires = tools === 'none' ? [] : list(tools);
+        await store.saveTask({ ...t, requires });
+        await store.audit({ type: 'task.requires_changed', taskId: t.id, data: { requires } });
+        const file = criterioFile(userConfigDir());
+        const { engine } = await loadCriterio(file);
+        const catalog = buildToolCatalog((await loadProfiles(profilesFile())).profiles);
+        if (Object.keys(catalog).length) {
+          engine.learnRequiredTools(
+            { title: t.title, text: await store.brief(t.id) },
+            catalog,
+            requires,
+          );
+          await saveCriterio(file, engine);
+        }
+        console.log(`✔ task ${short(t.id)} requires: ${requires.join(', ') || 'nothing'}`);
+        console.log(`  next: hilvan task recommend ${short(t.id)}`);
       } catch (err) {
         fail(err);
       }

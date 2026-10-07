@@ -51,7 +51,7 @@ function matches(
 export interface Exclusion {
   reason: string;
   /** Who excluded it: capability check, a policy rule, or the classification ladder. */
-  source: 'classification' | 'tools' | `rule:${string}`;
+  source: 'classification' | 'tools' | 'routing' | `rule:${string}`;
   /** Enforced rules cannot be approved over (AC-014). */
   enforced: boolean;
 }
