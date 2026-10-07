@@ -9,4 +9,5 @@ export {
 } from './engine.js';
 export { taskFeatures, tokenize } from './features.js';
 export { DEFAULT_THRESHOLDS, disposition, type Thresholds } from './thresholds.js';
+export { BUILTIN_TOOL_ALIASES, buildToolCatalog, type ToolCatalog } from './tools.js';
 export * from './types.js';

@@ -1,6 +1,6 @@
 import type { Profile } from '../domain/index.js';
 import { type CodexParserState, parseCodexLine } from './parsers.js';
-import type { AgentAdapter, AuthStatus } from './types.js';
+import type { AgentAdapter, AuthStatus, DiscoveredTool } from './types.js';
 
 const PROVIDER_KEYS = ['OPENAI_API_KEY', 'CODEX_API_KEY'] as const;
 
@@ -51,6 +51,30 @@ export const codexAdapter: AgentAdapter = {
   createParser() {
     const st: CodexParserState = { lastMessage: '' };
     return (line: string) => parseCodexLine(line, st);
+  },
+
+  listToolsCommand(profile, hostEnv) {
+    return {
+      executable: 'codex',
+      args: ['mcp', 'list', '--json'],
+      ...profileEnv(profile, hostEnv),
+    };
+  },
+
+  parseToolList(stdout): DiscoveredTool[] {
+    try {
+      const list = JSON.parse(stdout) as Array<{ name?: unknown; enabled?: unknown }>;
+      return Array.isArray(list)
+        ? list
+            .filter((x) => typeof x.name === 'string')
+            .map((x) => ({
+              name: x.name as string,
+              status: x.enabled === false ? 'failed' : 'unknown',
+            }))
+        : [];
+    } catch {
+      return [];
+    }
   },
 
   /** `codex login status` prints text and does not identify the account (spike 002). */

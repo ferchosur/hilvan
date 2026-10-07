@@ -18,6 +18,7 @@ import {
   taskTypeRules,
 } from './rules.js';
 import { DEFAULT_THRESHOLDS, disposition, type Thresholds } from './thresholds.js';
+import { type ToolCatalog, toolRule } from './tools.js';
 import {
   type Action,
   type Decision,
@@ -34,13 +35,20 @@ import {
 const BLEND_K = 10;
 const HISTORY_MAX = 500;
 
-export type Question = 'taskType' | 'sensitivity' | 'acceptance';
+export type Question = 'taskType' | 'sensitivity' | 'acceptance' | 'tools';
+
+/** Tool confirmations are explicit user labels: the model catches up with the rules sooner. */
+const TOOLS_BLEND_K = 5;
+/** Upper bound of per-tool models kept (bounded state, anti-abuse). */
+const MAX_TOOL_MODELS = 200;
 
 export interface CriterioState {
   version: 1;
   taskType: SoftmaxState;
   sensitivity: SoftmaxState;
   acceptance: SoftmaxState;
+  /** One binary model per tool id: does a brief need it? (FR-021) */
+  tools?: Record<string, SoftmaxState>;
   /** Learned complexity offset per task type (user corrections minus rule score). */
   complexityOffset: Partial<Record<TaskType, { sum: number; n: number }>>;
   /** Success counts per `profileId|taskType`. */
@@ -63,8 +71,13 @@ export interface Ranked {
   why: Reason[];
 }
 
-function blend(rules: number[], model: number[], n: number): { probs: number[]; alpha: number } {
-  const alpha = n / (n + BLEND_K);
+function blend(
+  rules: number[],
+  model: number[],
+  n: number,
+  k = BLEND_K,
+): { probs: number[]; alpha: number } {
+  const alpha = n / (n + k);
   return { probs: rules.map((r, i) => (1 - alpha) * r + alpha * (model[i] ?? 0)), alpha };
 }
 
@@ -100,6 +113,7 @@ export class Criterio {
   private readonly taskTypeModel: OnlineSoftmax;
   private readonly sensitivityModel: OnlineSoftmax;
   private readonly acceptanceModel: OnlineSoftmax;
+  private readonly toolModels: Map<string, OnlineSoftmax>;
   private readonly complexityOffset: CriterioState['complexityOffset'];
   private readonly arms: Map<string, BetaArm>;
   private readonly history: CriterioState['history'];
@@ -113,6 +127,9 @@ export class Criterio {
       ? OnlineSoftmax.fromJSON(state.sensitivity)
       : new OnlineSoftmax(2);
     this.acceptanceModel = state ? OnlineSoftmax.fromJSON(state.acceptance) : new OnlineSoftmax(2);
+    this.toolModels = new Map(
+      Object.entries(state?.tools ?? {}).map(([k, v]) => [k, OnlineSoftmax.fromJSON(v)]),
+    );
     this.complexityOffset = { ...(state?.complexityOffset ?? {}) };
     this.arms = new Map(Object.entries(state?.arms ?? {}));
     this.history = [...(state?.history ?? [])];
@@ -196,6 +213,62 @@ export class Criterio {
     const value = p1 >= 0.5;
     const why = mergeWhy(rules.why, n ? this.acceptanceModel.explain(feats, value ? 1 : 0) : []);
     return { value, p: value ? p1 : 1 - p1, why, source: source(alpha) };
+  }
+
+  /**
+   * Which of the catalog's tools does this brief need? (FR-021) Rules from aliases, blended with a
+   * per-tool model learned from the user's confirmations. Affects routing → always confirmed.
+   */
+  requiredTools(
+    s: TaskSignals,
+    catalog: ToolCatalog,
+  ): Decision<string[]> & { perTool: Array<{ tool: string; p: number; why: Reason[] }> } {
+    const text = `${s.title ?? ''} ${s.text ?? ''}`;
+    const feats = taskFeatures(s);
+    const perTool = Object.entries(catalog).map(([tool, aliases]) => {
+      const rule = toolRule(text, aliases);
+      const model = this.toolModels.get(tool);
+      const n = model?.updates ?? 0;
+      const { probs, alpha } = blend(
+        [1 - rule.p, rule.p],
+        n && model ? model.predict(feats) : [],
+        n,
+        TOOLS_BLEND_K,
+      );
+      const p = probs[1] ?? 0;
+      const why = mergeWhy(rule.why, n && model ? model.explain(feats, 1, 2) : [], 3);
+      return { tool, p, why, alpha };
+    });
+    const chosen = perTool.filter((t) => t.p >= 0.5);
+    // Confidence of the whole answer: product of each tool's own decision confidence.
+    const conf = perTool.reduce((acc, t) => acc * Math.max(t.p, 1 - t.p), 1);
+    return {
+      value: chosen.map((t) => t.tool),
+      p: perTool.length ? conf : 1,
+      why: chosen
+        .flatMap((t) => t.why.map((w) => ({ ...w, signal: `${t.tool}: ${w.signal}` })))
+        .slice(0, 5),
+      source: perTool.some((t) => t.alpha > 0) ? 'blend' : 'rules',
+      perTool: perTool.map(({ tool, p, why }) => ({ tool, p, why })),
+    };
+  }
+
+  /** The user confirmed which tools a brief needs (corrections count double). */
+  learnRequiredTools(s: TaskSignals, catalog: ToolCatalog, chosen: readonly string[]): void {
+    const predicted = this.requiredTools(s, catalog);
+    const feats = taskFeatures(s);
+    for (const { tool, p } of predicted.perTool) {
+      const y = chosen.includes(tool) ? 1 : 0;
+      const right = (p >= 0.5 ? 1 : 0) === y;
+      this.record('tools', p >= 0.5 ? p : 1 - p, right ? 1 : 0);
+      let model = this.toolModels.get(tool);
+      if (!model) {
+        if (this.toolModels.size >= MAX_TOOL_MODELS) continue;
+        model = new OnlineSoftmax(2);
+        this.toolModels.set(tool, model);
+      }
+      model.update(feats, y, right ? 1 : 2);
+    }
   }
 
   /** What Hilvan may do with a decision on its own (auto / confirm / escalate). */
@@ -309,12 +382,14 @@ export class Criterio {
         taskType: this.taskTypeModel.updates,
         sensitivity: this.sensitivityModel.updates,
         acceptance: this.acceptanceModel.updates,
+        tools: [...this.toolModels.values()].reduce((a, m) => a + m.updates, 0),
       },
       brier: brier(all),
       byQuestion: {
         taskType: by('taskType'),
         sensitivity: by('sensitivity'),
         acceptance: by('acceptance'),
+        tools: by('tools'),
       },
       reliability: reliability(all),
       profiles: [...this.arms].map(([key, arm]) => ({
@@ -331,6 +406,7 @@ export class Criterio {
       taskType: this.taskTypeModel.toJSON(),
       sensitivity: this.sensitivityModel.toJSON(),
       acceptance: this.acceptanceModel.toJSON(),
+      tools: Object.fromEntries([...this.toolModels].map(([k, m]) => [k, m.toJSON()])),
       complexityOffset: this.complexityOffset,
       arms: Object.fromEntries(this.arms),
       history: this.history,
