@@ -33,3 +33,7 @@ build/
 .venv/
 __pycache__/
 target/
+
+# Spike 003 outputs (generated data and binaries)
+spikes/003-rendimiento/out/
+spikes/003-rendimiento/go/hilvan-go
