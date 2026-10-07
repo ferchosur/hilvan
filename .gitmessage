@@ -1,0 +1,8 @@
+# tipo(ámbito): descripción en imperativo (máx. ~72 caracteres)
+#
+# Tipos: spec | adr | docs | spike | feat | fix | refactor | test | chore
+# Ámbitos: 001 | contexto | glosario | adr | claude | repo
+#
+# Cuerpo: qué y por qué (no cómo).
+#
+# Refs: Q-xxx, FR-xxx, AC-xxx

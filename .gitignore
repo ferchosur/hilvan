@@ -1,0 +1,35 @@
+# Secretos y credenciales — nunca versionar
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+.auth/
+**/credentials*.json
+
+# Claude Code: preferencias personales
+.claude/settings.local.json
+CLAUDE.local.md
+
+# Sistema operativo / editores
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Artefactos de spikes
+spikes/**/out/
+spikes/**/*.log
+
+# Dependencias y builds (cuando exista código)
+node_modules/
+dist/
+build/
+.venv/
+__pycache__/
+target/

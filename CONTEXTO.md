@@ -3,7 +3,7 @@
 Última actualización: 2026-10-06  
 Estado: descubrimiento y definición de producto; todavía no hay implementación.
 
-Este documento conserva el contexto esencial para retomar el trabajo en otra sesión. La fuente de verdad de los requisitos es `specs/001-product-requirements.md`; el análisis y plan preliminar están en `docs/estado-y-oportunidades.md`.
+Este documento conserva el contexto esencial para retomar el trabajo en otra sesión. La fuente de verdad de los requisitos es `specs/001-product-requirements.md`; el análisis y plan preliminar están en `docs/research/estado-y-oportunidades.md`.
 
 ## Objetivo del producto
 
@@ -83,9 +83,10 @@ No afirmar que estos elementos son únicos en todo el mercado hasta completar be
 
 ## Documentos y estado
 
-- `README.md`: método SDD y lista de documentos.
+- `README.md`: método SDD, estructura del repositorio y lista de documentos.
+- Espacio de trabajo (2026-10-06): repositorio git, `AGENTS.md`/`CLAUDE.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, glosario, `docs/{adr,design,plans,research,sessions}`, `spikes/` y skills `/retomar`, `/cerrar-sesion`, `/nueva-adr`, `/nuevo-spike`. ADR-0001 registra el método SDD.
 - `specs/001-product-requirements.md`: versión 0.3, Draft (2026-10-06); incorpora configuración dinámica de aplicaciones/perfiles, elegibilidad antes de optimización, recomendaciones explicables, restricciones obligatorias y destino/adaptador de ejecución por perfil. Conserva Q-001–Q-010.
-- `docs/estado-y-oportunidades.md`: informe detallado de estado, reutilización, diferenciación, investigación y fases de trabajo (2026-10-04).
+- `docs/research/estado-y-oportunidades.md`: informe detallado de estado, reutilización, diferenciación, investigación y fases de trabajo (2026-10-04).
 - La configuración dinámica de aplicaciones/perfiles y la elegibilidad antes de optimizar ya están incorporadas en la versión 0.2 de la especificación. Sigue en Draft: aún falta revisar y aprobar el baseline.
 - La versión 0.3 incorpora la necesidad de ejecutar dos perfiles de la misma aplicación en entornos distintos del mismo PC (p. ej. Windows nativo y una distro WSL). El perfil debe resolver a un destino/adaptador explícito; las preguntas sobre proceso no interactivo vs. puente de sesión y ubicación del runner siguen abiertas.
 - No hay diseño técnico aprobado ni código del producto.
@@ -136,8 +137,10 @@ No afirmar que estos elementos son únicos en todo el mercado hasta completar be
 
 ## Enlaces de referencia
 
-- [Informe de estado y oportunidades](docs/estado-y-oportunidades.md)
-- [Requisitos v0.2 (Draft)](specs/001-product-requirements.md)
+- [Informe de estado y oportunidades](docs/research/estado-y-oportunidades.md)
+- [Requisitos v0.3 (Draft)](specs/001-product-requirements.md)
+- [Glosario](docs/glosario.md)
+- [Bitácora de sesiones](docs/sessions/)
 - [Orcha](https://github.com/open-orcha/orcha)
 - [`codex-plugin-cc`](https://github.com/openai/codex-plugin-cc)
 - [Guía de MCP para Codex](https://developers.openai.com/learn/docs-mcp)

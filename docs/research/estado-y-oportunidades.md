@@ -3,7 +3,7 @@
 - **Fecha:** 2026-10-04
 - **Estado:** Informe de descubrimiento; no aprobado como especificación de implementación
 - **Nombre de trabajo:** Orquestador de agentes de IA (`agent-orchestrator`)
-- **Especificación vigente:** [001 — Requisitos de producto](../specs/001-product-requirements.md), borrador v0.3
+- **Especificación vigente:** [001 — Requisitos de producto](../../specs/001-product-requirements.md), borrador v0.3
 
 ## 1. Resumen ejecutivo
 
@@ -252,7 +252,7 @@ El paso que más reduce riesgo es **revisar y aprobar los requisitos antes de es
 
 ## 10. Referencias
 
-- [Especificación 001 del proyecto](../specs/001-product-requirements.md)
+- [Especificación 001 del proyecto](../../specs/001-product-requirements.md)
 - [Orcha — repositorio](https://github.com/open-orcha/orcha)
 - [Orcha — hallazgos y roadmap](https://github.com/open-orcha/orcha/blob/main/docs/orcha-roadmap-and-findings.md)
 - [Orcha — guía BYOC y seguridad](https://github.com/open-orcha/orcha/blob/main/docs/byoc-guide.md)
