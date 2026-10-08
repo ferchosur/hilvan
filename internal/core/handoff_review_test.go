@@ -212,3 +212,105 @@ func TestDiscardTeachesRejection(t *testing.T) {
 		t.Errorf("rejection %+v", st)
 	}
 }
+
+// ── approval gate in RunTask (AC-003, AC-004, AC-014) ─────────────────────
+
+var corpToPersonal = &domain.PolicyFile{Version: 1, Rules: []domain.Rule{{
+	ID: "corp-to-personal", From: domain.Selector{Classification: []string{"corporate", "confidential"}},
+	To: domain.Selector{Tags: []string{"personal"}}, Effect: "require_approval",
+	Reason: "corporate data to a personal account needs approval",
+}}}
+
+func personalProfile(tmp string) *domain.Profile {
+	p := handoffProfile(tmp, "claude-personal", "claude-code")
+	p.Accepts = []string{"public", "personal", "corporate"}
+	return p
+}
+
+func TestApprovalShowsBriefAndDeclineSendsNothing(t *testing.T) {
+	s, tmp := newRepo(t)
+	task := mustCreate(t, s, Brief{Title: "Informe trimestral", Objective: "datos internos", Classification: "corporate", Mode: "read"})
+	pol := policy.Merge(policy.Layers{User: corpToPersonal})
+	seen := ""
+	d := deps("success")
+	d.Policy = &pol
+	d.Approve = func(_ policy.Evaluation, brief string) bool { seen = brief; return false }
+	_, err := RunTask(s, task.ID, personalProfile(tmp), d)
+	errContains(t, err, "nothing was sent")
+	if !strings.Contains(seen, "Informe trimestral") {
+		t.Errorf("the approver did not see the exact brief: %q", seen)
+	}
+	if after, _ := s.LoadTask(task.ID); len(after.Runs) != 0 {
+		t.Error("a declined approval still ran the agent")
+	}
+}
+
+func TestApprovedRunGoesAhead(t *testing.T) {
+	s, tmp := newRepo(t)
+	task := mustCreate(t, s, Brief{Title: "x", Classification: "corporate", Mode: "read"})
+	pol := policy.Merge(policy.Layers{User: corpToPersonal})
+	d := deps("success")
+	d.Policy = &pol
+	d.Approve = func(policy.Evaluation, string) bool { return true }
+	r, err := RunTask(s, task.ID, personalProfile(tmp), d)
+	if err != nil || r.Run.State != domain.RunCompleted || !contains(r.Task.ApprovedProfiles, "claude-personal") {
+		t.Fatalf("approved run: %v %+v", err, r.Task)
+	}
+}
+
+func TestEnforcedDenyCannotBeApproved(t *testing.T) {
+	s, tmp := newRepo(t)
+	task := mustCreate(t, s, Brief{Title: "x", Classification: "corporate", Mode: "read"})
+	deny := corpToPersonal.Rules[0]
+	deny.Effect, deny.Enforced = "deny", true
+	pol := policy.Merge(policy.Layers{Managed: &domain.PolicyFile{Version: 1, Rules: []domain.Rule{deny}}})
+	d := deps("success")
+	d.Policy = &pol
+	d.Approve = func(policy.Evaluation, string) bool { return true }
+	_, err := RunTask(s, task.ID, personalProfile(tmp), d)
+	errContains(t, err, "cannot be approved")
+}
+
+// ── required tools (AC-024) ────────────────────────────────────────────────
+
+func TestRequiredToolsCatalogAndLearning(t *testing.T) {
+	ps := routingProfiles()
+	catalog := criterio.BuildToolCatalog(ps)
+	aliases := map[string][]string{}
+	for _, e := range catalog {
+		aliases[e.Tool] = e.Aliases
+	}
+	for _, w := range []string{"jira", "ticket", "incidencia"} {
+		if !contains(aliases["jira"], w) {
+			t.Errorf("jira catalog lacks %q: %v", w, aliases["jira"])
+		}
+	}
+	for _, w := range []string{"intranet", "search", "portal de empleados"} {
+		if !contains(aliases["intranet-search"], w) {
+			t.Errorf("intranet-search catalog lacks %q", w)
+		}
+	}
+	for title, want := range map[string]string{
+		"Revisar las incidencias del sprint en Jira":      "jira",
+		"Buscar en la intranet la política de vacaciones": "intranet-search",
+		"Consultar el portal de empleados":                "intranet-search",
+		"Refactorizar el parser de eventos":               "",
+	} {
+		if got := strings.Join(criterio.New().RequiredTools(criterio.TaskSignals{Title: title}, catalog).Value, ","); got != want {
+			t.Errorf("%q → %q, want %q", title, got, want)
+		}
+	}
+	c := criterio.New()
+	if v := c.RequiredTools(criterio.TaskSignals{Title: "Actualizar el estado del caso de soporte 4521"}, catalog).Value; len(v) != 0 {
+		t.Fatalf("before learning: %v", v)
+	}
+	for _, n := range []string{"4521", "3310", "9087", "1200", "5555", "7001", "8123", "2222"} {
+		c.LearnRequiredTools(criterio.TaskSignals{Title: "Actualizar el estado del caso de soporte " + n}, catalog, []string{"jira"})
+	}
+	if v := c.RequiredTools(criterio.TaskSignals{Title: "Cerrar el caso de soporte 6060"}, catalog).Value; !contains(v, "jira") {
+		t.Errorf("did not learn from confirmations: %v", v)
+	}
+	if c.Stats().Examples[criterio.QTools] == 0 {
+		t.Error("tool examples not counted")
+	}
+}
