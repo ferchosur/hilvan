@@ -81,4 +81,4 @@ TypeScript/Node ≥ 22 (ADR-0002, **en revisión por Q-013**) · CLI primero (00
 - [Investigación de foros y herramientas](docs/research/2026-10-06-foros-y-herramientas.md) · [UI terminal y web](docs/research/2026-10-07-ui-terminal-y-web.md) · [estado y oportunidades](docs/research/estado-y-oportunidades.md)
 - [Análisis de riesgos](docs/security/analisis-de-riesgos.md) · [Requisitos SR](docs/security/requisitos.md) · [Patrones](docs/design/patrones.md)
 - [Glosario](docs/glosario.md) · [Bitácora](docs/sessions/)
-- Clones de referencia: `../orcha` (`b647cab`) y `../herdr`.
+- Clones de referencia: `../orcha` (`b647cab`), `../herdr` y `../claude-router` (`7599fb5`, [análisis](docs/research/2026-10-07-claude-router.md)).
