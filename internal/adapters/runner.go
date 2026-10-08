@@ -23,6 +23,8 @@ type RunOptions struct {
 	// Grace is the time between SIGINT and SIGTERM, and between SIGTERM and SIGKILL (default 10 s).
 	Grace             time.Duration
 	MaxLine, MaxTotal int
+	// OnLine is called once per stdout line, before its events (e.g. to store the run log).
+	OnLine func(line string)
 }
 
 // RunResult is the outcome plus process facts.
@@ -118,6 +120,9 @@ func StartRun(inv launchers.Invocation, prompt string, parse func(string) []Even
 
 	var events []Event
 	splitter := process.NewLineSplitter(func(line string) {
+		if opts.OnLine != nil {
+			opts.OnLine(line)
+		}
 		for _, e := range parse(line) {
 			events = append(events, e)
 			onEvent(e, line)

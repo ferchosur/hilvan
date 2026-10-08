@@ -289,18 +289,14 @@ export async function runTask(
     const runFile = store.runFile(taskId, runId);
     await mkdir(path.dirname(runFile), { recursive: true, mode: 0o700 });
     let pending = Promise.resolve();
-    const handle = startRun(
-      inv,
-      prompt,
-      adapter.createParser(),
-      (e, raw) => {
-        // SR-013: run logs are stored with secrets redacted.
+    const handle = startRun(inv, prompt, adapter.createParser(), (e) => deps.onEvent?.(e), {
+      ...deps.runOptions,
+      // SR-013: run logs are stored with secrets redacted, one entry per agent output line.
+      onLine: (raw) => {
         const line = `${redactSecrets(raw).text}\n`;
         pending = pending.then(() => appendFile(runFile, line, { mode: 0o600 }));
-        deps.onEvent?.(e);
       },
-      deps.runOptions,
-    );
+    });
     deps.onStart?.(handle);
     const outcome = await handle.done;
     await pending;

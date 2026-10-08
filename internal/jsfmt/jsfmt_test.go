@@ -59,3 +59,20 @@ func TestString(t *testing.T) {
 		t.Errorf("got %s", got)
 	}
 }
+
+func TestToFixedMatchesJavaScript(t *testing.T) {
+	cases := []struct {
+		x    float64
+		d    int
+		want string
+	}{
+		{0.125, 2, "0.13"}, {0.0123, 4, "0.0123"}, {1.005, 2, "1.00"}, {2.5, 0, "3"}, {-1.5, 0, "-2"},
+		{-0.0001, 2, "-0.00"}, {0, 2, "0.00"}, {123.456, 1, "123.5"}, {0.3, 3, "0.300"}, {1e-7, 4, "0.0000"},
+		{0.375, 2, "0.38"}, {-2.675, 2, "-2.67"},
+	}
+	for _, c := range cases {
+		if got := ToFixed(c.x, c.d); got != c.want {
+			t.Errorf("(%v).toFixed(%d) = %q, want %q", c.x, c.d, got, c.want)
+		}
+	}
+}

@@ -57,6 +57,30 @@ jobs:
       - run: go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 ./...
         if: matrix.os == 'ubuntu-latest'
 
+  # Plan 002 (G4): the Go CLI must behave like the TypeScript one, and the golden files must
+  # still be what the TypeScript code produces. Removed with the TypeScript code in G5.
+  parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version-file: go.mod
+          cache: false
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - run: go build -o hilvan-go ./cmd/hilvan
+      - run: npx tsx scripts/parity/diff-cli.ts ./hilvan-go
+      - run: npx tsx scripts/parity/gen-g1.ts && npx tsx scripts/parity/gen-g2.ts
+      - run: git diff --exit-code -- internal
+
   audit:
     runs-on: ubuntu-latest
     timeout-minutes: 5

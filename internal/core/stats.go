@@ -9,16 +9,18 @@ import (
 // ProfileUsage is per-profile usage built only from what the CLIs reported (FR-016):
 // estimates, never balances.
 type ProfileUsage struct {
-	ProfileID    string         `json:"profileId"`
-	Runs         int            `json:"runs"`
-	States       map[string]int `json:"states"`
-	CostUSD      float64        `json:"costUsd"`
-	CostRuns     int            `json:"costRuns"`
-	InputTokens  int64          `json:"inputTokens"`
-	OutputTokens int64          `json:"outputTokens"`
-	LastLimits   *LimitsAt      `json:"lastLimits,omitempty"`
-	Accepted     int            `json:"accepted"`
-	Discarded    int            `json:"discarded"`
+	ProfileID string         `json:"profileId"`
+	Runs      int            `json:"runs"`
+	States    map[string]int `json:"states"`
+	// StateOrder lists States keys in first-seen order (how the TypeScript object enumerates).
+	StateOrder   []string  `json:"-"`
+	CostUSD      float64   `json:"costUsd"`
+	CostRuns     int       `json:"costRuns"`
+	InputTokens  int64     `json:"inputTokens"`
+	OutputTokens int64     `json:"outputTokens"`
+	LastLimits   *LimitsAt `json:"lastLimits,omitempty"`
+	Accepted     int       `json:"accepted"`
+	Discarded    int       `json:"discarded"`
 	// Reviews counts cross reviews performed by this profile (their usage is included above).
 	Reviews int `json:"reviews"`
 }
@@ -62,6 +64,9 @@ func UsageByProfile(tasks []domain.Task) []ProfileUsage {
 		for _, r := range t.Runs {
 			u := get(r.ProfileID)
 			u.Runs++
+			if u.States[r.State] == 0 {
+				u.StateOrder = append(u.StateOrder, r.State)
+			}
 			u.States[r.State]++
 			addUsage(u, r.Usage)
 			if len(r.Limits) > 0 && (u.LastLimits == nil || r.StartedAt > u.LastLimits.At) {

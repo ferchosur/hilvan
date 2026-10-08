@@ -11,6 +11,8 @@ export interface RunOptions {
   graceMs?: number;
   maxLine?: number;
   maxTotal?: number;
+  /** Called once per stdout line, before its events (e.g. to store the run log). */
+  onLine?: (line: string) => void;
 }
 
 export interface RunHandle {
@@ -65,6 +67,7 @@ export function startRun(
 
   const splitter = new LineSplitter(
     (line) => {
+      opts.onLine?.(line);
       for (const e of parse(line)) {
         events.push(e);
         onEvent(e, line);
