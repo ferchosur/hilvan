@@ -36,7 +36,11 @@ No registrar emails, organizaciones ni rutas reales en este documento: usar "cue
 
 - **Linux (2026-10-06, spike 002):** un directorio vacío da `loggedIn: false` y el directorio por defecto da sesión iniciada. `claude auth status` identifica la cuenta y la organización. Falta probarlo con dos cuentas reales.
 - **Linux (2026-10-06, M1):** **el login por defecto de Claude no equivale a `CLAUDE_CONFIG_DIR=~/.claude`.** Sin la variable, la cuenta (email y organización) se lee de `~/.claude.json`, en la carpeta personal. Con la variable apuntando a `~/.claude`, Claude busca `~/.claude/.claude.json`, que no existe: la sesión sigue activa pero la cuenta aparece como `null`, y además el CLI crea ese archivo. Decisión: un perfil "login por defecto" usa `configDir: null` y el adaptador **elimina** la variable del entorno en vez de fijarla. En Codex, `CODEX_HOME=~/.codex` sí equivale al valor por defecto, pero se aplica la misma regla por coherencia.
-- **Windows / WSL:** pendiente.
+- **PC del trabajo, fase A sin login (2026-10-07, ejecutada por una sesión de Claude Code en WSL vía Remote Control):** entorno WSL2 Ubuntu 26.04, Claude Code 2.1.293 en WSL y en Windows nativo, Node 24, Git 2.53/2.55, Go 1.26. **Codex no está instalado** en ese PC.
+  - Directorio de perfil vacío → `loggedIn: false` tanto en WSL como en Windows nativo (`$env:CLAUDE_CONFIG_DIR`). Sin la variable, la sesión por defecto sigue activa (`authMethod: claude.ai`). Al menos con el directorio vacío, no se hereda la sesión por defecto (tampoco en Windows, donde se temía el almacén de credenciales del sistema).
+  - `claude auth status` **escribe** en el directorio del perfil (`.claude.json`, `.claude.json.lock`, `backups/`) aunque no haya sesión. `hilvan profile check` no es de solo lectura sobre el directorio del perfil.
+  - **Windows → WSL:** sin resultado. `wsl.exe` emitió por stderr una advertencia **en UTF-16** ("Se detectó una configuración de proxy localhost, pero no se refleja en WSL. WSL en modo NAT…") y el reintento lo bloqueó el clasificador de permisos de la sesión remota. Impacto en el lanzador `wsl` (ADR-0005): debe decodificar la salida de `wsl.exe` en UTF-16LE y no confundir esas advertencias con la salida del agente. Pendiente de ejecutarlo en persona.
+- **Windows / WSL, con login (fases B y C):** pendiente.
 
 ## Conclusión
 
