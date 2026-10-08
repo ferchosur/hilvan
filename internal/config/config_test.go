@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"hilvan/internal/criterio"
-	"hilvan/internal/domain"
+	"github.com/ferchosur/hilvan/internal/criterio"
+	"github.com/ferchosur/hilvan/internal/domain"
 )
 
 var (

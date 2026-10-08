@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"math"
 
-	"hilvan/internal/domain"
-	"hilvan/internal/jsfmt"
+	"github.com/ferchosur/hilvan/internal/domain"
+	"github.com/ferchosur/hilvan/internal/jsfmt"
 )
 
 func roundJS(x float64) float64 { return jsfmt.Round(x) }

@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"hilvan/internal/domain"
+	"github.com/ferchosur/hilvan/internal/domain"
 )
 
 // Golden cases from the TypeScript implementation (scripts/parity/gen-g1.ts): the Go engine must

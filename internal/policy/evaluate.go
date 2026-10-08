@@ -4,7 +4,7 @@ package policy
 import (
 	"strings"
 
-	"hilvan/internal/domain"
+	"github.com/ferchosur/hilvan/internal/domain"
 )
 
 // Layers holds the policy files that exist; nil means the layer is absent.

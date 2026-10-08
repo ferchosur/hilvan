@@ -3,8 +3,8 @@ package criterio
 import (
 	"strconv"
 
-	"hilvan/internal/domain"
-	"hilvan/internal/jsfmt"
+	"github.com/ferchosur/hilvan/internal/domain"
+	"github.com/ferchosur/hilvan/internal/jsfmt"
 )
 
 // TaskTypes are the task kinds, in model class order.

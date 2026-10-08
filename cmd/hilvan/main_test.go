@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	"hilvan/internal/version"
+	"github.com/ferchosur/hilvan/internal/version"
 )
 
 func TestVersion(t *testing.T) {

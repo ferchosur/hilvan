@@ -8,8 +8,8 @@ import (
 
 	"go.yaml.in/yaml/v3"
 
-	"hilvan/internal/domain"
-	"hilvan/internal/security"
+	"github.com/ferchosur/hilvan/internal/domain"
+	"github.com/ferchosur/hilvan/internal/security"
 )
 
 // MaxConfigBytes bounds configuration files (SR-008).

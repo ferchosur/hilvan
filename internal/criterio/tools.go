@@ -4,7 +4,7 @@ import (
 	"math"
 	"strings"
 
-	"hilvan/internal/domain"
+	"github.com/ferchosur/hilvan/internal/domain"
 )
 
 // BuiltinToolAliases are seed words (es/en) that reveal a brief needs a common enterprise tool

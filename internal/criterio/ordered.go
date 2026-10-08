@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"hilvan/internal/jsfmt"
+	"github.com/ferchosur/hilvan/internal/jsfmt"
 )
 
 // ordered is a string-keyed map that keeps insertion order, like a JavaScript Map or an object
