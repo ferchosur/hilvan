@@ -1,0 +1,2 @@
+# Casos dorados regenerables con: npx tsx spikes/006-paridad-go/gen.ts && npx tsx spikes/006-paridad-go/gen-yaml.ts
+testdata/

@@ -7,7 +7,7 @@ Las decisiones de **producto** (`D-xxx`) se registran en la especificación; aqu
 | ADR | Título | Estado | Fecha |
 |---|---|---|---|
 | [0001](0001-metodo-sdd-y-registro-de-decisiones.md) | Método SDD y registro de decisiones | Accepted | 2026-10-06 |
-| [0002](0002-typescript-node-y-contrato-por-stdio.md) | TypeScript sobre Node.js y contrato JSON por stdio | Accepted | 2026-10-06 |
+| [0002](0002-typescript-node-y-contrato-por-stdio.md) | TypeScript sobre Node.js y contrato JSON por stdio | Superseded (0014) | 2026-10-06 |
 | [0003](0003-cli-primero-y-plataformas.md) | CLI primero; Linux, Windows y WSL | Accepted | 2026-10-06 |
 | [0004](0004-adaptadores-de-proceso-no-interactivo.md) | Adaptadores de proceso no interactivo para Claude Code y Codex | Accepted | 2026-10-06 |
 | [0005](0005-un-orquestador-con-lanzadores.md) | Un único orquestador con lanzadores por destino | Accepted | 2026-10-06 |
@@ -18,6 +18,7 @@ Las decisiones de **producto** (`D-xxx`) se registran en la especificación; aqu
 | [0010](0010-licencia-apache-2.md) | Licencia Apache-2.0 | Accepted | 2026-10-06 |
 | [0011](0011-criterio-motor-de-decision-local.md) | Criterio: motor de decisión local tipado | Accepted | 2026-10-07 |
 | [0013](0013-herramientas-por-cuenta-y-perfil-reservado.md) | Herramientas de la cuenta, perfil reservado e inferencia de herramientas | Accepted | 2026-10-07 |
+| [0014](0014-go-como-lenguaje-de-implementacion.md) | Go como lenguaje de implementación | Accepted | 2026-10-07 |
 | [0012](0012-interfaz-tui-propia-y-web-local-minima.md) | TUI propia sin dependencias y web local mínima | **Proposed** | 2026-10-07 |
 
 Candidatos futuros: lanzador SSH, UI web local, paralelismo, adaptador ACP, migración a SQLite si el volumen lo exige.

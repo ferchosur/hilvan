@@ -1,6 +1,6 @@
 # ADR-0002 — TypeScript sobre Node.js y contrato JSON por stdio
 
-- **Estado:** Accepted
+- **Estado:** Superseded por [ADR-0014](0014-go-como-lenguaje-de-implementacion.md) (2026-10-07)
 - **Fecha:** 2026-10-06
 - **Decisores:** Fernando Giraldo (aprobación), Claude Code (propuesta como arquitecto)
 - **Relacionado:** D-013, NFR-005, NFR-012

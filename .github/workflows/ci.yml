@@ -33,6 +33,28 @@ jobs:
       - run: npm run build
       - run: node dist/cli/index.js --version
 
+  # Plan 002 / ADR-0014: Go implementation, checked alongside the TypeScript reference until G5.
+  go:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version-file: go.mod
+          cache: false
+      - run: go run ./scripts/check
+      - run: go build -trimpath ./cmd/hilvan
+      - run: go run ./cmd/hilvan --version
+      - run: go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 ./...
+        if: matrix.os == 'ubuntu-latest'
+
   audit:
     runs-on: ubuntu-latest
     timeout-minutes: 5
