@@ -54,6 +54,7 @@ TypeScript/Node ≥ 22 (ADR-0002, **en revisión por Q-013**) · CLI primero (00
 
 - `claude -p` reporta el uso de las ventanas `five_hour` y `seven_day` (`rate_limit_event`). `claude auth status --json` identifica la cuenta. `codex login status` solo indica si hay sesión.
 - Claude sale con 0 tras SIGINT, así que el estado se decide por los eventos. Hay que cerrar stdin. `CODEX_HOME` debe existir y estar fuera de `/tmp`.
+- **Codex tiene un servidor en segundo plano** (`codex app-server --managed-daemon`, en `~/.codex/packages/app-server-daemon/`) que se actualiza solo. El 2026-10-07 iba por la 0.161.0 mientras el CLI de npm seguía en la 0.160.1, y el CLI interactivo mostró *Background server has incompatible feature settings* con un menú de tres opciones. No lo causó Hilvan: el servidor usa `~/.codex` y no un `CODEX_HOME` de prueba.
 - **El login por defecto de Claude guarda la cuenta en `~/.claude.json`.** Reutilizarlo exige *eliminar* `CLAUDE_CONFIG_DIR`, no apuntarla a `~/.claude`.
 - **E2E 2026-10-07:** en una tarea de solo lectura, Codex respondió sin leer el archivo y describió un README inexistente (alucinación). **La revisión cruzada real de Claude lo detectó** (`VERDICT: changes_requested`), lo que demuestra el valor de FR-015.
 - **Spike 003 (rendimiento):** Go arranca en 1 ms y usa 15 MB, frente a ~145 ms y 60–80 MB en Node; además genera un binario sin runtime. Python es lento en CPU y Java pesado.
@@ -71,8 +72,9 @@ TypeScript/Node ≥ 22 (ADR-0002, **en revisión por Q-013**) · CLI primero (00
 
 1. Que el usuario decida Q-013 (Go) y ADR-0012 (UI).
 2. Validar en el PC del trabajo (spike 001): perfiles en Windows y WSL (AC-015).
-3. Mejoras: resumen estructurado pedido al agente de origen en el traspaso (`--json-schema`/`--output-schema`), catálogo de mensajes es/en, `hilvan stats`, `hilvan watch`/`ui` (si se acepta ADR-0012) y lanzador SSH para las dos máquinas.
-4. Release 0.1.0: README final, empaquetado (bundle) y npm con provenance (SR-029).
+3. **Pendiente:** comprobar si `codex exec` (el adaptador de Hilvan) choca con ese servidor cuando las versiones del CLI y del servidor no coinciden. En modo no interactivo nadie puede elegir una opción del menú, así que la ejecución podría fallar o colgarse. Si ocurre, el adaptador debe detectarlo y dejar la tarea en `blocked` con un mensaje claro.
+4. Mejoras: resumen estructurado pedido al agente de origen en el traspaso (`--json-schema`/`--output-schema`), catálogo de mensajes es/en, `hilvan stats`, `hilvan watch`/`ui` (si se acepta ADR-0012) y lanzador SSH para las dos máquinas.
+5. Release 0.1.0: README final, empaquetado (bundle) y npm con provenance (SR-029).
 
 ## Referencias
 
