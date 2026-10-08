@@ -34,6 +34,10 @@ Valorar ideas externas (mods de Claude Code, claude-router), decidir Q-013 y mig
 - `hilvan accept` fallaba sin identidad de git (primera CI en ubuntu).
 - El log de ejecución duplicaba la línea `result` y perdía las líneas sin eventos (prueba diferencial). Corregido en TS y en Go.
 
+## Propuestas guardadas para decidir
+
+La visión conversacional, el requisito "no aumentar el consumo", las extensiones, los comandos de solo lectura y el borrador del post de lanzamiento están en [propuestas pendientes](../research/2026-10-08-propuestas-pendientes.md).
+
 ## Pendiente
 
 - La fase C del spike 001 con sesión iniciada la ejecuta el usuario; el filtro de permisos de la sesión remota la bloqueó. Con ella se cierra AC-015.

@@ -6,6 +6,7 @@ Toda afirmación sobre un proveedor externo debe llevar fuente y fecha de consul
 
 | Documento | Fecha | Tema |
 |---|---|---|
+| [2026-10-08-propuestas-pendientes.md](2026-10-08-propuestas-pendientes.md) | 2026-10-08 | Propuestas sin decidir: Hilvan conversacional (spec 002), NFR "no aumentar el consumo", extensiones, comandos de solo lectura y borrador del post de lanzamiento. |
 | [2026-10-07-claude-router.md](2026-10-07-claude-router.md) | 2026-10-07 | claude-router (mod que elige modelo por turno): por qué no se integra y seis ideas para elegir el modelo por tarea. |
 | [2026-10-07-panorama-orquestadores.md](2026-10-07-panorama-orquestadores.md) | 2026-10-07 | Conductor, Crystal/Nimbalyst, Emdash, ComposioHQ, CCS y otros: qué copiar, qué evitar y la diferenciación confirmada. |
 | [2026-10-07-ui-terminal-y-web.md](2026-10-07-ui-terminal-y-web.md) | 2026-10-07 | Opciones de TUI y web local: peso, mantenimiento, seguridad (SR-032…036) y recomendación (ADR-0012). |

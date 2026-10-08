@@ -100,6 +100,9 @@ Cambios notables del proyecto. Formato basado en [Keep a Changelog](https://keep
 
 | Fecha | Documento | Versión | Estado | Cambios |
 |---|---|---|---|---|
+| 2026-10-07 | 001 — Requisitos de producto | 1.4 | Approved | D-026: Go como lenguaje (resuelve Q-013); D-013 obsoleta. ADR-0014. |
+| 2026-10-07 | 001 — Requisitos de producto | 1.3 | Approved | FR-021 (herramientas por cuenta, perfil reservado e inferencia de herramientas), AC-023–AC-025. ADR-0013. |
+| 2026-10-07 | 001 — Requisitos de producto | 1.2 | Approved | FR-020 (Criterio), NFR-013 (ligereza), AC-022; FR-012 con regla de cuotas por aplicación. ADR-0011. |
 | 2026-10-06 | 001 — Requisitos de producto | 1.1 | Approved | Nombre Hilvan (D-025, resuelve Q-011). |
 | 2026-10-06 | 001 — Requisitos de producto | 1.0 | Approved | Baseline: decisiones D-013–D-024, FR-015–FR-019, NFR-010–NFR-012, AC-018–AC-021; Perplexity diferido. |
 | 2026-10-06 | 001 — Requisitos de producto | 0.3 | Draft | D-011, D-012; FR-013, FR-014; NFR-008, NFR-009; AC-015–AC-017; Q-009, Q-010 (destinos y adaptadores de ejecución, Windows/WSL). |

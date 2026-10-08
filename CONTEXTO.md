@@ -66,10 +66,13 @@ Calidad: Go con `go run ./scripts/check` (gofmt, vet, tests), `govulncheck` en C
   - Los worktrees creados desde Windows sin `--relative-paths` no funcionan desde WSL; Hilvan ya usa rutas relativas.
   - En Windows, `claude` es un `.exe`, así que BatBadBut no le afecta; los `.cmd` se protegen igualmente.
 - **ADR-0013 verificado de nuevo con Go (2026-10-08):** un hook `SessionStart` y un `.mcp.json` hostiles no se cargan vía Hilvan; con `claude -p` directo, el hook sí se dispara.
-- **Tareas de solo lectura con Claude:** `--permission-mode dontAsk` impide incluso `ls` o `git ls-files`.
+- **Tareas de solo lectura con Claude:** `--permission-mode dontAsk` impide incluso `ls` o `git ls-files` (mejora propuesta en [propuestas pendientes](docs/research/2026-10-08-propuestas-pendientes.md) §4).
 - **Mods de Claude Code** (2.1.287+): se ejecutan en `claude -p`, y los de usuario no los bloquea `--setting-sources user` (spike 005, `Planned`, en la rama `spike/005-mods-headless`).
 
 ## Decisiones pendientes del usuario
+
+Detalle de las propuestas 2 y 3 en [propuestas pendientes](docs/research/2026-10-08-propuestas-pendientes.md).
+
 
 1. **ADR-0012 — UI:** aceptar `hilvan watch` (TUI propia) y `hilvan ui` (web local mínima).
 2. **Visión conversacional** (Hilvan como REPL en lenguaje natural): propuesta de spec 002 con un "cerebro" elegido por clasificación y las operaciones de Hilvan como herramientas MCP. Sin decidir.
@@ -94,11 +97,11 @@ Calidad: Go con `go run ./scripts/check` (gofmt, vet, tests), `govulncheck` en C
 4. Release 0.1.0:
    - binarios por plataforma con *attestations* (SR-029);
    - comprobar si la política de Windows del equipo de validación exige firmar `hilvan.exe`;
-   - README final y post de lanzamiento (borrador en la sesión del 2026-10-07).
+   - README final y post de lanzamiento (borrador en [propuestas pendientes](docs/research/2026-10-08-propuestas-pendientes.md) §5).
 
 ## Referencias
 
-- [Investigación de foros y herramientas](docs/research/2026-10-06-foros-y-herramientas.md) · [UI terminal y web](docs/research/2026-10-07-ui-terminal-y-web.md) · [claude-router](docs/research/2026-10-07-claude-router.md) · [estado y oportunidades](docs/research/estado-y-oportunidades.md)
+- [Propuestas pendientes](docs/research/2026-10-08-propuestas-pendientes.md) · [Investigación de foros y herramientas](docs/research/2026-10-06-foros-y-herramientas.md) · [UI terminal y web](docs/research/2026-10-07-ui-terminal-y-web.md) · [claude-router](docs/research/2026-10-07-claude-router.md) · [estado y oportunidades](docs/research/estado-y-oportunidades.md)
 - [Análisis de riesgos](docs/security/analisis-de-riesgos.md) · [Requisitos SR](docs/security/requisitos.md) · [Patrones](docs/design/patrones.md)
 - [Glosario](docs/glosario.md) · [Bitácora](docs/sessions/)
 - Clones de referencia: `../orcha` (`b647cab`), `../herdr` y `../claude-router` (`7599fb5`).
