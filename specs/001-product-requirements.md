@@ -1,7 +1,7 @@
 # 001 — Requisitos de producto
 
 - **Estado:** Approved
-- **Versión:** 1.3
+- **Versión:** 1.4
 - **Fecha:** 2026-10-06
 - **Aprobado por / fecha:** Fernando Giraldo, 2026-10-06 (aprobación del plan que resuelve Q-001–Q-010)
 - **Relacionado:** [investigación 2026-10-06](../docs/research/2026-10-06-foros-y-herramientas.md), [ADR-0002–0010](../docs/adr/README.md), [plan MVP](../docs/plans/001-mvp.md)
@@ -62,7 +62,7 @@ Una persona que ya usa dos o más asistentes o agentes de IA, posiblemente con v
 - **D-011 — Perfil vinculado a un entorno de ejecución:** un perfil identifica tanto la cuenta como la instancia concreta del agente que la usa (por ejemplo, Claude Code en Windows o en una distribución WSL). El orquestador debe dirigir la tarea a ese destino explícito; no basta con seleccionar proveedor o nombre de cuenta.
 - **D-012 — Invocación mediante adaptadores:** el orquestador entrega instrucciones a través de un adaptador de ejecución configurado para el entorno del perfil. La vía preferida para un CLI local es iniciar un proceso con argumentos, directorio de trabajo y entrada/salida controlados. No debe depender de escribir en una ventana de terminal que la persona haya abierto manualmente.
 
-- **D-013 — Lenguaje:** TypeScript sobre Node.js ≥ 22. El contrato adaptador↔núcleo es JSON por stdio, independiente del lenguaje, para permitir runners en otros lenguajes (p. ej. Go) más adelante. ADR-0002.
+- **D-013 — Lenguaje:** *Obsoleto, sustituido por D-026.* TypeScript sobre Node.js ≥ 22. El contrato adaptador↔núcleo es JSON por stdio, independiente del lenguaje, para permitir runners en otros lenguajes (p. ej. Go) más adelante. ADR-0002.
 - **D-014 — Superficie y SO (Q-001, Q-002, Q-004):** CLI propio `hilvan` primero; UI web local en el incremento 2 sobre el mismo núcleo. Soporte de Linux, Windows nativo y WSL; macOS "best effort". ADR-0003.
 - **D-015 — Integraciones iniciales (Q-003):** adaptadores para Claude Code y Codex CLI. ADR-0004.
 - **D-016 — Modo de adaptador (Q-009):** un proceso no interactivo por ejecución (`claude -p` / `codex exec`), con eventos normalizados, cancelación y reanudación por id de sesión. Puente a sesiones interactivas y adaptador ACP genérico: posteriores. ADR-0004.
@@ -75,6 +75,7 @@ Una persona que ya usa dos o más asistentes o agentes de IA, posiblemente con v
 - **D-023 — Aprobación (Q-008):** se aprueba el paquete completo, que puede editarse antes de aprobar; se envía exactamente la versión aprobada y se registra su hash. ADR-0009.
 - **D-024 — Licencia:** Apache-2.0. ADR-0010.
 - **D-025 — Nombre (Q-011):** el producto se llama **Hilvan** (de *hilvanar*). Paquete npm `hilvan`; comando `hilvan` con alias `hv`; estado de proyecto en `.hilvan/`. Se descartaron "LOTA" (riesgo de marca de Tolkien y mensaje contrario al control humano) y "models orchestrator" (genérico; el producto orquesta cuentas y agentes, no modelos). Decidido por el usuario el 2026-10-06.
+- **D-026 — Lenguaje: Go (Q-013):** Hilvan se reimplementa en Go y se distribuye como binario único sin runtime, por NFR-013 y para simplificar la instalación. La migración mantiene los mismos comandos, flags y formatos en disco, con paridad verificada contra la implementación en TypeScript, que se retira al terminar. Sustituye a D-013. Decidido por el usuario el 2026-10-07. ADR-0014, [plan 002](../docs/plans/002-migracion-go.md).
 
 ## 6. Alcance del MVP
 
@@ -266,14 +267,15 @@ Un perfil puede marcarse como **reservado**: solo se recomienda para tareas que 
 | Q-009 Adaptadores | D-016 |
 | Q-010 Entornos | D-017 |
 | Q-011 Nombre público | D-025 |
+| Q-013 Lenguaje de implementación | D-026 |
 
 Pendientes, no bloqueantes para el MVP:
 
-- **Q-013 — Lenguaje de implementación (2026-10-07):** el spike 003 muestra que Go cumple mucho mejor NFR-013 (arranque 1 ms frente a ~145 ms, 15 MB frente a 60–80 MB, binario sin runtime). ¿Se migra a Go antes de M2, revisando ADR-0002? Decide el usuario.
 - **Q-012 — Monetización:** modelo de sostenibilidad del proyecto open source; se trabajará después del MVP.
 
 ## 12. Historial de revisión
 
+- **1.4 (2026-10-07):** D-026 (Go como lenguaje, resuelve Q-013); D-013 pasa a obsoleta. Sin cambios de alcance funcional. ADR-0014.
 - **1.3 (2026-10-07):** FR-021 (herramientas por cuenta, perfil reservado, inferencia y descubrimiento de herramientas), AC-023–AC-025. ADR-0013.
 - **1.2 (2026-10-07):** FR-020 (Criterio), NFR-013 (ligereza), AC-022; FR-012 con regla de cuotas por aplicación y registro de resultados. ADR-0011.
 - **1.1 (2026-10-06):** nombre de producto Hilvan (D-025, resuelve Q-011). Sin cambios de alcance.

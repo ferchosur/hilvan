@@ -78,11 +78,11 @@ Las contribuciones se aceptan bajo Apache-2.0 y con [Developer Certificate of Or
 
 ## 4. Código
 
-- Requisitos: Node.js ≥ 22 y git.
-- `npm ci` para instalar dependencias. `npm run check` ejecuta lint, typecheck y tests, y debe pasar antes de cada commit.
-- `npm run dev -- <args>` ejecuta el CLI desde el código fuente; `npm run build` genera `dist/`.
-- Cada cambio de comportamiento va acompañado de tests. Los parsers de los adaptadores se prueban con fixtures reales (`tests/fixtures/`), y los escenarios difíciles con el agente simulado `tests/fixtures/fake-agent.mjs`.
-- Siga los [patrones de diseño](docs/design/patrones.md): núcleo puro, adaptadores intercambiables, dependencias inyectadas y carga perezosa en el CLI.
+- Requisitos: Go (la versión de `go.mod`) y git. No hace falta Node.
+- `go run ./scripts/check` ejecuta gofmt, `go vet` y todos los tests, y debe pasar antes de cada commit. Antes de tocar código específico de un sistema, compruebe también `GOOS=windows go vet ./...`.
+- `go run ./cmd/hilvan <args>` ejecuta el CLI desde el código fuente; `go build ./cmd/hilvan` genera el binario.
+- Cada cambio de comportamiento va acompañado de tests junto al código (`*_test.go`). Los parsers de los adaptadores se prueban con eventos reales (`internal/adapters/testdata/`), y los escenarios difíciles con el agente simulado de `internal/testutil`: el propio binario de test hace de CLI, también en Windows.
+- Siga los [patrones de diseño](docs/design/patrones.md): núcleo puro, adaptadores intercambiables y dependencias inyectadas.
 - **Seguridad:** toda funcionalidad nueva añade sus amenazas a `docs/security/analisis-de-riesgos.md` y sus requisitos a `docs/security/requisitos.md` en el mismo PR.
 - **Dependencias:** justifique cada dependencia de ejecución nueva con su coste de arranque (ver el spike 003).
 
