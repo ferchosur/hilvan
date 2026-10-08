@@ -5,7 +5,13 @@ import { startRun } from '../adapters/runner.js';
 import type { Criterio } from '../criterio/index.js';
 import { newRunId } from '../domain/ids.js';
 import type { Profile, Task } from '../domain/index.js';
-import { defaultGit, type Git, GitError, removeWorktree } from '../gitops/index.js';
+import {
+  defaultGit,
+  fallbackIdentity,
+  type Git,
+  GitError,
+  removeWorktree,
+} from '../gitops/index.js';
 import { buildInvocation } from '../launchers/index.js';
 import { evaluate, mergePolicies } from '../policy/evaluate.js';
 import { writeFileAtomic } from '../security/fs.js';
@@ -201,6 +207,7 @@ export async function acceptTask(
       throw new TaskError('the main checkout has uncommitted changes; commit or stash them first');
     const merge = await git(
       [
+        ...(await fallbackIdentity(store.root, git)),
         'merge',
         '--no-ff',
         '--no-verify',
