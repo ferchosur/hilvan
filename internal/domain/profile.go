@@ -3,6 +3,7 @@ package domain
 import (
 	"regexp"
 	"sort"
+	"strings"
 )
 
 // App is an agent application with an adapter (D-015).
@@ -27,8 +28,12 @@ type Destination struct {
 	Launcher Launcher `json:"launcher" yaml:"launcher"`
 	// Distro is the WSL distribution, required when Launcher is wsl.
 	Distro string `json:"distro,omitempty" yaml:"distro,omitempty"`
-	// Executable overrides the app's CLI name.
+	// Executable overrides the app's CLI name. For wsl it is an absolute path inside the distro,
+	// discovered when the profile is created (wsl.exe does not load the user's shell PATH).
 	Executable string `json:"executable,omitempty" yaml:"executable,omitempty"`
+	// Path is the PATH used inside the destination (wsl), so CLIs installed with nvm or in
+	// ~/.local/bin and their node are found (spike 001).
+	Path string `json:"path,omitempty" yaml:"path,omitempty"`
 }
 
 // Auth is the authentication mode (ADR-0006). Hilvan never stores credentials:
@@ -144,6 +149,11 @@ func (p *Profile) validate(b *issues, path string) {
 	b.oneOf(field(dest, "launcher"), p.Destination.Launcher, LauncherNative, LauncherWSL, LauncherWindows)
 	if p.Destination.Launcher == LauncherWSL && p.Destination.Distro == "" {
 		b.add(field(dest, "distro"), "required when launcher is wsl")
+	}
+	for _, f := range []struct{ name, v string }{{"distro", p.Destination.Distro}, {"executable", p.Destination.Executable}, {"path", p.Destination.Path}} {
+		if strings.ContainsAny(f.v, "\x00\r\n") {
+			b.add(field(dest, f.name), "must be a single line")
+		}
 	}
 	if len(p.Accepts) == 0 {
 		b.add(field(path, "accepts"), "Too small: expected array to have >=1 items")
