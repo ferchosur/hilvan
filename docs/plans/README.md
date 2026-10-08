@@ -7,5 +7,5 @@ Cada plan debe listar entregas pequeñas y verificables, indicando para cada una
 | Plan | Estado |
 |---|---|
 | [001 — MVP](001-mvp.md) | Accepted · M0–M5 ✔ en Linux |
-| [002 — Migración a Go](002-migracion-go.md) | Accepted · G0 en curso |
-| [Verificación del MVP](verificacion-mvp.md) | 20/22 AC ✔, AC-015 parcial (Windows), AC-009 diferido |
+| [002 — Migración a Go](002-migracion-go.md) | Accepted · G0–G5 ✔ (2026-10-08) |
+| [Verificación del MVP](verificacion-mvp.md) | 23/25 AC ✔ con Go, AC-015 parcial (equipo de validación), AC-009 diferido |

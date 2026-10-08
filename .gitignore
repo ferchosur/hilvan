@@ -27,8 +27,11 @@ spikes/**/out/
 spikes/**/*.log
 
 # Dependencias y builds (cuando exista código)
-node_modules/
 dist/
+# Go build outputs
+/hilvan
+/hilvan.exe
+*.test
 build/
 .venv/
 __pycache__/

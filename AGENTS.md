@@ -4,13 +4,13 @@ Instrucciones comunes para cualquier agente de IA (Claude Code, Codex u otros) q
 
 ## Qué es este proyecto
 
-Herramienta para coordinar agentes y cuentas de IA y conservar la continuidad de las tareas mediante contexto y resultados revisables. Nombre del producto: **Hilvan** (de *hilvanar*: unir piezas con puntadas). Paquete npm y comando: `hilvan`, con alias `hv` (D-025).
+Herramienta para coordinar agentes y cuentas de IA y conservar la continuidad de las tareas mediante contexto y resultados revisables. Nombre del producto: **Hilvan** (de *hilvanar*: unir piezas con puntadas). Comando `hilvan`, con alias `hv` (D-025): un binario de Go sin runtime (D-026, ADR-0014).
 
-**Fase actual: implementación del MVP.** La especificación 001 v1.0 está `Approved`, el diseño está en `docs/design/` y el plan en `docs/plans/001-mvp.md` (hitos M0–M5).
+**Fase actual: MVP completo en Go** (plan 001, hitos M0–M5; migración a Go en el plan 002). La especificación 001 está `Approved` y el diseño en `docs/design/`.
 
 ## Reglas obligatorias
 
-1. **Implementar solo lo aprobado.** El código de producto (`src/`, `tests/`) debe corresponder al alcance de una spec `Approved` y a un hito del plan. Lo que esté fuera de alcance requiere antes un cambio de spec o un ADR. Los spikes van en `spikes/` y son desechables.
+1. **Implementar solo lo aprobado.** El código de producto (`cmd/`, `internal/`) debe corresponder al alcance de una spec `Approved` y a un hito del plan. Lo que esté fuera de alcance requiere antes un cambio de spec o un ADR. Los spikes van en `spikes/` y son desechables.
 2. **La especificación es la fuente de verdad.** Si una conversación contradice `specs/`, señalarlo y proponer el cambio en la especificación; no lo resuelva de forma implícita.
 3. **No inventar decisiones.** Las preguntas abiertas (`Q-xxx`) se resuelven con la persona. Registre la respuesta como decisión (`D-xxx`) en la especificación o como ADR si es de arquitectura.
 4. **Distinguir hechos de supuestos.** No afirme capacidades, límites ni términos de proveedores sin fuente verificable y fecha de consulta.
@@ -30,8 +30,9 @@ Herramienta para coordinar agentes y cuentas de IA y conservar la continuidad de
 | `docs/sessions/` | Bitácora por sesión (append-only): qué se hizo, qué se decidió, qué sigue. |
 | `docs/glosario.md` | Terminología del dominio. Use estos términos de forma consistente. |
 | `spikes/` | Pruebas de viabilidad desechables, cada una con informe de resultados. |
-| `src/` | Código TypeScript por módulos (ver `docs/design/arquitectura.md`): `domain`, `config`, `store`, `launchers`, `adapters`, `policy`, `handoff`, `gitops`, `core`, `cli`. |
-| `tests/` | Tests de Vitest; `tests/fixtures/` contiene eventos reales de los CLIs. |
+| `cmd/hilvan/` | Punto de entrada del binario `hilvan` y su presupuesto de arranque y memoria. |
+| `internal/` | Código Go por paquetes (ver `docs/design/arquitectura.md`): `domain`, `security`, `jsfmt`, `config`, `criterio`, `policy`, `process`, `launchers`, `store`, `adapters`, `gitops`, `core`, `cli`, `testutil`. Los tests van junto al código (`*_test.go`) y los datos en `testdata/` (eventos reales de los CLIs y casos dorados). |
+| `scripts/check/` | Comprobación única antes de cada commit: `go run ./scripts/check`. |
 | `CHANGELOG.md` | Cambios notables por versión de documentos y, más adelante, del producto. |
 
 ## Flujo de sesión
@@ -47,6 +48,6 @@ Herramienta para coordinar agentes y cuentas de IA y conservar la continuidad de
 - **Ramas:** `main` siempre coherente. Trabajo en `spec/NNN-…`, `adr/NNNN-…`, `spike/NNN-…`, `feat/…`.
 - **Versiones de especificación:** semver documental (`0.x` = Draft; `1.0` = baseline aprobado). Cada cambio de versión se refleja en el encabezado de la spec y en `CHANGELOG.md`.
 - **Identificadores estables:** `D-` decisión, `Q-` pregunta, `FR-` requisito funcional, `NFR-` no funcional, `AC-` criterio de aceptación, `R-` riesgo, `A-` supuesto. No reutilizar ni renumerar; marcar como `Obsoleto` si se retira.
-- **Código:** TypeScript `strict`, ESM, sin `any` implícito. `domain/` no hace E/S. Procesos con `spawn` y array de args (`shell:false`). Antes de hacer commit: `npm run check` (lint, typecheck y test).
+- **Código:** Go (versión de `go.mod`), formateado con `gofmt`. Sin dependencias nuevas sin justificarlas en un ADR (hoy solo `go.yaml.in/yaml/v3` y `golang.org/x/text`). `internal/domain` no hace E/S. Procesos sin shell y con array de argumentos, siempre a través de `internal/process`. Antes de hacer commit: `go run ./scripts/check` (gofmt, vet y tests).
 - **Código de terceros:** de otros repositorios tomamos ideas, no código; se reimplementan a partir de su descripción y se citan en `docs/research/`. Solo se copia código si es muy robusto y no es razonable reproducirlo a partir de la idea; en ese caso, antes de copiarlo, se pide permiso a la persona, se verifica que la licencia sea compatible con Apache-2.0 y se conservan la atribución y el aviso de licencia.
 - **Fechas:** ISO 8601 (`2026-10-06`). Nunca fechas relativas ("ayer", "la semana pasada").

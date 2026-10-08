@@ -13,7 +13,7 @@ import (
 	"github.com/ferchosur/hilvan/internal/domain"
 )
 
-// Golden cases from the TypeScript implementation (scripts/parity/gen-g1.ts): the Go engine must
+// Golden cases from the TypeScript implementation (scripts/parity/gen-g1.ts, retired in G5: see commit 95e1d04): the Go engine must
 // replay the same 2.5k operations and produce the same decisions, rankings, state and stats.
 
 type jsDiff struct {
