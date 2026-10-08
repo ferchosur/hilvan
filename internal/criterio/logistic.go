@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"hilvan/internal/jsfmt"
+	"github.com/ferchosur/hilvan/internal/jsfmt"
 )
 
 // readable labels a feature for explanations; structural features are not shown.

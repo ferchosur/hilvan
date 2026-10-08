@@ -1,4 +1,4 @@
-module hilvan
+module github.com/ferchosur/hilvan
 
 go 1.27
 

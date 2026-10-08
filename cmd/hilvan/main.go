@@ -9,7 +9,7 @@ import (
 	"io"
 	"os"
 
-	"hilvan/internal/version"
+	"github.com/ferchosur/hilvan/internal/version"
 )
 
 const usage = `Usage: hilvan [options] [command]

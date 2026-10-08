@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"hilvan/internal/criterio"
-	"hilvan/internal/security"
+	"github.com/ferchosur/hilvan/internal/criterio"
+	"github.com/ferchosur/hilvan/internal/security"
 )
 
 // MaxModelBytes bounds Criterio's model file.

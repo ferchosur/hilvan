@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"hilvan/internal/jsfmt"
+	"github.com/ferchosur/hilvan/internal/jsfmt"
 )
 
 // Seed vocabulary (es/en), stemmed at load so both languages share roots.

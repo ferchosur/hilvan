@@ -5,9 +5,9 @@ import (
 	"io/fs"
 	"path/filepath"
 
-	"hilvan/internal/domain"
-	"hilvan/internal/policy"
-	"hilvan/internal/security"
+	"github.com/ferchosur/hilvan/internal/domain"
+	"github.com/ferchosur/hilvan/internal/policy"
+	"github.com/ferchosur/hilvan/internal/security"
 )
 
 // LoadPolicyFile loads one policy layer. It returns nil when the file is missing or unreadable

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"hilvan/internal/domain"
+	"github.com/ferchosur/hilvan/internal/domain"
 )
 
 func prof(id, app string, accepts, tags, provides []string) *domain.Profile {
