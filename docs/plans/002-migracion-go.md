@@ -45,6 +45,8 @@ Son correcciones de comportamiento, no funciones nuevas: el lanzador actual fall
 4. **Salida de `wsl.exe` en UTF-16LE.** Sus advertencias (p. ej. la del proxy localhost) llegan por stderr en UTF-16 y no deben confundirse con la salida del agente, que llega por stdout.
 5. **`.cmd` en Windows** (ADR-0014, BatBadBut): resolver el *shim* de npm a `node <script>` o rechazar los metacaracteres de `cmd.exe`.
 
+6. **Identidad de git de respaldo** (G3, `gitops`): `commit` y `merge` usan `Hilvan <hilvan@localhost>` si falta `user.name` o `user.email` (corrección en TS del 2026-10-07, detectada por la primera CI).
+
 Cada punto lleva tests unitarios de los lanzadores (función pura, como hoy) y una prueba real en la fase C del spike 001.
 
 ## Estructura propuesta
