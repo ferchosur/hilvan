@@ -88,10 +88,22 @@ export async function commitWorktree(
   await ok(git, ['add', '-A'], wt);
   const staged = await git(['diff', '--cached', '--quiet'], wt);
   if (staged.code === 0) return false;
-  const name = (await git(['config', 'user.name'], wt)).stdout.trim();
-  const identity = name ? [] : ['-c', 'user.name=Hilvan', '-c', 'user.email=hilvan@localhost'];
-  await ok(git, [...identity, 'commit', '--no-verify', '-q', '-m', message], wt);
+  await ok(
+    git,
+    [...(await fallbackIdentity(wt, git)), 'commit', '--no-verify', '-q', '-m', message],
+    wt,
+  );
   return true;
+}
+
+/**
+ * `-c` options with a neutral identity when git has none configured (CI runners, fresh machines),
+ * so committing and merging never fail for that reason. Empty when the user has an identity.
+ */
+export async function fallbackIdentity(dir: string, git: Git = defaultGit): Promise<string[]> {
+  const name = (await git(['config', 'user.name'], dir)).stdout.trim();
+  const email = (await git(['config', 'user.email'], dir)).stdout.trim();
+  return name && email ? [] : ['-c', 'user.name=Hilvan', '-c', 'user.email=hilvan@localhost'];
 }
 
 /** Numstat of `base...branch` as Criterio diff signals. */
