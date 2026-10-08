@@ -8,7 +8,8 @@
 | Hito | Estado |
 |---|---|
 | G0 — Decisión y esqueleto | ✔ 2026-10-07 (CI de Go pendiente de ejecutarse en GitHub: el repositorio aún no tiene remoto) |
-| G1–G5 | Pendientes |
+| G1 — Núcleo puro | ✔ 2026-10-07: `domain`, `security`, `jsfmt`, `criterio`, `policy`, `config`. Paridad: 2.507 operaciones de Criterio iguales a TS (tolerancia 1e-9; pesos de `model.json` idénticos), `task.json` byte a byte, ULID, tokenización, FNV-1a y JSON canónico |
+| G2–G5 | Pendientes |
 
 ## Contexto
 
