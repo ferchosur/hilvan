@@ -40,6 +40,7 @@ No registrar emails, organizaciones ni rutas reales en este documento: usar "cue
   - Directorio de perfil vacío → `loggedIn: false` tanto en WSL como en Windows nativo (`$env:CLAUDE_CONFIG_DIR`). Sin la variable, la sesión por defecto sigue activa (`authMethod: claude.ai`). Al menos con el directorio vacío, no se hereda la sesión por defecto (tampoco en Windows, donde se temía el almacén de credenciales del sistema).
   - `claude auth status` **escribe** en el directorio del perfil (`.claude.json`, `.claude.json.lock`, `backups/`) aunque no haya sesión. `hilvan profile check` no es de solo lectura sobre el directorio del perfil.
   - **Windows → WSL:** sin resultado. `wsl.exe` emitió por stderr una advertencia **en UTF-16** ("Se detectó una configuración de proxy localhost, pero no se refleja en WSL. WSL en modo NAT…") y el reintento lo bloqueó el clasificador de permisos de la sesión remota. Impacto en el lanzador `wsl` (ADR-0005): debe decodificar la salida de `wsl.exe` en UTF-16LE y no confundir esas advertencias con la salida del agente. Pendiente de ejecutarlo en persona.
+  - **Codex en WSL** (instalado el 2026-10-07, codex-cli 0.161.0): con `CODEX_HOME` apuntando a un directorio vacío, `codex login status` responde "Not logged in" (código 1); sin la variable hay sesión (código 0). `login status` crea `tmp/` dentro del directorio del perfil. En Windows nativo no hay Codex.
 - **Windows / WSL, con login (fases B y C):** pendiente.
 
 ## Conclusión
