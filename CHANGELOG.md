@@ -6,6 +6,7 @@ Cambios notables del proyecto. Formato basado en [Keep a Changelog](https://keep
 
 ### Cambiado
 
+- **Migración a Go** (D-026, spec 001 v1.4, ADR-0014 sustituye a ADR-0002, [plan 002](docs/plans/002-migracion-go.md)). G0: esqueleto `cmd/hilvan` (`--version` en 1,4 ms y 13 MB, frente a 164 ms y 66 MB), comando `go run ./scripts/check`, job de Go en CI (ubuntu y windows, `govulncheck`) y spike 006 de paridad (0 discrepancias). La implementación TypeScript queda congelada como referencia hasta G5.
 - **Nombre del producto: Hilvan** (D-025, spec 001 v1.1): paquete y comando `hilvan` (alias `hv`), directorio de configuración `hilvan/`, estado de proyecto `.hilvan/`, variable `HILVAN_CONFIG_DIR`.
 
 ### Añadido
