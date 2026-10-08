@@ -78,8 +78,12 @@ jobs:
       - run: npm run build
       - run: go build -o hilvan-go ./cmd/hilvan
       - run: npx tsx scripts/parity/diff-cli.ts ./hilvan-go
-      - run: npx tsx scripts/parity/gen-g1.ts && npx tsx scripts/parity/gen-g2.ts
-      - run: git diff --exit-code -- internal
+      # gzip bytes depend on the zlib build, so the compressed golden is compared decompressed.
+      - run: |
+          gunzip -c internal/criterio/testdata/engine.golden.json.gz > "$RUNNER_TEMP/before.json"
+          npx tsx scripts/parity/gen-g1.ts && npx tsx scripts/parity/gen-g2.ts
+          gunzip -c internal/criterio/testdata/engine.golden.json.gz | cmp - "$RUNNER_TEMP/before.json"
+          git diff --exit-code -- internal ':!*.gz'
 
   audit:
     runs-on: ubuntu-latest
