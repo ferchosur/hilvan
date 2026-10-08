@@ -32,6 +32,21 @@ El usuario confirmó el 2026-10-07 **Q-013 = Go**. El spike 003 midió para Go u
 - **Windows:** `cross-spawn` resuelve los *shims* `.cmd` de npm (`claude.cmd`, `codex.cmd`). En Go, ejecutar `.cmd` con argumentos tiene implicaciones de seguridad (BatBadBut, CVE-2024-24576). Hay que verificar el comportamiento de `os/exec` en la versión elegida.
 - **Validación:** zod se sustituye por funciones `Validate()` explícitas por tipo, con los mismos límites (tamaños máximos, regex de ids, límites del estado de Criterio).
 
+## Requisitos de G2 surgidos del spike 001 (equipo de validación, 2026-10-07)
+
+Son correcciones de comportamiento, no funciones nuevas: el lanzador actual fallaría en la configuración real del usuario. Esa configuración es la cuenta corporativa en Windows nativo, la personal en WSL y los proyectos en el disco de Windows (`%USERPROFILE%\Documents\…`), compartidos por ambos entornos.
+
+1. **`PATH` y ejecutable en el lanzador `wsl`.** `wsl.exe -d <distro> -- env … claude` no carga `~/.profile` ni `~/.bashrc`, y con nvm tanto el CLI como `node` quedan fuera del `PATH`. El perfil guardará el ejecutable y un `PATH` explícito, descubiertos al crearlo con `bash -ic`. `doctor` detectará si dejan de existir.
+2. **Traducción del directorio de trabajo según el destino.** El mismo repositorio es `C:\…` en Windows y `/mnt/c/…` en WSL.
+   - El lanzador `wsl` pasa la ruta de Windows a `wsl.exe --cd`, que la traduce.
+   - El lanzador `windows`, usado desde WSL, la convierte con `wslpath -w`.
+   - Las variables que contienen rutas (`CLAUDE_CONFIG_DIR`) se traducen también, o se pasan con el sufijo `/p` de `WSLENV`.
+3. **Worktrees utilizables desde ambos entornos.** `git worktree add` escribe por defecto rutas absolutas (`gitdir: C:/…`) que el git de WSL no puede resolver, de modo que un agente en WSL no podría usar git dentro del worktree. Se crearán con rutas relativas (`--relative-paths`, git ≥ 2.48; en ese equipo hay 2.55 en Windows y 2.53 en WSL). Hay que verificarlo en la fase C del spike 001.
+4. **Salida de `wsl.exe` en UTF-16LE.** Sus advertencias (p. ej. la del proxy localhost) llegan por stderr en UTF-16 y no deben confundirse con la salida del agente, que llega por stdout.
+5. **`.cmd` en Windows** (ADR-0014, BatBadBut): resolver el *shim* de npm a `node <script>` o rechazar los metacaracteres de `cmd.exe`.
+
+Cada punto lleva tests unitarios de los lanzadores (función pura, como hoy) y una prueba real en la fase C del spike 001.
+
 ## Estructura propuesta
 
 ```
