@@ -11,7 +11,7 @@ import (
 )
 
 // The chain in testdata/events.ts.jsonl was written by the TypeScript implementation
-// (scripts/parity/gen-g2.ts): Go must verify it and compute the same hashes.
+// (scripts/parity/gen-g2.ts, retired in G5: see commit 95e1d04): Go must verify it and compute the same hashes.
 func TestVerifiesTypeScriptChain(t *testing.T) {
 	r, err := VerifyAudit("testdata/events.ts.jsonl", 0)
 	if err != nil {

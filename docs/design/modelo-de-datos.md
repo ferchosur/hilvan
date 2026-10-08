@@ -2,7 +2,7 @@
 
 - **Estado:** Accepted (baseline del MVP)
 - **Fecha:** 2026-10-06
-- **Relacionado:** ADR-0006, ADR-0007, ADR-0009; los esquemas se implementan con zod en `src/domain/`.
+- **Relacionado:** ADR-0006, ADR-0007, ADR-0009; los tipos y su validación están en `internal/domain/` (Go; los formatos en disco son los mismos que escribía la versión TypeScript). Novedad de la migración: `destination.path`, el `PATH` dentro de WSL descubierto al crear el perfil.
 
 ## 1. Configuración de usuario — `profiles.yaml`
 

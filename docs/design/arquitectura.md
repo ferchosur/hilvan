@@ -1,12 +1,12 @@
 # Arquitectura
 
-- **Estado:** Accepted (baseline del MVP)
+- **Estado:** Accepted (baseline del MVP; actualizado a Go el 2026-10-08, plan 002)
 - **Fecha:** 2026-10-06
-- **Relacionado:** [spec 001 v1.0](../../specs/001-product-requirements.md), ADR-0002 a ADR-0010
+- **Relacionado:** [spec 001 v1.4](../../specs/001-product-requirements.md), ADR-0003 a ADR-0014
 
 ## 1. Vista general
 
-Un único proceso Node.js (`hilvan`) coordina perfiles que viven en distintos entornos. Lanza los CLIs oficiales de los agentes como procesos hijos y guarda todo el estado en archivos.
+Un único binario de Go (`hilvan`, ADR-0014) coordina perfiles que viven en distintos entornos. Lanza los CLIs oficiales de los agentes como procesos hijos y guarda todo el estado en archivos.
 
 ```mermaid
 flowchart TB
@@ -25,20 +25,22 @@ flowchart TB
 
 `*` ssh: incremento 2.
 
-## 2. Módulos (`src/`)
+## 2. Paquetes (`internal/`)
 
 | Módulo | Responsabilidad | Depende de |
 |---|---|---|
-| `domain/` | Tipos y esquemas zod: Profile, Destination, Project, Task, Run, HandoffPackage, Approval, Event. Máquina de estados de la tarea. Sin E/S. | — |
+| `domain/` | Tipos y validación (mismas reglas que tenían los esquemas zod): Profile, Destination, Task, Run, Policy. Máquina de estados de la tarea. Sin E/S. | — |
+| `security/`, `jsfmt/` | Saneado de terminal, secretos, E/S segura y argumentos; formato de números, JSON canónico y redondeo de JavaScript, para que los datos guardados por la versión TS sigan siendo válidos. | — |
+| `criterio/` | Motor de decisión local (ADR-0011). | domain, jsfmt |
+| `process/` | Ejecución sin shell (con `.cmd` de Windows protegido), divisor JSONL con límites y salida UTF-16 de `wsl.exe`. | security |
 | `config/` | Rutas de configuración por sistema operativo; carga y validación de `profiles.yaml` y `policy.yaml` (usuario y gestionada). | domain |
 | `store/` | Interfaz `Store` e implementación con archivos: escritura atómica, `events.jsonl` de solo añadido. | domain |
-| `launchers/` | Funciones puras `(Destination, Command) → Invocation` (ejecutable, args, env, cwd) y traducción de rutas. | domain |
+| `launchers/` | Funciones puras `(Destination, Command) → Invocation` (ejecutable, args, env, cwd, `PATH` de WSL) y traducción de rutas Windows ↔ WSL. | domain |
 | `adapters/` | `AgentAdapter` por aplicación: construye argumentos, interpreta JSONL a `AgentEvent`, cancela, reanuda y comprueba la autenticación. | domain, launchers |
 | `policy/` | Evalúa la elegibilidad (clasificación, herramientas, capacidades, reglas en capas) con motivos; ordena los perfiles elegibles. | domain, config |
-| `handoff/` | Construye el paquete (hechos de git + resumen estructurado del agente de origen), detecta secretos, calcula el hash y lo renderiza en Markdown. | domain, gitops, adapters |
-| `gitops/` | Worktree por tarea, hook de preparación, diff, fusión y limpieza. | — |
-| `core/` | Casos de uso: crear tarea, asignar, ejecutar, bloquear o marcar como incierta, traspasar, revisar, aceptar o descartar. Orquesta y emite eventos de auditoría. | todos los anteriores |
-| `cli/` | Comandos `commander` y prompts `@clack/prompts`. Solo presentación. | core |
+| `gitops/` | Worktree por tarea (con rutas relativas, usable desde Windows y WSL), diff, identidad de respaldo, fusión y limpieza. | process |
+| `core/` | Casos de uso: crear tarea, asignar, ejecutar (con gancho de preparación), bloquear o marcar como incierta, traspasar (paquete con hechos de git, secretos redactados y hash), revisar, aceptar o descartar. Orquesta y emite eventos de auditoría. | todos los anteriores |
+| `cli/` | Comandos con un despachador propio sin dependencias y preguntas por líneas. Solo presentación. | core |
 
 Regla de dependencias: `domain` no importa nada del proyecto. `cli` solo habla con `core`. La futura UI web será otro cliente de `core`.
 

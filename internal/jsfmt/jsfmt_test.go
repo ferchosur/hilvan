@@ -14,7 +14,7 @@ type textGolden struct {
 	} `json:"canonical"`
 }
 
-// Golden cases from the TypeScript implementation (scripts/parity/gen-g1.ts).
+// Golden cases from the TypeScript implementation (scripts/parity/gen-g1.ts, retired in G5: see commit 95e1d04).
 func TestCanonicalMatchesTypeScript(t *testing.T) {
 	raw, err := os.ReadFile("testdata/text.golden.json")
 	if err != nil {

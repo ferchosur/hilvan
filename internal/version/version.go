@@ -2,5 +2,5 @@
 // -ldflags "-X hilvan/internal/version.Version=<v>".
 package version
 
-// Version matches package.json until the TypeScript implementation is retired (plan 002, G5).
+// Version is set at build time; 0.0.0 marks a development build.
 var Version = "0.0.0"

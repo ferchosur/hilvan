@@ -11,6 +11,7 @@ Cambios notables del proyecto. Formato basado en [Keep a Changelog](https://keep
 
 ### Cambiado
 
+- **Hilvan es ahora un binario de Go** (plan 002 completado, G5): se retira la implementación TypeScript, la CI solo usa Go (ubuntu y windows, `govulncheck`) y Dependabot vigila los módulos de Go. Instalación: `go build -o ~/.local/bin/hilvan ./cmd/hilvan`. E2E real con Claude Code y Codex; AC-025 verificado de nuevo; 23/25 AC con Go; `hilvan --version` en ~3 ms y ~5 MB, presupuesto medido como test.
 - **Migración a Go** (D-026, spec 001 v1.4, ADR-0014 sustituye a ADR-0002, [plan 002](docs/plans/002-migracion-go.md)). G0: esqueleto `cmd/hilvan` (`--version` en 1,4 ms y 13 MB, frente a 164 ms y 66 MB), comando `go run ./scripts/check`, job de Go en CI (ubuntu y windows, `govulncheck`) y spike 006 de paridad (0 discrepancias). La implementación TypeScript queda congelada como referencia hasta G5.
 - **Migración a Go, G1:** núcleo puro portado (`internal/domain`, `security`, `jsfmt`, `criterio`, `policy`, `config`) con casos dorados generados por el código TS (`scripts/parity/gen-g1.ts`): 2.507 operaciones de Criterio reproducidas, `task.json` idéntico byte a byte y modelos aprendidos compatibles.
 - **Migración a Go, G2:** procesos sin shell (con `.cmd` de Windows protegido contra BatBadBut), lanzadores con traducción de rutas Windows↔WSL y `PATH` explícito para WSL, salida UTF-16 de `wsl.exe`, almacén del proyecto, auditoría compatible con la cadena escrita por TS y adaptadores de Claude Code y Codex, con paridad verificada (`scripts/parity/gen-g2.ts`).

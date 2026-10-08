@@ -7,7 +7,7 @@
 
 ## Checklist
 
-- [ ] `npm run check` passes
+- [ ] `go run ./scripts/check` passes
 - [ ] Tests added or updated
 - [ ] Docs, CHANGELOG and CONTEXTO updated where needed
 - [ ] Commits follow Conventional Commits and are signed off (`git commit -s`)

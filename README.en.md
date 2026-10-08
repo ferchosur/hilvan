@@ -24,7 +24,9 @@ Hilvan is **not** a way to pool or bypass provider quotas. It launches the **off
 ## Quick start
 
 ```bash
-npm ci && npm run build && npm link          # installs `hilvan` and `hv`
+# Requires Go (the go.mod version) and git; builds a single binary with no runtime.
+go build -trimpath -ldflags "-s -w" -o ~/.local/bin/hilvan ./cmd/hilvan
+ln -sf ~/.local/bin/hilvan ~/.local/bin/hv        # short alias (Windows: copy hilvan.exe to hv.exe)
 hilvan doctor
 
 hilvan profile add --id claude-personal --app claude-code --accepts public,personal --use-default-login
@@ -42,4 +44,4 @@ Done: eligibility and layered policy (M3), approved hand-offs between profiles (
 
 ## Contributing
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) (Spanish) — Conventional Commits, DCO sign-off (`git commit -s`), `npm run check` must pass.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) (Spanish) — Conventional Commits, DCO sign-off (`git commit -s`), `go run ./scripts/check` must pass.

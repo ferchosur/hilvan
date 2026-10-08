@@ -23,6 +23,8 @@ Linux x86-64, Go 1.27.1, Node 22.22.1, `golang.org/x/text` v0.42.0, `go.yaml.in/
 
 ## Procedimiento
 
+> Desde el 2026-10-08 el código TypeScript ya no está en `main` (plan 002, G5). Para regenerar los casos, use el commit `95e1d04`.
+
 ```bash
 npx tsx spikes/006-paridad-go/gen.ts       # casos dorados con el código TS real
 npx tsx spikes/006-paridad-go/gen-yaml.ts  # YAML escrito por la librería de npm

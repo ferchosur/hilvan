@@ -11,7 +11,7 @@ import (
 	"github.com/ferchosur/hilvan/internal/testutil"
 )
 
-// Golden cases from the TypeScript adapters (scripts/parity/gen-g2.ts).
+// Golden cases from the TypeScript adapters (scripts/parity/gen-g2.ts, retired in G5: see commit 95e1d04).
 type adaptersGolden struct {
 	Claude []struct {
 		Line   string `json:"line"`
