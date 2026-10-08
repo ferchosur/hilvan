@@ -6,6 +6,7 @@ package jsfmt
 import (
 	"fmt"
 	"math"
+	"math/big"
 	"sort"
 	"strconv"
 	"strings"
@@ -154,4 +155,36 @@ func UTF16Len(s string) int {
 		}
 	}
 	return n
+}
+
+// ToFixed is Number.prototype.toFixed: the exact binary value rounded to digits decimals, ties
+// away from zero (Go's strconv rounds ties to even: 0.125 → "0.12" instead of "0.13").
+func ToFixed(x float64, digits int) string {
+	if math.IsNaN(x) {
+		return "NaN"
+	}
+	if math.Abs(x) >= 1e21 || math.IsInf(x, 0) {
+		return Number(x)
+	}
+	sign := ""
+	if x < 0 {
+		sign, x = "-", -x
+	}
+	exact := new(big.Float).SetPrec(2048).SetFloat64(x).Text('f', 1100) // float64 is exact in decimal
+	intPart, frac, _ := strings.Cut(exact, ".")
+	frac += strings.Repeat("0", digits+1)
+	keep, next := frac[:digits], frac[digits]
+	n := new(big.Int)
+	n.SetString(intPart+keep, 10)
+	if next >= '5' {
+		n.Add(n, big.NewInt(1))
+	}
+	s := n.String()
+	if digits > 0 {
+		if len(s) <= digits {
+			s = strings.Repeat("0", digits-len(s)+1) + s
+		}
+		s = s[:len(s)-digits] + "." + s[len(s)-digits:]
+	}
+	return sign + s // (-0.0001).toFixed(2) is "-0.00" in JS too
 }

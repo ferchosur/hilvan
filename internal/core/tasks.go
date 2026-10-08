@@ -362,14 +362,17 @@ func RunTask(s *store.ProjectStore, taskID string, p *domain.Profile, deps RunDe
 		return RunReport{}, err
 	}
 	defer logFile.Close()
-	h, err := adapters.StartRun(inv, BuildPrompt(t, brief, destCwd, handoff), adapter.NewParser(), func(e adapters.Event, raw string) {
-		// SR-013: run logs are stored with secrets redacted.
+	opts := deps.RunOptions
+	// SR-013: run logs are stored with secrets redacted, one entry per agent output line.
+	opts.OnLine = func(raw string) {
 		redacted, _ := security.RedactSecrets(raw)
 		logFile.WriteString(redacted + "\n")
+	}
+	h, err := adapters.StartRun(inv, BuildPrompt(t, brief, destCwd, handoff), adapter.NewParser(), func(e adapters.Event, _ string) {
 		if deps.OnEvent != nil {
 			deps.OnEvent(e)
 		}
-	}, deps.RunOptions)
+	}, opts)
 	if err != nil {
 		return RunReport{}, err
 	}

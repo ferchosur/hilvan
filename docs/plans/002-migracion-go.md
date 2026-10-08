@@ -11,7 +11,8 @@
 | G1 — Núcleo puro | ✔ 2026-10-07: `domain`, `security`, `jsfmt`, `criterio`, `policy`, `config`. Paridad: 2.507 operaciones de Criterio iguales a TS (tolerancia 1e-9; pesos de `model.json` idénticos), `task.json` byte a byte, ULID, tokenización, FNV-1a y JSON canónico |
 | G2 — Persistencia y procesos | ✔ 2026-10-07: `process`, `launchers`, `store`, `adapters`. Paridad con TS (`scripts/parity/gen-g2.ts`): parsers de Claude y Codex sobre fixtures reales y casos sintéticos, `decideOutcome`, autenticación, MCP y argumentos de los CLIs. Go verifica y continúa una cadena de auditoría escrita por TS. Requisitos del spike 001: 1 (lanzador) ✔, 2 ✔, 4 ✔, 5 ✔ (test real en la CI de Windows); 1 (descubrimiento al crear el perfil), 3 y 6 pasan a G3 |
 | G3 — Orquestación | ✔ 2026-10-08: `gitops` (worktrees con `--relative-paths` si git ≥ 2.48, identidad de respaldo) y `core` (tareas, perfiles con descubrimiento de ejecutable y `PATH` en WSL, recomendación con perfiles reservados, traspaso, revisión cruzada, aceptación y uso). Tests de TS portados, que ahora también corren en Windows (TS los saltaba allí) |
-| G4–G5 | Pendientes |
+| G4 — CLI | ✔ 2026-10-08: todos los comandos en `internal/cli` (despachador propio sin dependencias; ayuda idéntica a commander; preguntas por líneas). Prueba diferencial `scripts/parity/diff-cli.ts`: 61/61 pasos idénticos entre TS y Go, en CI (job `parity`). Destapó un bug común (el log de ejecución duplicaba o perdía líneas), corregido en ambas. `profile add --launcher wsl` descubre ejecutable y `PATH`; `profile set --rediscover` |
+| G5 | Pendiente |
 
 ## Contexto
 

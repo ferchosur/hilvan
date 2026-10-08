@@ -126,6 +126,9 @@ func TestWriteTaskRunsInWorktree(t *testing.T) {
 	if !strings.Contains(string(log), "[REDACTED:anthropic-key]") || strings.Contains(string(log), "sk-ant-api03") {
 		t.Error("run log must be redacted (SR-013)")
 	}
+	if n := strings.Count(string(log), `"type":"result"`); n != 1 {
+		t.Errorf("the result line is stored %d times; one entry per agent line", n)
+	}
 	if st, _ := os.Stat(file); runtime.GOOS != "windows" && st.Mode().Perm() != 0o600 {
 		t.Errorf("run log mode %o", st.Mode().Perm())
 	}

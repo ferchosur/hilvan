@@ -95,6 +95,8 @@ describe.runIf(posix)('task lifecycle with a fake agent (M2)', () => {
     const log = await readFile(store.runFile(t.id, r.run.id), 'utf8');
     expect(log).toContain('[REDACTED:anthropic-key]');
     expect(log).not.toContain('sk-ant-api03');
+    // one entry per agent line: the result line (usage + result events) is stored once
+    expect(log.split('\n').filter((l) => l.includes('"type":"result"'))).toHaveLength(1);
     expect((await stat(store.runFile(t.id, r.run.id))).mode & 0o777).toBe(0o600);
     // audit chain intact
     const v = await verifyAudit(path.join(store.dir, 'events.jsonl'));
