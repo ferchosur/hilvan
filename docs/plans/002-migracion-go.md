@@ -9,7 +9,8 @@
 |---|---|
 | G0 — Decisión y esqueleto | ✔ 2026-10-07 (CI de Go pendiente de ejecutarse en GitHub: el repositorio aún no tiene remoto) |
 | G1 — Núcleo puro | ✔ 2026-10-07: `domain`, `security`, `jsfmt`, `criterio`, `policy`, `config`. Paridad: 2.507 operaciones de Criterio iguales a TS (tolerancia 1e-9; pesos de `model.json` idénticos), `task.json` byte a byte, ULID, tokenización, FNV-1a y JSON canónico |
-| G2–G5 | Pendientes |
+| G2 — Persistencia y procesos | ✔ 2026-10-07: `process`, `launchers`, `store`, `adapters`. Paridad con TS (`scripts/parity/gen-g2.ts`): parsers de Claude y Codex sobre fixtures reales y casos sintéticos, `decideOutcome`, autenticación, MCP y argumentos de los CLIs. Go verifica y continúa una cadena de auditoría escrita por TS. Requisitos del spike 001: 1 (lanzador) ✔, 2 ✔, 4 ✔, 5 ✔ (test real en la CI de Windows); 1 (descubrimiento al crear el perfil), 3 y 6 pasan a G3 |
+| G3–G5 | Pendientes |
 
 ## Contexto
 
