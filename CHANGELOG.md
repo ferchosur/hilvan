@@ -4,6 +4,10 @@ Cambios notables del proyecto. Formato basado en [Keep a Changelog](https://keep
 
 ## [Unreleased]
 
+### Documentación
+
+- Se registra el diagnóstico del 2026-10-10: verificación local en Go 1.27.1, cobertura por paquete, brechas de documentación y prioridades para cerrar AC-015 y preparar SR-029. Véase [bitácora](docs/sessions/2026-10-10-diagnostico-del-proyecto.md).
+
 ### Corregido
 
 - **Log de ejecución:** cada línea del agente se guarda una sola vez (antes la línea `result` se duplicaba y las líneas sin eventos no se guardaban). Detectado por la prueba diferencial; corregido en TS y en Go.
