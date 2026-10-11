@@ -94,7 +94,7 @@ Detalle de las propuestas 2 y 3 en [propuestas pendientes](docs/research/2026-10
 
 ## Próximos pasos
 
-1. **Actualizar documentación de publicación:** alinear ambos README y el modelo de amenazas con v1.4, 23/25 AC y el comportamiento confirmado de hooks; retirar de planes la distribución npm obsoleta.
+1. ~~Actualizar documentación de publicación~~ (hecho en `docs/alinear-readme-v1.4`: READMEs, amenazas y plan 001).
 2. **Spike 001, fase C con sesión** (la ejecuta el usuario; el filtro de permisos de la sesión remota la bloqueó):
    - `auth status` de `claude-personal` y `codex-personal` en WSL;
    - `claude.exe` lanzado desde WSL en la carpeta compartida.
