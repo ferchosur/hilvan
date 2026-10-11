@@ -1,6 +1,6 @@
 # ADR-0012 — TUI propia sin dependencias y web local mínima
 
-- **Estado:** Proposed (pendiente de Q-013 y de validación del usuario)
+- **Estado:** Accepted (2026-10-11), con la adaptación a Go de la sección de decisión
 - **Fecha:** 2026-10-07
 - **Decisores:** propuesto por Claude Code; decide Fernando Giraldo
 - **Relacionado:** ADR-0003, NFR-013, [investigación de UI](../research/2026-10-07-ui-terminal-y-web.md), SR-032…SR-036
@@ -16,14 +16,16 @@ El CLI cubre el MVP, pero los usuarios valoran ver el estado de varios agentes d
 3. **TUI propia de ANSI** para `watch`, más **web local mínima** (`node:http`, SSE, JS nativo/Web Components), con @clack/prompts para las preguntas.
 4. **App de escritorio** (Electron o Tauri): pesada y fuera del enfoque CLI-first.
 
-## Decisión (propuesta)
+## Decisión
 
 **Opción 3**, en dos pasos:
 
 - `hilvan watch`: panel en vivo de solo lectura.
 - `hilvan ui`: web en `127.0.0.1` con token por sesión, validación de `Host`, CSP estricta y salida insertada como texto.
 
-Ambos usan los mismos casos de uso de `core/`. Si Q-013 decide migrar a Go, se mantiene la arquitectura con Bubble Tea y `net/http` + `embed`.
+Ambos usan los mismos casos de uso de `core/`.
+
+**Adaptación a Go (Q-013, ADR-0014).** Se aceptó sin dependencias nuevas: `watch` con un renderizador ANSI propio sobre `os`/`bufio`, y `ui` con `net/http` y `embed` de la biblioteca estándar. No se usa Bubble Tea: añadiría una dependencia externa que justificar, y el panel de solo lectura no la necesita. Los requisitos de seguridad de `ui` (SR-032…SR-036) se aplican tal cual.
 
 ## Consecuencias
 
