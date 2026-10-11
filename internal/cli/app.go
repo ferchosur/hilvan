@@ -92,6 +92,7 @@ func Root() *Command {
 		reviewCommand(),
 		acceptCommand(),
 		statsCommand(),
+		watchCommand(),
 	)
 }
 

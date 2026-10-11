@@ -4,6 +4,10 @@ Cambios notables del proyecto. Formato basado en [Keep a Changelog](https://keep
 
 ## [Unreleased]
 
+### Añadido
+
+- `hilvan watch`: panel en vivo y de solo lectura con las tareas del proyecto y la ejecución en curso (ADR-0012). `--once` imprime un solo cuadro; sin terminal, se comporta igual. Nunca escribe en `.hilvan/`.
+
 ### Documentación
 
 - Se registra el diagnóstico del 2026-10-10: verificación local en Go 1.27.1, cobertura por paquete, brechas de documentación y prioridades para cerrar AC-015 y preparar SR-029. Véase [bitácora](docs/sessions/2026-10-10-diagnostico-del-proyecto.md).
