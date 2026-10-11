@@ -4,7 +4,7 @@
 
 > El nombre viene de *hilvanar*: unir piezas con puntadas para que el trabajo continúe. Comando: `hilvan` (alias `hv`).
 
-**Estado:** MVP completo en Linux (M0–M5; 20/22 criterios de aceptación verificados, ver [verificación](docs/plans/verificacion-mvp.md)). Especificación 001 v1.2. Licencia [Apache-2.0](LICENSE). English: [README.en.md](README.en.md).
+**Estado:** MVP completo (M0–M5), CI en Linux y Windows; 23 de 25 criterios de aceptación verificados, AC-015 pendiente de verificación en el equipo de validación y AC-009 diferido (ver [verificación](docs/plans/verificacion-mvp.md)). Especificación 001 v1.4. Licencia [Apache-2.0](LICENSE). English: [README.en.md](README.en.md).
 
 ## Empezar aquí
 

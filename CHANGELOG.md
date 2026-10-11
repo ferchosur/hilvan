@@ -4,6 +4,11 @@ Cambios notables del proyecto. Formato basado en [Keep a Changelog](https://keep
 
 ## [Unreleased]
 
+### Documentación
+
+- Se registra el diagnóstico del 2026-10-10: verificación local en Go 1.27.1, cobertura por paquete, brechas de documentación y prioridades para cerrar AC-015 y preparar SR-029. Véase [bitácora](docs/sessions/2026-10-10-diagnostico-del-proyecto.md).
+- Documentación alineada con spec 001 v1.4 y 23/25 AC: estado de ambos README, control de hooks y MCP en el modelo de amenazas (T4, SR-011/012, ADR-0013) y distribución de la release 0.1.0 en GitHub Releases en lugar de npm (ADR-0014).
+
 ### Corregido
 
 - **Log de ejecución:** cada línea del agente se guarda una sola vez (antes la línea `result` se duplicaba y las líneas sin eventos no se guardaban). Detectado por la prueba diferencial; corregido en TS y en Go.

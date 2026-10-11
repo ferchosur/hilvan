@@ -1,6 +1,6 @@
 # Contexto para continuar el proyecto
 
-Última actualización: 2026-10-08
+Última actualización: 2026-10-10
 Estado: **MVP completo, ya implementado en Go** (plan 002 terminado; el código TypeScript se retiró). 109 tests de Go en CI (ubuntu y windows) y e2e real con Claude Code y Codex. **23 de 25 criterios de aceptación verificados** con el binario de Go ([matriz](docs/plans/verificacion-mvp.md)): AC-015 está pendiente de la verificación con sesión en el equipo de validación y AC-009 diferido. Especificación 001 **v1.4**. Repositorio privado en GitHub: `ferchosur/hilvan`.
 
 Fuentes de verdad:
@@ -69,6 +69,19 @@ Calidad: Go con `go run ./scripts/check` (gofmt, vet, tests), `govulncheck` en C
 - **Tareas de solo lectura con Claude:** `--permission-mode dontAsk` impide incluso `ls` o `git ls-files` (mejora propuesta en [propuestas pendientes](docs/research/2026-10-08-propuestas-pendientes.md) §4).
 - **Mods de Claude Code** (2.1.287+): se ejecutan en `claude -p`, y los de usuario no los bloquea `--setting-sources user` (spike 005, `Planned`, en la rama `spike/005-mods-headless`).
 
+## Diagnóstico del proyecto (2026-10-10)
+
+- El renombre de `agent-orchestrator` a Hilvan está aplicado; el nombre anterior solo aparece en el historial y referencias históricas de la spec.
+- Verificación local con Go 1.27.1: `go run ./scripts/check`, `GOOS=windows go vet ./...` y `go test -race ./...` pasan. `git fsck` y `git diff --check` también pasan; el árbol quedó limpio.
+- Cobertura observada con `go test -cover ./...`: adapters 94.2 %, criterio 95.7 %, core 81.1 %, CLI 30.3 %, gitops 48.5 % y store 69.7 %.
+- No hay tag de producto ni workflow de publicación de releases; SR-029 sigue pendiente (binarios, SHA-256 y attestations). Revisar firma de `hilvan.exe` para el equipo de validación antes de publicar.
+- `README.md` y `README.en.md` aún dicen 20/22 AC y la versión v1.2; el estado vigente es 23/25 y spec v1.4. `README.en.md` y `docs/design/amenazas.md` también describen una política antigua de hooks, incompatible con SR-011/012 y la prueba real de `--setting-sources user`.
+- `docs/plans/001-mvp.md` conserva referencias de distribución a npm, ya obsoletas tras ADR-0014.
+- Hallazgos de bajo riesgo: `go.mod` marca como indirectas las dos dependencias que `go mod tidy -diff` identifica como directas; `stats` puede mostrar `0 runs ()` para un perfil que solo hizo revisiones; CI no ejecuta el detector de carreras.
+- Mejora propuesta, no aprobada: fijar el modelo efectivo al iniciar una tarea y reutilizarlo al reanudar la sesión. Actualmente `RunTask` vuelve a tomar el modelo actual del perfil.
+- Mejora propuesta, no aprobada: permitir herramientas de lectura explícitas en ejecuciones Claude `read`; hoy `dontAsk` impide incluso `ls` y `git ls-files`. Requiere requisito de seguridad y pruebas de que las escrituras siguen bloqueadas.
+- Cobertura de tests menor en CLI/gitops/store es oportunidad de refuerzo, no defecto funcional confirmado.
+
 ## Decisiones pendientes del usuario
 
 Detalle de las propuestas 2 y 3 en [propuestas pendientes](docs/research/2026-10-08-propuestas-pendientes.md).
@@ -81,23 +94,22 @@ Detalle de las propuestas 2 y 3 en [propuestas pendientes](docs/research/2026-10
 
 ## Próximos pasos
 
-1. **Spike 001, fase C con sesión** (la ejecuta el usuario; el filtro de permisos de la sesión remota la bloqueó):
+1. ~~Actualizar documentación de publicación~~ (hecho en `docs/alinear-readme-v1.4`: READMEs, amenazas y plan 001).
+2. **Spike 001, fase C con sesión** (la ejecuta el usuario; el filtro de permisos de la sesión remota la bloqueó):
    - `auth status` de `claude-personal` y `codex-personal` en WSL;
    - `claude.exe` lanzado desde WSL en la carpeta compartida.
    
    Después, perfiles reales en el equipo de validación: `hilvan profile add --launcher wsl …` y `profile tools claude-corp --apply`. Con eso se cierra AC-015.
-2. Spike 005 (mods): ejecutarlo y decidir la mitigación.
-3. Mejoras:
+3. Diseñar la release 0.1.0 requerida por SR-029: binarios por plataforma, sumas y attestations; confirmar si Windows exige firma.
+4. Spike 005 (mods): ejecutarlo y decidir la mitigación.
+5. Mejoras (las propuestas requieren aprobación y actualización de spec/SR antes de código):
    - comandos de solo lectura permitidos en tareas `read` (`--allowedTools`);
    - resumen estructurado del agente de origen en el traspaso;
    - catálogo de mensajes es/en;
    - `stats` sin `0 runs ()` para perfiles que solo revisaron;
    - `hilvan watch`/`ui` si se acepta ADR-0012;
    - lanzador SSH.
-4. Release 0.1.0:
-   - binarios por plataforma con *attestations* (SR-029);
-   - comprobar si la política de Windows del equipo de validación exige firmar `hilvan.exe`;
-   - README final y post de lanzamiento (borrador en [propuestas pendientes](docs/research/2026-10-08-propuestas-pendientes.md) §5).
+6. Resolver decisión sobre fijar modelo al reanudar y permitir comandos de lectura para Claude; ambas propuestas y sus riesgos están descritos en [propuestas pendientes](docs/research/2026-10-08-propuestas-pendientes.md).
 
 ## Referencias
 

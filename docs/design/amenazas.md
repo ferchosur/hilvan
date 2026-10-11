@@ -29,7 +29,7 @@
 | T1 | Divulgación de información | Contexto corporativo enviado a un perfil personal | Elegibilidad antes de recomendar; reglas `deny` gestionadas y `enforced`; vista previa y aprobación obligatorias; el hash de lo enviado queda en la auditoría (AC-003, AC-014). |
 | T2 | Divulgación de información | Secretos (tokens, claves) dentro del paquete de traspaso o de los logs | Detector de secretos (patrones de claves conocidas y alta entropía) antes de la vista previa, con las coincidencias marcadas; `events.jsonl` guarda solo hashes y rutas; `.hilvan/` en `.gitignore`. |
 | T3 | Suplantación | Una tarea se ejecuta con la cuenta equivocada | `CLAUDE_CONFIG_DIR`/`CODEX_HOME` explícitos por ejecución; `profile check` verifica la cuenta (Claude) antes de la primera ejecución y tras cambios de configuración; el destino se muestra en cada confirmación (AC-017). |
-| T4 | Elevación de privilegios | El repositorio trae `.mcp.json` o hooks que `claude -p` ejecuta sin pedir confianza | `--strict-mcp-config` siempre y solo el MCP declarado en el perfil (NFR-011). Riesgo residual: los hooks de `.claude/settings.json` del repositorio siguen activos sin `--bare` → se avisa la primera vez que se usa un repositorio con hooks y se documenta. |
+| T4 | Elevación de privilegios | El repositorio trae `.mcp.json` o hooks que `claude -p` ejecuta sin pedir confianza `--setting-sources user` siempre (SR-011, ADR-0013): no se cargan ajustes, hooks ni `.mcp.json` del repositorio; solo las herramientas de la cuenta o las declaradas en el perfil (NFR-011). Verificado el 2026-10-07 y de nuevo el 2026-10-08 con un hook y un MCP hostiles. Sin riesgo residual conocido para este vector. |
 | T5 | Manipulación | Inyección de argumentos o comandos mediante rutas, títulos o prompts | `spawn` con array de argumentos y `shell:false`; el prompt va por stdin, nunca como argumento interpolado; validación de rutas y de `id` con zod. |
 | T6 | Manipulación | Inyección de prompts desde contenido del repositorio o desde la salida de otro agente | Revisión humana antes de aceptar (AC-010); revisión cruzada opcional; las tareas de lectura usan sandbox `read-only` o `dontAsk`. |
 | T7 | Repudio | No se puede saber qué perfil recibió qué | `events.jsonl` de solo añadido con perfil, destino, hash del paquete y resultado (FR-009). |
@@ -40,5 +40,4 @@
 ## 3. Riesgos aceptados en el MVP
 
 - Un administrador local puede modificar la política gestionada: el MVP no es un control frente a administradores del propio equipo.
-- Los hooks del repositorio en `claude -p`, mitigados solo con un aviso (T4).
 - Codex no permite verificar la cuenta concreta (`verifiable: false`).

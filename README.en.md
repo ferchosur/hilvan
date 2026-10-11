@@ -4,7 +4,7 @@
 
 > *Hilvanar* (Spanish): to tack pieces together with loose stitches so the work can continue.
 
-**Status:** pre-release — MVP milestones M0–M5 done on Linux (20/22 acceptance criteria verified). Apache-2.0. Spanish documentation lives in [`README.md`](README.md) and [`docs/`](docs/).
+**Status:** pre-release — MVP milestones M0–M5 done on Linux (23 of 25 acceptance criteria verified; AC-015 pending verification on Windows + WSL, AC-009 deferred). Specification 001 v1.4. Apache-2.0. Spanish documentation lives in [`README.md`](README.md) and [`docs/`](docs/).
 
 ## Why
 
@@ -19,7 +19,7 @@ Hilvan is **not** a way to pool or bypass provider quotas. It launches the **off
 - **Profiles:** one per account and environment (`CLAUDE_CONFIG_DIR` / `CODEX_HOME`), official login flows, identity checks (`hilvan profile check`).
 - **Tasks:** structured briefs, one git worktree and branch per writing task, live streaming, cost and quota-window visibility, `blocked` and `uncertain` states instead of silent retries, and cancellation.
 - **Criterio:** a local decision engine (no network, about 30 µs per decision) that suggests task type, complexity, stricter data classification and diff risk, explains why, and learns from your corrections.
-- **Security:** terminal-escape sanitising, secret redaction, symlink-safe atomic writes, a hash-chained audit log (`hilvan audit verify`) and explicit trust for repository hooks. See [SECURITY.md](SECURITY.md).
+- **Security:** terminal-escape sanitising, secret redaction, symlink-safe atomic writes, a hash-chained audit log (`hilvan audit verify`) and no repository-supplied hooks, settings or MCP servers in agent runs (Claude Code is always launched with `--setting-sources user`). See [SECURITY.md](SECURITY.md).
 
 ## Quick start
 
