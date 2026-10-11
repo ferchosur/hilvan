@@ -104,4 +104,4 @@ jobs:
       - name: Publish release
         run: |
           gh release create "$GITHUB_REF_NAME" dist/hilvan-* dist/SHA256SUMS \
-            --verify-tag --prerelease --generate-notes --title "Hilvan ${GITHUB_REF_NAME#v}"
+            --verify-tag --generate-notes --title "Hilvan ${GITHUB_REF_NAME#v}"
