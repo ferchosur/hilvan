@@ -25,7 +25,7 @@ El CLI cubre el MVP, pero los usuarios valoran ver el estado de varios agentes d
 
 Ambos usan los mismos casos de uso de `core/`.
 
-**Adaptación a Go (Q-013, ADR-0014).** Se aceptó sin dependencias nuevas: `watch` con un renderizador ANSI propio sobre `os`/`bufio`, y `ui` con `net/http` y `embed` de la biblioteca estándar. No se usa Bubble Tea: añadiría una dependencia externa que justificar, y el panel de solo lectura no la necesita. Los requisitos de seguridad de `ui` (SR-032…SR-036) se aplican tal cual.
+**Adaptación a Go (Q-013, ADR-0014).** Se aceptó sin dependencias nuevas: `watch` con un renderizador ANSI propio sobre `os`/`bufio`, y `ui` con `net/http` y `embed` de la biblioteca estándar. No se usa Bubble Tea: añadiría una dependencia externa que justificar, y el panel de solo lectura no la necesita. Los requisitos de seguridad de `ui` (SR-032…SR-036) se aplican tal cual. El spike 004 que los verificó está en Node (`spikes/004-ui-web/server.mjs`), así que su verificación debe repetirse en la implementación en Go antes de marcarlos como cumplidos.
 
 ## Consecuencias
 
