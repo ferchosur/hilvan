@@ -33,7 +33,7 @@ Entornos del usuario:
 | `doctor` | Comprueba git, claude, codex, WSL, la configuración y los perfiles `wsl` sin ruta del ejecutable. |
 | `profile add/list/show/remove/login/check/set/tools` | Un perfil por cuenta y entorno (`CLAUDE_CONFIG_DIR`/`CODEX_HOME`, o `configDir: null` = login por defecto). Para `--launcher wsl`, descubre el ejecutable y el `PATH` de la distro (`profile set --rediscover` tras actualizar Node). `tools` descubre los MCP de la cuenta y `routing: reserved` reserva la cuenta corporativa para tareas que necesitan sus herramientas. |
 | `init` | Crea `.hilvan/` en un repositorio git (ignorado por git). |
-| `task new/list/show/log/run/recommend/requires/cancel/discard` | Brief → Criterio sugiere tipo, complejidad, clasificación y herramientas → ejecución en un worktree `hilvan/<tarea>` (rutas relativas, usable desde Windows y WSL) → consumo, límites, riesgo y cumplimiento → estados `blocked`/`uncertain` sin reintentos silenciosos; cancelación tras 10 min sin salida (watchdog, `inactivity`). |
+| `task new/list/show/log/run/recommend/requires/cancel/discard` | Brief → Criterio sugiere tipo, complejidad, clasificación y herramientas → ejecución en un worktree `hilvan/<tarea>` (rutas relativas, usable desde Windows y WSL) → consumo, límites, riesgo y cumplimiento → estados `blocked`/`uncertain` sin reintentos silenciosos; cancelación tras 20 min sin salida (watchdog `--idle-timeout`, motivo `inactivity`); límite duro de 60 min (`--timeout`). |
 | `policy show/check` | Política en capas con `deny`/`require_approval`; `enforced` solo en la capa gestionada; la aprobación muestra el brief exacto. |
 | `criterio ask/teach/stats/reset` | Motor de decisión local que aprende de las correcciones. |
 | `handoff <tarea> --to <perfil>` | Paquete de continuidad con secretos redactados, editable, aprobado y guardado con sha256. |
@@ -88,7 +88,7 @@ Calidad: Go con `go run ./scripts/check` (gofmt, vet, tests), `govulncheck` en C
 Detalle de las propuestas 2 y 3 en [propuestas pendientes](docs/research/2026-10-08-propuestas-pendientes.md).
 
 1. ~~ADR-0012 — UI~~: aceptado el 2026-10-11 con la adaptación a Go; `hilvan watch` implementado. Pendiente: `hilvan ui` (web), después de validar `watch`.
-2. **Watchdog de inactividad:** ¿10 minutos fijos (`adapters.DefaultInactivity`) o configurables con un flag?
+2. ~~Watchdog de inactividad~~ (decidido el 2026-10-12): 20 minutos por defecto, configurable con `--idle-timeout` en `task run` y `review`. La revisión cruzada tiene límite duro de 30 minutos (`review --timeout`). Valor provisional hasta medir: cada ejecución guarda `maxSilenceSeconds` en `task.json`.
 3. **Perfil ocupado y revisión cruzada:** qué pasa si el perfil ya tiene una ejecución, y si la revisión guarda un resumen de conclusiones o el transcript completo. Ver [nota AgentBridge](docs/research/2026-10-12-agentbridge.md).
 4. **Visión conversacional** (Hilvan como REPL en lenguaje natural): propuesta de spec 002 con un "cerebro" elegido por clasificación. Sin decidir.
 5. **Requisito "Hilvan no aumenta el consumo"** (propuesto): no cambiar de modelo ni de esfuerzo al reanudar, separar lectura y escritura de caché en `stats`.
@@ -98,7 +98,7 @@ Detalle de las propuestas 2 y 3 en [propuestas pendientes](docs/research/2026-10
 
 1. **Post de LinkedIn:** borrador listo en español e inglés. Lo revisa y publica el usuario; falta confirmar los hashtags.
 2. **AC-015:** verificación con perfiles reales en el equipo de validación (Windows y WSL), spike 001 fase C. La hace el usuario; con eso se cierra.
-3. **Decisiones 2 y 3** de arriba, y después la especificación si cambia el comportamiento.
+3. **Medir silencios** en más tareas reales, incluidas las que ejecutan tests o instalaciones, y fijar el valor del watchdog con esos datos (`maxSilenceSeconds`). Después, la especificación si cambia el comportamiento.
 4. **Spike 005 (mods):** ejecutarlo y decidir la mitigación.
 5. **`hilvan ui` (ADR-0012):** después de validar `watch`. Al implementarlo, repetir en Go la verificación de SR-032…036, que hoy solo está hecha en Node (spike 004).
 6. **Mejoras propuestas** (requieren aprobación y actualización de spec/SR): comandos de solo lectura en tareas `read`, resumen estructurado en el traspaso, catálogo de mensajes es/en, `stats` sin `0 runs ()`, lanzador SSH y fijar el modelo al reanudar.
