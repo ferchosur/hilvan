@@ -314,3 +314,66 @@ func TestRequiredToolsCatalogAndLearning(t *testing.T) {
 		t.Error("tool examples not counted")
 	}
 }
+
+// D-028: the transcript of a cross review stays in its local run log; the task keeps a summary.
+func TestReviewKeepsTranscriptInRunLogOnly(t *testing.T) {
+	s, tmp, id := writtenTask(t)
+	if _, err := CrossReview(s, id, fakeProfile(tmp, "claude-b", "claude-code"), deps("review")); err != nil {
+		t.Fatal(err)
+	}
+	task, _ := s.LoadTask(id)
+	if len(task.Reviews) != 1 || task.Reviews[0].Summary == "" || len(task.Reviews[0].Summary) > 4000 {
+		t.Fatalf("summary not kept on the task: %+v", task.Reviews)
+	}
+	logPath, err := s.RunFile(id, task.Reviews[0].ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if data, err := os.ReadFile(logPath); err != nil || len(data) == 0 {
+		t.Errorf("transcript missing from the run log: %v", err)
+	}
+}
+
+// D-030: the model is fixed on the first run and reused when the profile's model changes later.
+func TestModelIsPinnedOnFirstRun(t *testing.T) {
+	s, tmp := newRepo(t)
+	task := mustCreate(t, s, Brief{Title: "Pin model", Classification: "personal", Mode: "read", TaskType: "docs"})
+	p := fakeProfile(tmp, "fake", "claude-code")
+	m1 := "model-one"
+	p.Model = &m1
+	if _, err := RunTask(s, task.ID, p, deps("success")); err != nil {
+		t.Fatal(err)
+	}
+	saved, _ := s.LoadTask(task.ID)
+	if saved.Model == nil || *saved.Model != "model-one" {
+		t.Fatalf("model not pinned: %+v", saved.Model)
+	}
+	m2 := "model-two"
+	p.Model = &m2
+	if _, err := RunTask(s, task.ID, p, deps("success")); err != nil {
+		t.Fatal(err)
+	}
+	again, _ := s.LoadTask(task.ID)
+	if again.Model == nil || *again.Model != "model-one" {
+		t.Errorf("resume switched model to %v (D-030)", again.Model)
+	}
+}
+
+// D-027: a profile that is busy in another project refuses a new run with a clear message.
+func TestBusyProfileRefusesRun(t *testing.T) {
+	s, tmp := newRepo(t)
+	task := mustCreate(t, s, Brief{Title: "Busy", Classification: "personal", Mode: "read", TaskType: "docs"})
+	locks := filepath.Join(tmp, "locks")
+	if err := store.AcquireProfileLock(locks, "claude-a", store.Lock{PID: os.Getpid(), TaskID: "tsk_other", RunID: "run_other"}); err != nil {
+		t.Fatal(err)
+	}
+	d := deps("success")
+	d.ProfileLocks = locks
+	_, err := RunTask(s, task.ID, fakeProfile(tmp, "claude-a", "claude-code"), d)
+	if err == nil || !strings.Contains(err.Error(), "busy") {
+		t.Fatalf("busy profile ran: %v", err)
+	}
+	if after, _ := s.LoadTask(task.ID); after.State == domain.TaskRunning {
+		t.Error("a refused run left the task running")
+	}
+}

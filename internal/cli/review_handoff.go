@@ -192,9 +192,10 @@ func reviewCommand() *Command {
 					return err
 				}
 				r, err := core.CrossReview(s, taskID, reviewer, core.RunDeps{
-					Host:       c.App.Host,
-					Policy:     &eff,
-					RunOptions: adapters.RunOptions{Timeout: limit, Inactivity: idle},
+					ProfileLocks: filepath.Join(c.App.Platform.UserConfigDir(), "locks"),
+					Host:         c.App.Host,
+					Policy:       &eff,
+					RunOptions:   adapters.RunOptions{Timeout: limit, Inactivity: idle},
 					Approve: func(ev policy.Evaluation, brief string) bool {
 						for _, a := range ev.Approvals {
 							c.Println("? " + a.Reason + " [rule " + a.RuleID + "]")

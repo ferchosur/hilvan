@@ -28,6 +28,10 @@ Cambios notables del proyecto. Formato basado en [Keep a Changelog](https://keep
 
 ### Cambiado
 
+- Tareas de solo lectura con Claude: lista explícita de herramientas (`Read`, `Glob`, `Grep`, `ls`, `git ls-files`) en lugar de bloquear también la lectura (D-031). Verificado con la CLI real: `Write` y `Bash` de escritura se bloquean (SR-037).
+- Perfil ocupado: un perfil que ya ejecuta una tarea, en cualquier proyecto, rechaza una nueva ejecución con un mensaje claro (D-027).
+- Revisión cruzada: el transcript completo queda en el registro local de la ejecución y la tarea guarda solo un resumen de 4000 caracteres (D-028).
+- El modelo efectivo se fija al primer uso y se reutiliza al reanudar (D-030); `task.json` lo guarda en `model`.
 - **Hilvan es ahora un binario de Go** (plan 002 completado, G5): se retira la implementación TypeScript, la CI solo usa Go (ubuntu y windows, `govulncheck`) y Dependabot vigila los módulos de Go. Instalación: `go build -o ~/.local/bin/hilvan ./cmd/hilvan`. E2E real con Claude Code y Codex; AC-025 verificado de nuevo; 23/25 AC con Go; `hilvan --version` en ~3 ms y ~5 MB, presupuesto medido como test.
 - **Migración a Go** (D-026, spec 001 v1.4, ADR-0014 sustituye a ADR-0002, [plan 002](docs/plans/002-migracion-go.md)). G0: esqueleto `cmd/hilvan` (`--version` en 1,4 ms y 13 MB, frente a 164 ms y 66 MB), comando `go run ./scripts/check`, job de Go en CI (ubuntu y windows, `govulncheck`) y spike 006 de paridad (0 discrepancias). La implementación TypeScript queda congelada como referencia hasta G5.
 - **Migración a Go, G1:** núcleo puro portado (`internal/domain`, `security`, `jsfmt`, `criterio`, `policy`, `config`) con casos dorados generados por el código TS (`scripts/parity/gen-g1.ts`): 2.507 operaciones de Criterio reproducidas, `task.json` idéntico byte a byte y modelos aprendidos compatibles.

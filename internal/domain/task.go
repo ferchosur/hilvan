@@ -108,6 +108,8 @@ type Review struct {
 	ProfileID string `json:"profileId"`
 	Verdict   string `json:"verdict"`
 	Usage     *Usage `json:"usage,omitempty"`
+	// Summary is the reviewer's answer, redacted and truncated (D-028). The full transcript is in the run log.
+	Summary string `json:"summary,omitempty"`
 	// MaxSilenceSeconds is the longest silence without output during the review.
 	MaxSilenceSeconds float64 `json:"maxSilenceSeconds,omitempty"`
 	At                string  `json:"at"`
@@ -119,19 +121,21 @@ type Task struct {
 	Title          string `json:"title"`
 	Classification string `json:"classification"`
 	// Mode is write (own git worktree, ADR-0008) or read.
-	Mode          string       `json:"mode"`
-	Requires      []string     `json:"requires"`
-	TaskType      string       `json:"taskType,omitempty"`
-	Complexity    *float64     `json:"complexity,omitempty"`
-	CriteriaCount int          `json:"criteriaCount"`
-	ProfileID     *string      `json:"profileId"`
-	BaseBranch    *string      `json:"baseBranch"`
-	State         TaskState    `json:"state"`
-	Branch        *string      `json:"branch"`
-	Worktree      *string      `json:"worktree"`
-	Runs          []RunSummary `json:"runs"`
-	Handoffs      []string     `json:"handoffs"`
-	Reviews       []Review     `json:"reviews"`
+	Mode          string    `json:"mode"`
+	Requires      []string  `json:"requires"`
+	TaskType      string    `json:"taskType,omitempty"`
+	Complexity    *float64  `json:"complexity,omitempty"`
+	CriteriaCount int       `json:"criteriaCount"`
+	ProfileID     *string   `json:"profileId"`
+	BaseBranch    *string   `json:"baseBranch"`
+	State         TaskState `json:"state"`
+	Branch        *string   `json:"branch"`
+	// Model is the model fixed on the first run (D-030); nil means the CLI default.
+	Model    *string      `json:"model,omitempty"`
+	Worktree *string      `json:"worktree"`
+	Runs     []RunSummary `json:"runs"`
+	Handoffs []string     `json:"handoffs"`
+	Reviews  []Review     `json:"reviews"`
 	// ReviewedHead is the branch head whose diff the user reviewed (SR-024).
 	ReviewedHead *string `json:"reviewedHead"`
 	// ApprovedProfiles already received the user's approval for this task's brief.

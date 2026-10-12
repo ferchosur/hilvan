@@ -294,8 +294,9 @@ func taskRun() *Command {
 				}
 			}()
 			report, err := core.RunTask(s, taskID, p, core.RunDeps{
-				Host:   c.App.Host,
-				Policy: &eff,
+				ProfileLocks: filepath.Join(c.App.Platform.UserConfigDir(), "locks"),
+				Host:         c.App.Host,
+				Policy:       &eff,
 				Approve: func(ev policy.Evaluation, brief string) bool {
 					c.Println("\n? " + p.ID + " needs your approval to receive this task:")
 					for _, a := range ev.Approvals {

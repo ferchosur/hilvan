@@ -151,8 +151,17 @@ func (c claude) RunCommand(p *domain.Profile, req RunSpec, h map[string]string) 
 	if req.ResumeSessionID != "" {
 		args = append(args, "--resume", req.ResumeSessionID)
 	}
+	if req.Mode == "read" {
+		// D-031 and SR-037: an explicit list of read-only tools, one argument per tool, last so that
+		// the variadic list cannot swallow another flag. Everything else stays denied under dontAsk.
+		args = append(append(args, "--allowedTools"), ReadOnlyTools...)
+	}
 	return c.cmd(p, h, req.Cwd, args...)
 }
+
+// ReadOnlyTools are the tools a read-only Claude run may use (D-031, SR-037). Git subcommands that
+// can write (git log --output, git diff --output) are left out on purpose.
+var ReadOnlyTools = []string{"Read", "Glob", "Grep", "Bash(ls:*)", "Bash(git ls-files:*)"}
 
 func modelFor(p *domain.Profile, req RunSpec) string {
 	if req.Model != "" {
