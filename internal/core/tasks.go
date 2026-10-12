@@ -160,11 +160,13 @@ type RunDeps struct {
 	Policy *domain.EffectivePolicy
 	// Approve is called when a rule requires explicit approval (FR-004), with the exact brief
 	// that will be sent. Without it, such runs are refused.
-	Approve    func(ev policy.Evaluation, brief string) bool
-	Git        gitops.Git
-	Criterio   *criterio.Criterio
-	RunOptions adapters.RunOptions
-	OnEvent    func(adapters.Event)
+	Approve func(ev policy.Evaluation, brief string) bool
+	Git     gitops.Git
+	// ProfileLocks is the directory of cross-project profile locks (D-027); empty disables them.
+	ProfileLocks string
+	Criterio     *criterio.Criterio
+	RunOptions   adapters.RunOptions
+	OnEvent      func(adapters.Event)
 	// OnStart is called once the agent started, so the CLI can wire Ctrl+C to Cancel.
 	OnStart func(*adapters.RunHandle)
 }
@@ -285,6 +287,13 @@ func RunTask(s *store.ProjectStore, taskID string, p *domain.Profile, deps RunDe
 	}
 
 	runID := domain.NewRunID()
+	if deps.ProfileLocks != "" {
+		lock := store.Lock{PID: os.Getpid(), TaskID: taskID, RunID: runID, StartedAt: store.Now()}
+		if err := store.AcquireProfileLock(deps.ProfileLocks, p.ID, lock); err != nil {
+			return RunReport{}, taskError("%s", err)
+		}
+		defer store.ReleaseProfileLock(deps.ProfileLocks, p.ID, runID)
+	}
 	if err := s.AcquireLock(taskID, runID); err != nil {
 		return RunReport{}, err
 	}
@@ -336,7 +345,15 @@ func RunTask(s *store.ProjectStore, taskID string, p *domain.Profile, deps RunDe
 	if err != nil {
 		return RunReport{}, err
 	}
-	cmd := adapter.RunCommand(p, adapters.RunSpec{Cwd: destCwd, Mode: t.Mode, ResumeSessionID: lastSession}, deps.Host.Env)
+	// D-030: the effective model is fixed the first time the task runs and reused on resume.
+	if t.Model == nil && p.Model != nil {
+		t.Model = ptr(*p.Model)
+	}
+	spec := adapters.RunSpec{Cwd: destCwd, Mode: t.Mode, ResumeSessionID: lastSession}
+	if t.Model != nil {
+		spec.Model = *t.Model
+	}
+	cmd := adapter.RunCommand(p, spec, deps.Host.Env)
 	inv, err := launchers.BuildInvocation(p.Destination, cmd, deps.Host)
 	if err != nil {
 		return RunReport{}, err

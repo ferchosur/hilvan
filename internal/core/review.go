@@ -152,8 +152,30 @@ func CrossReview(s *store.ProjectStore, taskID string, reviewer *domain.Profile,
 	if err != nil {
 		return CrossReviewResult{}, err
 	}
+	if deps.ProfileLocks != "" {
+		lock := store.Lock{PID: os.Getpid(), TaskID: taskID, RunID: runID, StartedAt: store.Now()}
+		if err := store.AcquireProfileLock(deps.ProfileLocks, reviewer.ID, lock); err != nil {
+			return CrossReviewResult{}, taskError("%s", err)
+		}
+		defer store.ReleaseProfileLock(deps.ProfileLocks, reviewer.ID, runID)
+	}
 	if err := s.Audit(store.AuditEvent{Type: "review.started", TaskID: taskID, RunID: runID, ProfileID: reviewer.ID}); err != nil {
 		return CrossReviewResult{}, err
+	}
+	// D-028: the full transcript stays in the local run log (redacted); only a summary is kept on the task.
+	logPath, err := s.RunFile(taskID, runID)
+	if err != nil {
+		return CrossReviewResult{}, err
+	}
+	logFile, err := os.OpenFile(logPath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0o600)
+	if err != nil {
+		return CrossReviewResult{}, err
+	}
+	defer logFile.Close()
+	opts := deps.RunOptions
+	opts.OnLine = func(raw string) {
+		redacted, _ := security.RedactSecrets(raw)
+		logFile.WriteString(redacted + "\n")
 	}
 	var messages []string
 	h, err := adapters.StartRun(inv, ReviewPrompt(t, brief), adapter.NewParser(), func(e adapters.Event, _ string) {
@@ -163,7 +185,7 @@ func CrossReview(s *store.ProjectStore, taskID string, reviewer *domain.Profile,
 		if deps.OnEvent != nil {
 			deps.OnEvent(e)
 		}
-	}, deps.RunOptions)
+	}, opts)
 	if err != nil {
 		return CrossReviewResult{}, err
 	}
@@ -177,6 +199,7 @@ func CrossReview(s *store.ProjectStore, taskID string, reviewer *domain.Profile,
 		raw = *out.ResultText
 	}
 	text, _ := security.RedactSecrets(raw)
+	summary := truncate(text, 4000)
 	verdict := "unknown"
 	if out.State == domain.RunCompleted {
 		verdict = ParseVerdict(text)
@@ -188,7 +211,7 @@ func CrossReview(s *store.ProjectStore, taskID string, reviewer *domain.Profile,
 	if err := os.MkdirAll(filepath.Dir(file), 0o700); err != nil {
 		return CrossReviewResult{}, err
 	}
-	body := "# Revisión cruzada por " + reviewer.ID + "\n\n- Estado: " + out.State + "\n- Veredicto: " + verdict + "\n\n" + text + "\n"
+	body := "# Revisión cruzada por " + reviewer.ID + "\n\n- Estado: " + out.State + "\n- Veredicto: " + verdict + "\n\n" + summary + "\n"
 	if err := security.WriteFileAtomic(file, []byte(body), 0o600); err != nil {
 		return CrossReviewResult{}, err
 	}
@@ -196,7 +219,7 @@ func CrossReview(s *store.ProjectStore, taskID string, reviewer *domain.Profile,
 		return CrossReviewResult{}, err
 	}
 	t.Reviews = append(t.Reviews, domain.Review{ID: runID, ProfileID: reviewer.ID, Verdict: verdict, Usage: usageOf(out),
-		MaxSilenceSeconds: roundSeconds(res.MaxSilence), At: store.Now()})
+		Summary: summary, MaxSilenceSeconds: roundSeconds(res.MaxSilence), At: store.Now()})
 	if t, err = s.SaveTask(t, nil); err != nil {
 		return CrossReviewResult{}, err
 	}
