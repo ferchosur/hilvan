@@ -305,7 +305,7 @@ func taskRun() *Command {
 					return c.App.Interactive && c.App.Confirm("Send it to "+p.ID+"?", false)
 				},
 				Criterio:   engine,
-				RunOptions: adapters.RunOptions{Timeout: time.Duration(minutes * float64(time.Minute))},
+				RunOptions: adapters.RunOptions{Timeout: time.Duration(minutes * float64(time.Minute)), Inactivity: adapters.DefaultInactivity},
 				OnEvent:    func(e adapters.Event) { printEvent(c, e) },
 				OnStart:    func(h *adapters.RunHandle) { handle = h },
 			})

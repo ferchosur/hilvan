@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ferchosur/hilvan/internal/adapters"
 	"github.com/ferchosur/hilvan/internal/config"
 	"github.com/ferchosur/hilvan/internal/core"
 	"github.com/ferchosur/hilvan/internal/criterio"
@@ -181,8 +182,9 @@ func reviewCommand() *Command {
 					return err
 				}
 				r, err := core.CrossReview(s, taskID, reviewer, core.RunDeps{
-					Host:   c.App.Host,
-					Policy: &eff,
+					Host:       c.App.Host,
+					Policy:     &eff,
+					RunOptions: adapters.RunOptions{Inactivity: adapters.DefaultInactivity},
 					Approve: func(ev policy.Evaluation, brief string) bool {
 						for _, a := range ev.Approvals {
 							c.Println("? " + a.Reason + " [rule " + a.RuleID + "]")

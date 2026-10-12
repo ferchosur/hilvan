@@ -6,6 +6,7 @@ Cambios notables del proyecto. Formato basado en [Keep a Changelog](https://keep
 
 ### Añadido
 
+- Watchdog de inactividad: una ejecución de agente sin salida durante 10 minutos se cancela y queda como `cancelled` con el motivo `inactivity`. Cada chunk de salida reinicia el contador, así que un agente lento pero activo no se corta. Se aplica a `task run` y a la revisión cruzada.
 - `hilvan watch`: panel en vivo y de solo lectura con las tareas del proyecto y la ejecución en curso (ADR-0012). `--once` imprime un solo cuadro; sin terminal, se comporta igual. Nunca escribe en `.hilvan/`.
 
 ### Documentación
