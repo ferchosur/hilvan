@@ -1,7 +1,7 @@
 # 001 — Requisitos de producto
 
 - **Estado:** Approved
-- **Versión:** 1.4
+- **Versión:** 1.5
 - **Fecha:** 2026-10-06
 - **Aprobado por / fecha:** Fernando Giraldo, 2026-10-06 (aprobación del plan que resuelve Q-001–Q-010)
 - **Relacionado:** [investigación 2026-10-06](../docs/research/2026-10-06-foros-y-herramientas.md), [ADR-0002–0010](../docs/adr/README.md), [plan MVP](../docs/plans/001-mvp.md)
@@ -76,6 +76,16 @@ Una persona que ya usa dos o más asistentes o agentes de IA, posiblemente con v
 - **D-024 — Licencia:** Apache-2.0. ADR-0010.
 - **D-025 — Nombre (Q-011):** el producto se llama **Hilvan** (de *hilvanar*). Paquete npm `hilvan`; comando `hilvan` con alias `hv`; estado de proyecto en `.hilvan/`. Se descartaron "LOTA" (riesgo de marca de Tolkien y mensaje contrario al control humano) y "models orchestrator" (genérico; el producto orquesta cuentas y agentes, no modelos). Decidido por el usuario el 2026-10-06.
 - **D-026 — Lenguaje: Go (Q-013):** Hilvan se reimplementa en Go y se distribuye como binario único sin runtime, por NFR-013 y para simplificar la instalación. La migración mantiene los mismos comandos, flags y formatos en disco, con paridad verificada contra la implementación en TypeScript, que se retira al terminar. Sustituye a D-013. Decidido por el usuario el 2026-10-07. ADR-0014, [plan 002](../docs/plans/002-migracion-go.md).
+- **D-027 — Perfil ocupado:** si un perfil ya ejecuta una tarea, una nueva ejecución con ese perfil se rechaza con un mensaje que indica la tarea en curso; no se encola ni se ejecuta en paralelo. Se aplica dentro de un mismo proyecto (lock existente) y entre proyectos (lock por perfil).
+- **D-028 — Contenido de la revisión cruzada:** el transcript completo se guarda solo en el registro local de la ejecución; lo que se adjunta a la tarea y se pasa a otro perfil es un resumen estructurado (veredicto y hallazgos), no el transcript.
+- **D-029 — Límites de ejecución:** el watchdog de inactividad cancela una ejecución sin salida durante 20 minutos por defecto (`--idle-timeout`). La revisión cruzada tiene límite duro de 30 minutos (`--timeout`); `task run` mantiene 60 minutos. El silencio máximo de cada ejecución se registra para revisar el valor cuando haya al menos diez ejecuciones reales.
+- **D-030 — Modelo al reanudar:** el modelo efectivo se fija al iniciar la tarea y se reutiliza al reanudarla. Cambiar de modelo o de esfuerzo requiere una acción explícita del usuario.
+- **D-031 — Lectura en tareas de Claude:** las tareas de solo lectura pueden usar una lista explícita de comandos de lectura. Las escrituras siguen bloqueadas (SR-037).
+- **D-032 — Mods de Claude Code:** los mods de usuario no se bloquean (son configuración de la persona). `hilvan doctor` avisa de su presencia y la documentación describe el riesgo.
+- **D-033 — Monetización (Q-012):** diferida. Apache-2.0 ya permite el uso comercial; la decisión se toma después de la publicación, con datos de adopción.
+- **D-034 — Firma de `hilvan.exe`:** aplazada por su coste. La distribución es sin firma, con verificación por `SHA256SUMS` y attestations, y la documentación describe el aviso de SmartScreen.
+- **D-035 — Hilvan conversacional (spec 002):** no se redacta mientras no haya opiniones de usuarios sobre la CLI publicada.
+- **D-036 — `hilvan ui`:** se implementa después de validar `hilvan watch`. Al hacerlo se repite en Go la verificación de SR-032…SR-036, que hoy solo está hecha en Node.
 
 ## 6. Alcance del MVP
 
@@ -209,6 +219,7 @@ Un perfil puede marcarse como **reservado**: solo se recomienda para tareas que 
 - **NFR-010 — Cumplimiento de términos:** el producto ejecuta los CLIs oficiales sin modificar, no ofrece el inicio de sesión del proveedor dentro del producto, no recoge ni almacena credenciales o tokens de sesión, y no intermedia ni revende uso.
 - **NFR-011 — Configuración explícita del agente:** las ejecuciones no deben cargar servidores MCP ni hooks no declarados para el perfil (p. ej. usar configuración MCP estricta), para evitar que un repositorio ajeno amplíe las herramientas de un perfil.
 - **NFR-012 — Multiplataforma:** las pruebas automáticas se ejecutan en Linux y Windows.
+- **NFR-014 — Consumo:** Hilvan no aumenta el consumo de cuota frente a usar el CLI directamente. No cambia de modelo ni de esfuerzo al reanudar (D-030), y `stats` separa las lecturas y escrituras de caché. Se verifica con una medición directa frente al CLI.
 - **NFR-013 — Ligereza:** Hilvan funciona en equipos modestos sin modelos locales ni servicios externos propios. Cada decisión de Criterio tarda menos de 5 ms. El arranque del CLI y la memoria tienen presupuestos medidos en las pruebas.
 
 ## 9. Criterios de aceptación del MVP
@@ -271,10 +282,11 @@ Un perfil puede marcarse como **reservado**: solo se recomienda para tareas que 
 
 Pendientes, no bloqueantes para el MVP:
 
-- **Q-012 — Monetización:** modelo de sostenibilidad del proyecto open source; se trabajará después del MVP.
+- **Q-012 — Monetización:** diferida por D-033; se decidirá después de la publicación.
 
 ## 12. Historial de revisión
 
+- **1.5 (2026-10-12):** D-027–D-036 (perfil ocupado, revisión cruzada, límites de ejecución, modelo al reanudar, lectura en Claude, mods, monetización, firma, spec 002 y `ui`), NFR-014 (consumo) y SR-037. Sin cambios de alcance del MVP; la implementación de D-027, D-028, D-030, D-031 y D-032 va en ramas posteriores.
 - **1.4 (2026-10-07):** D-026 (Go como lenguaje, resuelve Q-013); D-013 pasa a obsoleta. Sin cambios de alcance funcional. ADR-0014.
 - **1.3 (2026-10-07):** FR-021 (herramientas por cuenta, perfil reservado, inferencia y descubrimiento de herramientas), AC-023–AC-025. ADR-0013.
 - **1.2 (2026-10-07):** FR-020 (Criterio), NFR-013 (ligereza), AC-022; FR-012 con regla de cuotas por aplicación y registro de resultados. ADR-0011.

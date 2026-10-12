@@ -15,6 +15,7 @@ Cambios notables del proyecto. Formato basado en [Keep a Changelog](https://keep
 
 ### Documentación
 
+- Especificación 001 **v1.5**: decisiones D-027–D-036 (perfil ocupado, contenido de la revisión, límites de ejecución, modelo al reanudar, lectura en tareas de Claude, mods, monetización, firma de Windows, spec 002 y `ui`), NFR-014 (consumo) y SR-037 (comandos de solo lectura). Sin cambios de alcance del MVP.
 - ADR-0012 aceptado con la adaptación a Go (2026-10-11); la verificación de SR-032…036 se hizo en Node y debe repetirse en Go al implementar `ui`.
 - Nota de investigación sobre AgentBridge: ideas reutilizables y límites para Hilvan ([docs/research/2026-10-12-agentbridge.md](docs/research/2026-10-12-agentbridge.md)).
 - Se registra el diagnóstico del 2026-10-10: verificación local en Go 1.27.1, cobertura por paquete, brechas de documentación y prioridades para cerrar AC-015 y preparar SR-029. Véase [bitácora](docs/sessions/2026-10-10-diagnostico-del-proyecto.md).
