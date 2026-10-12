@@ -4,6 +4,10 @@ Cambios notables del proyecto. Formato basado en [Keep a Changelog](https://keep
 
 ## [Unreleased]
 
+### Publicación
+
+- Repositorio público y release **0.1.0** (2026-10-11): binarios para linux, darwin y windows en amd64 y arm64, `SHA256SUMS` y attestations de procedencia (SR-029, ADR-0014). Firma de `hilvan.exe` aplazada.
+
 ### Añadido
 
 - Watchdog de inactividad: una ejecución de agente sin salida durante 20 minutos (`--idle-timeout`) se cancela y queda como `cancelled` con el motivo `inactivity`. Cada chunk de salida reinicia el contador. La revisión cruzada tiene además un límite duro de 30 minutos (`review --timeout`), y `task run` mantiene 60 minutos (`--timeout`). El silencio máximo de cada ejecución se guarda en `maxSilenceSeconds` para decidir el valor con datos.
@@ -11,6 +15,8 @@ Cambios notables del proyecto. Formato basado en [Keep a Changelog](https://keep
 
 ### Documentación
 
+- ADR-0012 aceptado con la adaptación a Go (2026-10-11); la verificación de SR-032…036 se hizo en Node y debe repetirse en Go al implementar `ui`.
+- Nota de investigación sobre AgentBridge: ideas reutilizables y límites para Hilvan ([docs/research/2026-10-12-agentbridge.md](docs/research/2026-10-12-agentbridge.md)).
 - Se registra el diagnóstico del 2026-10-10: verificación local en Go 1.27.1, cobertura por paquete, brechas de documentación y prioridades para cerrar AC-015 y preparar SR-029. Véase [bitácora](docs/sessions/2026-10-10-diagnostico-del-proyecto.md).
 - Documentación alineada con spec 001 v1.4 y 23/25 AC: estado de ambos README, control de hooks y MCP en el modelo de amenazas (T4, SR-011/012, ADR-0013) y distribución de la release 0.1.0 en GitHub Releases en lugar de npm (ADR-0014).
 
