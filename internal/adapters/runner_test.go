@@ -88,6 +88,23 @@ func TestRunnerTimeout(t *testing.T) {
 	}
 }
 
+// The watchdog cancels a run that goes silent after its last event (the "slow" scenario).
+func TestRunnerInactivity(t *testing.T) {
+	h, _ := run(t, "slow", RunOptions{Inactivity: 300 * time.Millisecond, Grace: 200 * time.Millisecond})
+	r := h.Wait()
+	if r.State != "cancelled" || r.Error == nil || *r.Error != "inactivity" {
+		t.Errorf("watchdog: %+v", r.Map())
+	}
+}
+
+// Output restarts the countdown: a run that talks every 150 ms survives a 400 ms limit.
+func TestRunnerInactivityResetByOutput(t *testing.T) {
+	h, _ := run(t, "chatty", RunOptions{Inactivity: 400 * time.Millisecond, Grace: 200 * time.Millisecond})
+	if r := h.Wait(); r.State != "completed" {
+		t.Errorf("live run was cut off: %+v", r.Map())
+	}
+}
+
 func TestRunnerMissingExecutable(t *testing.T) {
 	h, err := StartRun(launchers.Invocation{Command: filepath.Join(t.TempDir(), "agent")}, "", ParseClaudeLine, func(Event, string) {}, RunOptions{})
 	if err != nil {

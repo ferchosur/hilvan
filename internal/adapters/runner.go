@@ -20,12 +20,19 @@ import (
 type RunOptions struct {
 	// Timeout is the hard limit for a run (SR-025); the run is cancelled when it expires.
 	Timeout time.Duration
+	// Inactivity cancels a run that prints nothing on stdout or stderr for this long. Each chunk of
+	// output restarts the countdown, so a slow but live agent is not cut off. Zero disables it.
+	Inactivity time.Duration
 	// Grace is the time between SIGINT and SIGTERM, and between SIGTERM and SIGKILL (default 10 s).
 	Grace             time.Duration
 	MaxLine, MaxTotal int
 	// OnLine is called once per stdout line, before its events (e.g. to store the run log).
 	OnLine func(line string)
 }
+
+// DefaultInactivity is the silence after which the CLI cancels an agent run (a stuck CLI or a lost
+// end-of-turn event would otherwise keep the task "running" until the hard timeout).
+const DefaultInactivity = 10 * time.Minute
 
 // RunResult is the outcome plus process facts.
 type RunResult struct {
@@ -112,6 +119,16 @@ func StartRun(inv launchers.Invocation, prompt string, parse func(string) []Even
 		timers = append(timers, time.AfterFunc(opts.Timeout, func() { h.cancel("timeout") }))
 		mu.Unlock()
 	}
+	// idle is the inactivity watchdog: it is restarted by every chunk of output (see touch).
+	var idle *time.Timer
+	touch := func() {}
+	if opts.Inactivity > 0 {
+		idle = time.AfterFunc(opts.Inactivity, func() { h.cancel("inactivity") })
+		mu.Lock()
+		timers = append(timers, idle)
+		mu.Unlock()
+		touch = func() { idle.Reset(opts.Inactivity) }
+	}
 
 	go func() {
 		io.WriteString(stdin, prompt) // the agent may exit before reading it; the outcome shows it
@@ -143,6 +160,9 @@ func StartRun(inv launchers.Invocation, prompt string, parse func(string) []Even
 		buf := make([]byte, 64*1024)
 		for {
 			n, err := stderr.Read(buf)
+			if n > 0 {
+				touch()
+			}
 			tail = append(tail, buf[:n]...)
 			if len(tail) > 4096 {
 				tail = tail[len(tail)-4096:]
@@ -158,6 +178,9 @@ func StartRun(inv launchers.Invocation, prompt string, parse func(string) []Even
 		stopped := false
 		for {
 			n, err := stdout.Read(buf)
+			if n > 0 {
+				touch()
+			}
 			if n > 0 && !stopped {
 				if perr := splitter.Push(string(buf[:n])); perr != nil {
 					mu.Lock()
@@ -198,8 +221,8 @@ func StartRun(inv launchers.Invocation, prompt string, parse func(string) []Even
 		if limit != "" && out.State == "uncertain" {
 			out.Error = str(limit)
 		}
-		if limit == "timeout" {
-			out.Error = str("timeout")
+		if limit == "timeout" || limit == "inactivity" {
+			out.Error = str(limit)
 		}
 		if (out.Error == nil || *out.Error == "") && out.State != "completed" && strings.TrimSpace(stderrTail) != "" {
 			lines := strings.Split(strings.TrimSpace(stderrTail), "\n")

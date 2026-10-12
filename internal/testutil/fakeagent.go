@@ -71,6 +71,12 @@ func FakeAgent(scenario string) {
 		os.Exit(3)
 	case "huge":
 		os.Stdout.WriteString(`{"type":"assistant","x":"` + strings.Repeat("a", 3*1024*1024) + "\"}\n")
+	case "chatty":
+		// Output every 150 ms for 1.5 s: alive for longer than a short inactivity limit.
+		for i := 0; i < 10; i++ {
+			time.Sleep(150 * time.Millisecond)
+			out(o{"type": "assistant", "message": o{"content": []any{o{"type": "text", "text": fmt.Sprintf("tick %d", i)}}}})
+		}
 	case "slow":
 		select {
 		case <-sigint:
