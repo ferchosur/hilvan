@@ -94,6 +94,8 @@ type RunSummary struct {
 	// MeetsCriteria is Criterio's estimate that the run met the brief.
 	MeetsCriteria *float64 `json:"meetsCriteria,omitempty"`
 	Error         string   `json:"error,omitempty"`
+	// MaxSilenceSeconds is the longest silence without output (measurement for the watchdog limit).
+	MaxSilenceSeconds float64 `json:"maxSilenceSeconds,omitempty"`
 	// Summary is the agent's final summary, redacted and truncated. An unverified claim.
 	Summary   string `json:"summary,omitempty"`
 	StartedAt string `json:"startedAt"`
@@ -106,7 +108,9 @@ type Review struct {
 	ProfileID string `json:"profileId"`
 	Verdict   string `json:"verdict"`
 	Usage     *Usage `json:"usage,omitempty"`
-	At        string `json:"at"`
+	// MaxSilenceSeconds is the longest silence without output during the review.
+	MaxSilenceSeconds float64 `json:"maxSilenceSeconds,omitempty"`
+	At                string  `json:"at"`
 }
 
 // Task is the content of .hilvan/tasks/<id>/task.json. Field order matches the TypeScript output.

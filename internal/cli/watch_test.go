@@ -72,6 +72,9 @@ func TestWatchIsReadOnly(t *testing.T) {
 	if _, errOut, code := run(t, app, "watch", "--interval", "0"); code == 0 || !strings.Contains(errOut, "--interval") {
 		t.Errorf("interval 0 must be rejected: code %d, %q", code, errOut)
 	}
+	if _, errOut, code := run(t, app, "task", "run", "x", "--profile", "p", "--idle-timeout", "0"); code == 0 || !strings.Contains(errOut, "--idle-timeout must be") {
+		t.Errorf("idle-timeout 0 must be rejected: code %d, %q", code, errOut)
+	}
 }
 
 // snapshot concatenates every file under dir with its path, to detect any write.

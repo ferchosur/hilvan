@@ -226,9 +226,18 @@ func taskRun() *Command {
 		Options: []*Option{
 			{Flags: "-p, --profile <id>", Desc: "profile that runs the task", Required: true},
 			{Flags: "--timeout <minutes>", Desc: "cancel the run after this many minutes", Default: "60"},
+			{Flags: "--idle-timeout <minutes>", Desc: "cancel the run after this many minutes without any output", Default: minutesDefault(adapters.DefaultInactivity)},
 			{Flags: "--approve", Desc: "approve sending the brief when a policy rule requires approval (non-interactive)"},
 		},
 		Run: func(c *Ctx) error {
+			limit, err := minutesOption(c, "timeout")
+			if err != nil {
+				return err
+			}
+			idle, err := minutesOption(c, "idle-timeout")
+			if err != nil {
+				return err
+			}
 			s, err := c.openStore()
 			if err != nil {
 				return err
@@ -270,10 +279,6 @@ func taskRun() *Command {
 			for _, w := range eff.Warnings {
 				c.Eprintln("! policy: " + w)
 			}
-			minutes, err := strconv.ParseFloat(c.Str("timeout"), 64)
-			if err != nil {
-				return errors.New("--timeout must be a number of minutes")
-			}
 			// Ctrl+C asks the agent to stop; the runner escalates if it does not.
 			sigs := make(chan os.Signal, 1)
 			var handle *adapters.RunHandle
@@ -305,7 +310,7 @@ func taskRun() *Command {
 					return c.App.Interactive && c.App.Confirm("Send it to "+p.ID+"?", false)
 				},
 				Criterio:   engine,
-				RunOptions: adapters.RunOptions{Timeout: time.Duration(minutes * float64(time.Minute)), Inactivity: adapters.DefaultInactivity},
+				RunOptions: adapters.RunOptions{Timeout: limit, Inactivity: idle},
 				OnEvent:    func(e adapters.Event) { printEvent(c, e) },
 				OnStart:    func(h *adapters.RunHandle) { handle = h },
 			})
@@ -659,3 +664,15 @@ func discardWithLearning(c *Ctx, s *store.ProjectStore, id string) (domain.Task,
 	}
 	return t, config.SaveCriterio(c.App.criterioFile(), engine)
 }
+
+// minutesOption reads a positive number of minutes from an option such as --timeout.
+func minutesOption(c *Ctx, long string) (time.Duration, error) {
+	m, err := strconv.ParseFloat(c.Str(long), 64)
+	if err != nil || m <= 0 {
+		return 0, fmt.Errorf("--%s must be a number of minutes greater than zero", long)
+	}
+	return time.Duration(m * float64(time.Minute)), nil
+}
+
+// minutesDefault formats a duration as the default text of a --...-timeout option.
+func minutesDefault(d time.Duration) string { return strconv.FormatFloat(d.Minutes(), 'f', -1, 64) }
