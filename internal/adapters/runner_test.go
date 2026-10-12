@@ -105,6 +105,15 @@ func TestRunnerInactivityResetByOutput(t *testing.T) {
 	}
 }
 
+// The silence measurement follows the output: the 150 ms gaps of "chatty" show up as the maximum.
+func TestRunnerMeasuresSilence(t *testing.T) {
+	h, _ := run(t, "chatty", RunOptions{})
+	r := h.Wait()
+	if r.MaxSilence < 100*time.Millisecond || r.MaxSilence > 2*time.Second {
+		t.Errorf("max silence %v, want about 150 ms", r.MaxSilence)
+	}
+}
+
 func TestRunnerMissingExecutable(t *testing.T) {
 	h, err := StartRun(launchers.Invocation{Command: filepath.Join(t.TempDir(), "agent")}, "", ParseClaudeLine, func(Event, string) {}, RunOptions{})
 	if err != nil {

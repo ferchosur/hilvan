@@ -5,6 +5,7 @@ package core
 import (
 	"errors"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 	"strings"
@@ -394,6 +395,7 @@ func RunTask(s *store.ProjectStore, taskID string, p *domain.Profile, deps RunDe
 		summary, _ := security.RedactSecrets(*out.ResultText)
 		run.Summary = truncate(summary, 4000)
 	}
+	run.MaxSilenceSeconds = roundSeconds(result.MaxSilence)
 	run.EndedAt = store.Now()
 
 	if t.Mode == "write" && t.Worktree != nil && t.Branch != nil {
@@ -583,3 +585,6 @@ func contains(xs []string, v string) bool {
 	}
 	return false
 }
+
+// roundSeconds rounds a duration to tenths of a second for the run record.
+func roundSeconds(d time.Duration) float64 { return math.Round(d.Seconds()*10) / 10 }

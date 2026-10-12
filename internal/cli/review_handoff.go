@@ -153,6 +153,8 @@ func reviewCommand() *Command {
 			{Flags: "--by <profile>", Desc: "cross review with this profile (read-only)"},
 			{Flags: "--stat", Desc: "only the list of changed files"},
 			{Flags: "--approve", Desc: "approve sending the task to the reviewer if a policy rule requires it"},
+			{Flags: "--timeout <minutes>", Desc: "cancel the cross review after this many minutes", Default: minutesDefault(adapters.DefaultReviewTimeout)},
+			{Flags: "--idle-timeout <minutes>", Desc: "cancel the cross review after this many minutes without any output", Default: minutesDefault(adapters.DefaultInactivity)},
 		},
 		Run: func(c *Ctx) error {
 			s, err := store.Find(c.App.Cwd)
@@ -181,10 +183,18 @@ func reviewCommand() *Command {
 				if err != nil {
 					return err
 				}
+				limit, err := minutesOption(c, "timeout")
+				if err != nil {
+					return err
+				}
+				idle, err := minutesOption(c, "idle-timeout")
+				if err != nil {
+					return err
+				}
 				r, err := core.CrossReview(s, taskID, reviewer, core.RunDeps{
 					Host:       c.App.Host,
 					Policy:     &eff,
-					RunOptions: adapters.RunOptions{Inactivity: adapters.DefaultInactivity},
+					RunOptions: adapters.RunOptions{Timeout: limit, Inactivity: idle},
 					Approve: func(ev policy.Evaluation, brief string) bool {
 						for _, a := range ev.Approvals {
 							c.Println("? " + a.Reason + " [rule " + a.RuleID + "]")

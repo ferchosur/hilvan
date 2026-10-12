@@ -31,14 +31,22 @@ type RunOptions struct {
 }
 
 // DefaultInactivity is the silence after which the CLI cancels an agent run (a stuck CLI or a lost
-// end-of-turn event would otherwise keep the task "running" until the hard timeout).
-const DefaultInactivity = 10 * time.Minute
+// end-of-turn event would otherwise keep the task "running" until the hard timeout). Provisional
+// until the silences measured in real runs (RunSummary.MaxSilenceSeconds) show a better value.
+const DefaultInactivity = 20 * time.Minute
+
+// DefaultReviewTimeout is the hard limit for a cross review. Reviews are read-only and shorter
+// than task runs, so their limit is half the task default (60 minutes).
+const DefaultReviewTimeout = 30 * time.Minute
 
 // RunResult is the outcome plus process facts.
 type RunResult struct {
 	Outcome
 	ExitCode   int
 	StderrTail string
+	// MaxSilence is the longest gap without stdout or stderr output, including the time after the
+	// last output until the process ended. It is a measurement, not a limit.
+	MaxSilence time.Duration
 }
 
 // RunHandle controls a started run.
@@ -120,14 +128,27 @@ func StartRun(inv launchers.Invocation, prompt string, parse func(string) []Even
 		mu.Unlock()
 	}
 	// idle is the inactivity watchdog: it is restarted by every chunk of output (see touch).
+	// lastOutput and maxSilence measure the silences between chunks (guarded by mu).
+	lastOutput := time.Now()
+	var maxSilence time.Duration
 	var idle *time.Timer
-	touch := func() {}
 	if opts.Inactivity > 0 {
 		idle = time.AfterFunc(opts.Inactivity, func() { h.cancel("inactivity") })
 		mu.Lock()
 		timers = append(timers, idle)
 		mu.Unlock()
-		touch = func() { idle.Reset(opts.Inactivity) }
+	}
+	touch := func() {
+		mu.Lock()
+		now := time.Now()
+		if gap := now.Sub(lastOutput); gap > maxSilence {
+			maxSilence = gap
+		}
+		lastOutput = now
+		mu.Unlock()
+		if idle != nil {
+			idle.Reset(opts.Inactivity)
+		}
 	}
 
 	go func() {
@@ -207,6 +228,10 @@ func StartRun(inv launchers.Invocation, prompt string, parse func(string) []Even
 			t.Stop()
 		}
 		cancelled, limit := cancelRequested, limitError
+		silence := maxSilence
+		if gap := time.Since(lastOutput); gap > silence {
+			silence = gap
+		}
 		mu.Unlock()
 		code := 0
 		if waitErr != nil {
@@ -228,7 +253,7 @@ func StartRun(inv launchers.Invocation, prompt string, parse func(string) []Even
 			lines := strings.Split(strings.TrimSpace(stderrTail), "\n")
 			out.Error = str(lines[len(lines)-1])
 		}
-		h.done <- RunResult{Outcome: out, ExitCode: code, StderrTail: stderrTail}
+		h.done <- RunResult{Outcome: out, ExitCode: code, StderrTail: stderrTail, MaxSilence: silence}
 	}()
 	return h, nil
 }
