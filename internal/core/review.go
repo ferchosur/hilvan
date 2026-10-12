@@ -170,7 +170,8 @@ func CrossReview(s *store.ProjectStore, taskID string, reviewer *domain.Profile,
 	if deps.OnStart != nil {
 		deps.OnStart(h)
 	}
-	out := h.Wait().Outcome
+	res := h.Wait()
+	out := res.Outcome
 	raw := strings.Join(messages, "\n\n")
 	if out.ResultText != nil && *out.ResultText != "" {
 		raw = *out.ResultText
@@ -194,7 +195,8 @@ func CrossReview(s *store.ProjectStore, taskID string, reviewer *domain.Profile,
 	if t, err = s.LoadTask(taskID); err != nil {
 		return CrossReviewResult{}, err
 	}
-	t.Reviews = append(t.Reviews, domain.Review{ID: runID, ProfileID: reviewer.ID, Verdict: verdict, Usage: usageOf(out), At: store.Now()})
+	t.Reviews = append(t.Reviews, domain.Review{ID: runID, ProfileID: reviewer.ID, Verdict: verdict, Usage: usageOf(out),
+		MaxSilenceSeconds: roundSeconds(res.MaxSilence), At: store.Now()})
 	if t, err = s.SaveTask(t, nil); err != nil {
 		return CrossReviewResult{}, err
 	}
