@@ -41,6 +41,7 @@
 | SR-034 | Validación de `Host` contra DNS rebinding y sin CORS. Las mutaciones exigen `X-Hilvan-Token` (CSRF). | UI web | ◐ (Host ✔; CSRF al añadir POST) | idem |
 | SR-035 | CSP estricta sin `unsafe-inline` ni CDNs, y salida del agente siempre como texto (`textContent`). | UI web, T01 | ◐ (spike 004 ✔) | idem |
 | SR-036 | La UI no expone lectura de archivos arbitrarios: solo `.hilvan/` y diffs de ramas `hilvan/*` saneados. | UI web | ◐ (spike 004 ✔) | idem |
+| SR-037 | Las tareas de solo lectura de Claude solo pueden usar una lista explícita de comandos de lectura (D-031). Una prueba comprueba que las escrituras y los comandos fuera de la lista siguen bloqueados. | T6 | ✔ | `internal/adapters/adapters.go`; verificación con la CLI real el 2026-10-12: `Write` y `Bash` de escritura en `permission_denials`, sin archivos creados |
 | SR-031 | Los mensajes de error no incluyen valores de variables de entorno ni contenido de archivos de credenciales. | T12 | ✔ (revisión de código) | — |
 
 ## Proceso
