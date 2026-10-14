@@ -250,8 +250,8 @@ func (r *RunSummary) validate(b *issues, path string) {
 	if utf16Len(r.Error) > 2000 {
 		b.add(field(path, "error"), "Too big: expected string to have <=2000 characters")
 	}
-	if utf16Len(r.Summary) > 4000 {
-		b.add(field(path, "summary"), "Too big: expected string to have <=4000 characters")
+	if utf16Len(r.Summary) > MaxRunSummary {
+		b.add(field(path, "summary"), "Too big: expected string to have <=%d characters", MaxRunSummary)
 	}
 	b.datetime(field(path, "startedAt"), r.StartedAt)
 	if r.EndedAt != "" {
@@ -299,3 +299,7 @@ func (t *Task) Validate() Issues {
 	b.datetime("updatedAt", t.UpdatedAt)
 	return b.list
 }
+
+// MaxRunSummary is the longest agent answer a run record may hold (UTF-16 units, as before). The
+// run log keeps the full stream regardless.
+const MaxRunSummary = 50000
