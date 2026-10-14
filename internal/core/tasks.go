@@ -349,7 +349,7 @@ func RunTask(s *store.ProjectStore, taskID string, p *domain.Profile, deps RunDe
 	if t.Model == nil && p.Model != nil {
 		t.Model = ptr(*p.Model)
 	}
-	spec := adapters.RunSpec{Cwd: destCwd, Mode: t.Mode, ResumeSessionID: lastSession}
+	spec := adapters.RunSpec{Cwd: destCwd, Mode: t.Mode, ResumeSessionID: lastSession, Web: p.WebFor(t.Classification)}
 	if t.Model != nil {
 		spec.Model = *t.Model
 	}
