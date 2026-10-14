@@ -1,10 +1,10 @@
 # 003 — Hilvan conversacional
 
-- **Estado:** Draft
-- **Versión:** 0.1
+- **Estado:** Approved
+- **Versión:** 1.0
 - **Fecha:** 2026-10-14
-- **Autor:** Claude Code (propuesta), para revisión de Fernando Giraldo
-- **Aprobado por / fecha:** —
+- **Autor:** Claude Code (propuesta)
+- **Aprobado por / fecha:** Fernando Giraldo, 2026-10-14 (D-046 a D-050)
 - **Relacionado:** [spec 001](001-product-requirements.md) (FR-004, FR-010, FR-013, AC-003, AC-007, AC-013, AC-018, NFR-003, NFR-007, NFR-014), [spec 002](002-chat-interprete.md) (D-037 a D-045), [ADR-0012](../docs/adr/0012-interfaz-tui-propia-y-web-local-minima.md) (`hilvan ui`, aplazada por D-036)
 
 ## 1. Resumen
@@ -26,7 +26,7 @@
 
 ## 4. Decisiones propuestas
 
-Estas decisiones están **pendientes de aprobación**. Sustituyen a D-038 y D-045 cuando se aprueben.
+Decisiones **aprobadas** por el usuario el 2026-10-14. Sustituyen a D-038 y D-045 de la spec 002, que quedan obsoletas.
 
 - **D-046 — Alcance del chat:** `hilvan chat` puede atender cualquier petición relacionada con Hilvan o con un trabajo que un agente pueda hacer. Las peticiones que no son de Hilvan ni de un agente se responden con una explicación de lo que Hilvan puede hacer.
 - **D-047 — Configuración fuera del chat:** cambiar perfiles, reglas de política, clasificaciones o instalar o borrar cualquier cosa de la configuración no se ejecuta desde el chat. El chat propone el comando exacto y el usuario lo ejecuta.
@@ -59,7 +59,7 @@ El sistema debe clasificar cada petición en una de estas categorías antes de a
 
 ### FR-029 — Tareas nuevas desde una petición libre
 
-Una petición de trabajo debe convertirse en una tarea con el objetivo tomado de la petición y criterios propuestos. Modo de solo lectura por defecto; el modo de escritura requiere que el usuario lo pida y lo confirme (D-048).
+Una petición de trabajo debe convertirse en una o varias tareas (Q-018) con el objetivo tomado de la petición y criterios propuestos. Cada tarea se muestra y se confirma por separado. Modo de solo lectura por defecto; el modo de escritura requiere que el usuario lo pida y lo confirme (D-048).
 
 ### FR-030 — Confirmación del comando exacto
 
@@ -95,10 +95,10 @@ Cada petición debe registrarse en la auditoría con su categoría, el hash del 
 
 ## 10. Preguntas abiertas
 
-- **Q-017 — Consultas que cambian algo:** ¿una consulta como «sincroniza las tareas» cuenta como consulta o como acción? Propuesta: acción, con confirmación.
-- **Q-018 — Límite de tareas por petición:** ¿una petición puede crear varias tareas a la vez? Propuesta: no; una petición, una tarea, y la siguiente se pide aparte.
-- **Q-019 — Clasificación de la petición:** ¿la petición se clasifica con el mismo intérprete o con reglas locales? Propuesta: el intérprete, con las reglas de clasificación de FR-025 ya en vigor.
+- **Q-017 — Consultas que cambian algo:** resuelta: una petición que cambia algo es una acción y pide confirmación (acordado el 2026-10-14).
+- **Q-018 — Límite de tareas por petición:** resuelta: una petición puede crear varias tareas; cada una se muestra y se confirma por separado (acordado el 2026-10-14).
+- **Q-019 — Clasificación de la petición:** resuelta: la clasifica el intérprete, con las reglas de clasificación de FR-025 (acordado el 2026-10-14).
 
 ## 11. Próxima revisión
 
-Para pasar a `Approved`: aprobar o modificar D-046 a D-050, responder Q-017 a Q-019 y verificar A-011. Al aprobar, D-038 y D-045 pasan a obsoletos (sin renumerar) y se actualiza la spec 002. Después, plan de implementación por fases: consultas, tareas nuevas, acciones sobre tareas y, por último, la clasificación completa de FR-025.
+Pendiente antes de implementar: verificar A-011 con el esquema de categorías y en Windows. Después, plan de implementación por fases: consultas, tareas nuevas, acciones sobre tareas y, por último, la clasificación completa de FR-025.

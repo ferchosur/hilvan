@@ -28,12 +28,12 @@ Hoy crear y lanzar una tarea exige varios comandos con muchas opciones. Esta spe
 Estas decisiones están **pendientes de aprobación**. Hasta que se aprueben, ninguna se implementa.
 
 - **D-037 — Intérprete por perfil:** un perfil puede marcarse como intérprete (`interpreter: true`). Por defecto, el perfil con `routing: default` de mayor preferencia. Solo puede haber un intérprete activo por aplicación.
-- **D-038 — Lista cerrada de operaciones:** el intérprete solo puede proponer operaciones de la lista de la sección 6 (FR-022). Cualquier otra respuesta se descarta y el usuario recibe un aviso.
+- **D-038 — Lista cerrada de operaciones:** **Obsoleto** (sustituido por D-046 y D-049 de la spec 003). Texto original: el intérprete solo puede proponer operaciones de la lista de la sección 6 (FR-022).
 - **D-039 — Confirmación obligatoria:** ningún comando se ejecuta sin confirmación explícita del usuario en la sesión. No hay modo de ejecución automática en esta versión.
 - **D-040 — Llamadas aisladas del intérprete:** cada interpretación es una llamada sin sesión reanudada, sin herramientas y sin escrituras. No reutiliza la sesión de ninguna tarea.
 - **D-042 — Comandos con barra:** `hilvan chat` admite comandos locales que no llaman a ningún modelo: `/profile <id>` elige el perfil que ejecuta las tareas, `/interpreter <id>` elige el perfil que interpreta las frases, `/help` y `/exit`. Los dos perfiles se eligen por separado. Acordado por el usuario el 2026-10-14.
 - **D-044 — Idioma de las frases:** el intérprete acepta frases en español e inglés desde el principio. Acordado por el usuario el 2026-10-14 (Q-015).
-- **D-045 — Alcance del primer entregable:** prototipo con un solo perfil intérprete y lista cerrada de operaciones; la clasificación completa y la auditoría detallada de cada interpretación quedan para la versión siguiente. La auditoría mínima (FR-026) sí se incluye. Acordado por el usuario el 2026-10-14 (Q-016).
+- **D-045 — Alcance del primer entregable:** **Obsoleto** en lo que respecta a la lista cerrada (sustituido por la spec 003). Texto original: prototipo con un solo perfil intérprete y lista cerrada de operaciones; la clasificación completa y la auditoría detallada de cada interpretación quedan para la versión siguiente. La auditoría mínima (FR-026) sí se incluye. Acordado por el usuario el 2026-10-14 (Q-016).
 - **D-043 — Persistencia:** la elección de `/profile` y `/interpreter` se guarda en la configuración de Hilvan y se usa en la siguiente sesión. Antes de cada ejecución, el sistema muestra qué perfil está activo. Acordado por el usuario el 2026-10-14.
 
 ## 5. Alcance
