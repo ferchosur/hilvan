@@ -50,7 +50,7 @@ func TestWSL(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := []string{"-d", "Ubuntu", "--cd", "/mnt/c/Users/u/Documents/claude/repo", "--", "env",
+	want := []string{"-d", "Ubuntu", "--cd", "/mnt/c/Users/u/Documents/claude/repo", "--exec", "env",
 		"-u", "ANTHROPIC_API_KEY", "PATH=/home/u/.nvm/versions/node/v24/bin:/usr/bin:/bin",
 		"CLAUDE_CONFIG_DIR=/home/u/.hilvan-profiles/a", "/home/u/.nvm/versions/node/v24/bin/claude", "auth", "status", "--json"}
 	if inv.Command != "wsl.exe" || !reflect.DeepEqual(inv.Args, want) {
