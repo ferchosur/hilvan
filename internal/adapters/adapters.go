@@ -2,6 +2,9 @@ package adapters
 
 import (
 	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -58,6 +61,12 @@ type Adapter interface {
 	RunCommand(p *domain.Profile, req RunSpec, hostEnv map[string]string) launchers.Command
 	// ListToolsCommand lists the account's MCP servers without calling the model.
 	ListToolsCommand(p *domain.Profile, hostEnv map[string]string) launchers.Command
+	// InterpretCommand is a one-shot, tool-less call that must answer with JSON matching schema
+	// (spec 002, D-040). The sentence goes to stdin. outputFile is where the answer is written
+	// when the CLI writes it to a file; dir holds such files and is private to the call.
+	InterpretCommand(p *domain.Profile, hostEnv map[string]string, schema, dir string) (cmd launchers.Command, outputFile string)
+	// ParseInterpretation returns the JSON answer from the CLI's stdout or output file.
+	ParseInterpretation(stdout, outputFile string) (string, error)
 	ParseToolList(stdout string) []DiscoveredTool
 	// NewParser returns a fresh stateful line parser for one run.
 	NewParser() func(line string) []Event
@@ -182,6 +191,32 @@ func modelFor(p *domain.Profile, req RunSpec) string {
 	return ""
 }
 
+func (c claude) InterpretCommand(p *domain.Profile, h map[string]string, schema, dir string) (launchers.Command, string) {
+	// --tools "" removes every tool: a denied tool call would end the answer without a result.
+	args := []string{"-p", "--output-format", "json", "--json-schema", schema, "--setting-sources", "user",
+		"--permission-mode", "dontAsk", "--tools", ""}
+	return c.cmd(p, h, dir, args...), ""
+}
+
+// ParseInterpretation reads Claude's single JSON result object and returns its structured output.
+func (c claude) ParseInterpretation(stdout, _ string) (string, error) {
+	var res struct {
+		IsError          bool            `json:"is_error"`
+		StructuredOutput json.RawMessage `json:"structured_output"`
+		Result           string          `json:"result"`
+	}
+	if err := json.Unmarshal([]byte(stdout), &res); err != nil {
+		return "", fmt.Errorf("the interpreter did not answer with JSON: %w", err)
+	}
+	if res.IsError {
+		return "", fmt.Errorf("the interpreter reported an error")
+	}
+	if len(res.StructuredOutput) > 0 && string(res.StructuredOutput) != "null" {
+		return string(res.StructuredOutput), nil
+	}
+	return res.Result, nil
+}
+
 func (c claude) ListToolsCommand(p *domain.Profile, h map[string]string) launchers.Command {
 	return c.cmd(p, h, "", "mcp", "list")
 }
@@ -285,6 +320,24 @@ func (c codex) RunCommand(p *domain.Profile, req RunSpec, h map[string]string) l
 	}
 	args = append(append(args, common...), "-")
 	return c.cmd(p, h, req.Cwd, args...)
+}
+
+// InterpretCommand writes the schema and asks Codex for its final answer in a file in dir.
+func (c codex) InterpretCommand(p *domain.Profile, h map[string]string, schema, dir string) (launchers.Command, string) {
+	schemaFile := filepath.Join(dir, "schema.json")
+	outFile := filepath.Join(dir, "answer.json")
+	_ = os.WriteFile(schemaFile, []byte(schema), 0o600)
+	args := []string{"exec", "--sandbox", "read-only", "--skip-git-repo-check", "--output-schema", schemaFile, "-o", outFile, "-"}
+	return c.cmd(p, h, dir, args...), outFile
+}
+
+// ParseInterpretation reads the answer Codex wrote to its output file.
+func (c codex) ParseInterpretation(_, outputFile string) (string, error) {
+	data, err := os.ReadFile(outputFile)
+	if err != nil {
+		return "", fmt.Errorf("the interpreter wrote no answer: %w", err)
+	}
+	return strings.TrimSpace(string(data)), nil
 }
 
 func (c codex) ListToolsCommand(p *domain.Profile, h map[string]string) launchers.Command {

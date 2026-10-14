@@ -40,7 +40,7 @@ func TestChatProfileIsRememberedAcrossSessions(t *testing.T) {
 	must(t, `\* fake`, out)
 }
 
-// Free text is not interpreted yet; it must not fail or call anything.
+// Free text without an interpreter must not fail or call any model.
 func TestChatFreeTextIsNotSent(t *testing.T) {
 	tmp := t.TempDir()
 	host := core.CurrentHost()
@@ -48,7 +48,7 @@ func TestChatFreeTextIsNotSent(t *testing.T) {
 	platform := config.Platform{OS: host.OS, Env: map[string]string{"HILVAN_CONFIG_DIR": filepath.Join(tmp, "config")}, Homedir: tmp}
 	app := &App{Stdin: strings.NewReader("lee README.md\n/exit\n"), Cwd: tmp, Platform: platform, Host: host}
 	out, _, code := run(t, app, "chat")
-	if code != 0 || !strings.Contains(out, "not available yet") {
+	if code != 0 || !strings.Contains(out, "no interpreter yet") {
 		t.Errorf("free text: code %d, %q", code, out)
 	}
 }
