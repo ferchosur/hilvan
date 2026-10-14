@@ -224,7 +224,7 @@ func taskRun() *Command {
 		Args: []string{"<id>"},
 		Desc: "Run a task with a profile; streams the agent output and records the run.",
 		Options: []*Option{
-			{Flags: "-p, --profile <id>", Desc: "profile that runs the task", Required: true},
+			{Flags: "-p, --profile <id>", Desc: "profile that runs the task (default: Criterio's choice, after confirmation)"},
 			{Flags: "--timeout <minutes>", Desc: "cancel the run after this many minutes", Default: "60"},
 			{Flags: "--idle-timeout <minutes>", Desc: "cancel the run after this many minutes without any output", Default: minutesDefault(adapters.DefaultInactivity)},
 			{Flags: "--approve", Desc: "approve sending the brief when a policy rule requires approval (non-interactive)"},
@@ -250,7 +250,12 @@ func taskRun() *Command {
 			if err != nil {
 				return err
 			}
-			p, err := core.FindProfile(f, c.Str("profile"))
+			var p *domain.Profile
+			if id := c.Str("profile"); id != "" {
+				p, err = core.FindProfile(f, id)
+			} else {
+				p, err = c.chooseProfile(s, taskID, f)
+			}
 			if err != nil {
 				return err
 			}
@@ -687,4 +692,46 @@ func printResult(c *Ctx, t domain.Task) {
 		return
 	}
 	c.Println("\n" + sanitize(t.Runs[n-1].Summary))
+}
+
+// chooseProfile is Criterio's choice for `task run` without --profile: the first eligible profile
+// of the recommendation, shown with its reasons. It asks before using it (AC-013), and outside a
+// terminal it refuses, so nothing is chosen silently.
+func (c *Ctx) chooseProfile(s *store.ProjectStore, taskID string, f domain.ProfilesFile) (*domain.Profile, error) {
+	t, err := s.LoadTask(taskID)
+	if err != nil {
+		return nil, err
+	}
+	eff, err := config.LoadEffectivePolicy(config.DefaultPolicyPaths(c.App.Platform, s.Root))
+	if err != nil {
+		return nil, err
+	}
+	engine, _, err := c.App.loadCriterio()
+	if err != nil {
+		return nil, err
+	}
+	history, err := s.ListTasks()
+	if err != nil {
+		return nil, err
+	}
+	rec := core.Recommend(eff, t, f.Profiles, engine, history, uint32(time.Now().UnixMilli()))
+	if len(rec.Ranked) == 0 {
+		return nil, core.TaskErr("no profile is eligible for this task; see why with: hilvan task recommend %s", short(taskID))
+	}
+	top := rec.Ranked[0]
+	var reasons []string
+	for i, r := range top.Why {
+		if i == 3 {
+			break
+		}
+		reasons = append(reasons, r.Signal)
+	}
+	c.Println(fmt.Sprintf("Criterio elige %s (score %.2f): %s", top.Profile.ID, top.Score, clean(strings.Join(reasons, "; "), 300)))
+	if !c.App.Interactive {
+		return nil, core.TaskErr("choose a profile explicitly with --profile when not running in a terminal (suggested: %s)", top.Profile.ID)
+	}
+	if !c.App.Confirm("Run with "+top.Profile.ID+"?", true) {
+		return nil, core.TaskErr("cancelled: no profile chosen")
+	}
+	return top.Profile, nil
 }

@@ -609,3 +609,6 @@ func roundSeconds(d time.Duration) float64 { return math.Round(d.Seconds()*10) /
 // RunSummaryLimit caps the agent's final text kept in the task record. A research answer must fit;
 // the run log keeps the full stream either way.
 const RunSummaryLimit = domain.MaxRunSummary
+
+// TaskErr is a user-facing error about a task (printed as is, without a stack of details).
+func TaskErr(format string, args ...any) error { return taskError(format, args...) }
