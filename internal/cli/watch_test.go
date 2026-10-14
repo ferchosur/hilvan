@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -96,4 +97,16 @@ func snapshot(t *testing.T, dir string) string {
 		t.Fatal(err)
 	}
 	return b.String()
+}
+
+// task show prints the stored answer of the last run, not only its metrics.
+func TestPrintResultShowsLastRunAnswer(t *testing.T) {
+	var buf bytes.Buffer
+	app := &App{Stdout: &buf, Stderr: &buf}
+	c := &Ctx{App: app}
+	task := domain.Task{Runs: []domain.RunSummary{{ID: "run_1", Summary: "Resultado completo"}, {ID: "run_2", Summary: "Respuesta final"}}}
+	printResult(c, task)
+	if !strings.Contains(buf.String(), "Respuesta final") || strings.Contains(buf.String(), "Resultado completo") {
+		t.Errorf("result of the last run: %q", buf.String())
+	}
 }

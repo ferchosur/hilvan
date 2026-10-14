@@ -508,6 +508,7 @@ func taskCommand() *Command {
 				return err
 			}
 			printTask(c, t)
+			printResult(c, t)
 			brief, err := s.Brief(t.ID)
 			if err != nil {
 				return err
@@ -677,3 +678,13 @@ func minutesOption(c *Ctx, long string) (time.Duration, error) {
 
 // minutesDefault formats a duration as the default text of a --...-timeout option.
 func minutesDefault(d time.Duration) string { return strconv.FormatFloat(d.Minutes(), 'f', -1, 64) }
+
+// printResult prints the agent's final text of the last run, so `task show` shows the answer and
+// not only the metrics of each run.
+func printResult(c *Ctx, t domain.Task) {
+	n := len(t.Runs)
+	if n == 0 || t.Runs[n-1].Summary == "" {
+		return
+	}
+	c.Println("\n" + sanitize(t.Runs[n-1].Summary))
+}
