@@ -16,7 +16,7 @@ var lexicon = map[string]string{
 	"refactor":  "refactor refactorizar renombrar rename extraer extract limpiar cleanup simplificar simplify reorganizar reorganize restructure mover move duplicado duplicate modularizar desacoplar decouple",
 	"test":      "test tests prueba pruebas testing cobertura coverage unitario unit e2e fixture mock assert",
 	"review":    "revisar review auditar audit inspeccionar inspect evaluar evaluate verificar verify validar validate feedback observaciones",
-	"research":  "investigar research comparar compare explorar explore analizar analyze opciones options alternativas alternatives benchmark estudio study viabilidad feasibility encuesta",
+	"research":  "investigar research comparar compare explorar explore analizar analyze opciones options alternativas alternatives benchmark estudio study viabilidad feasibility encuesta fuentes fuente sources source detalle detail",
 	"docs":      "documentar document documentacion documentation readme docs guia guide manual changelog comentarios comments tutorial explicar explain",
 }
 
