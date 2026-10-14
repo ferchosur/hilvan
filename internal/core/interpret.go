@@ -28,6 +28,7 @@ type Plan struct {
 var interpretArgs = []string{"title", "objective", "criteria", "mode", "task", "profile"}
 
 // InterpretSchema is the JSON schema the interpreter must answer with (A-010 verified on Linux).
+// Codex's strict mode needs every property listed as required; an empty string means "not given".
 func InterpretSchema() string {
 	ops := append(append([]string{}, Operations...), "none")
 	enc := func(v any) string { b, _ := json.Marshal(v); return string(b) }
@@ -40,7 +41,7 @@ func InterpretSchema() string {
 		"task":      map[string]any{"type": "string"},
 		"profile":   map[string]any{"type": "string"},
 	}
-	return enc(map[string]any{"type": "object", "properties": props, "required": []string{"operation"}, "additionalProperties": false})
+	return enc(map[string]any{"type": "object", "properties": props, "required": []string{"operation", "title", "objective", "criteria", "mode", "task", "profile"}, "additionalProperties": false})
 }
 
 // interpretPrompt asks for one operation. The sentence is the only user text; no history (NFR-016).

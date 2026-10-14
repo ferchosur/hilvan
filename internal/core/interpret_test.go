@@ -59,10 +59,16 @@ func TestInterpretSchemaMatchesTheList(t *testing.T) {
 				Enum []string `json:"enum"`
 			} `json:"operation"`
 		} `json:"properties"`
-		AdditionalProperties bool `json:"additionalProperties"`
+		Required             []string `json:"required"`
+		AdditionalProperties bool     `json:"additionalProperties"`
 	}
 	if err := json.Unmarshal([]byte(InterpretSchema()), &schema); err != nil {
 		t.Fatal(err)
+	}
+	for _, k := range []string{"operation", "title", "objective", "criteria", "mode", "task", "profile"} {
+		if !strings.Contains(strings.Join(schema.Required, ","), k) {
+			t.Errorf("schema does not require %q (Codex strict mode)", k)
+		}
 	}
 	if schema.AdditionalProperties {
 		t.Error("the schema accepts extra properties")

@@ -192,8 +192,9 @@ func modelFor(p *domain.Profile, req RunSpec) string {
 }
 
 func (c claude) InterpretCommand(p *domain.Profile, h map[string]string, schema, dir string) (launchers.Command, string) {
+	// --tools "" removes every tool: a denied tool call would end the answer without a result.
 	args := []string{"-p", "--output-format", "json", "--json-schema", schema, "--setting-sources", "user",
-		"--permission-mode", "dontAsk", "--allowedTools", ""}
+		"--permission-mode", "dontAsk", "--tools", ""}
 	return c.cmd(p, h, dir, args...), ""
 }
 
