@@ -1,10 +1,10 @@
 # 002 — Chat conversacional con perfil intérprete
 
-- **Estado:** Draft
-- **Versión:** 0.3
+- **Estado:** Approved
+- **Versión:** 1.0
 - **Fecha:** 2026-10-14
-- **Autor:** Claude Code (propuesta), para revisión de Fernando Giraldo
-- **Aprobado por / fecha:** —
+- **Autor:** Claude Code (propuesta)
+- **Aprobado por / fecha:** Fernando Giraldo, 2026-10-14 (D-037 a D-045)
 - **Relacionado:** [spec 001](001-product-requirements.md) (D-035 diferida, FR-004, FR-010, FR-013, AC-003, AC-018, NFR-003, NFR-007, NFR-014), [nota AgentBridge](../docs/research/2026-10-12-agentbridge.md), [propuestas pendientes](../docs/research/2026-10-08-propuestas-pendientes.md)
 
 ## 1. Resumen
@@ -32,6 +32,8 @@ Estas decisiones están **pendientes de aprobación**. Hasta que se aprueben, ni
 - **D-039 — Confirmación obligatoria:** ningún comando se ejecuta sin confirmación explícita del usuario en la sesión. No hay modo de ejecución automática en esta versión.
 - **D-040 — Llamadas aisladas del intérprete:** cada interpretación es una llamada sin sesión reanudada, sin herramientas y sin escrituras. No reutiliza la sesión de ninguna tarea.
 - **D-042 — Comandos con barra:** `hilvan chat` admite comandos locales que no llaman a ningún modelo: `/profile <id>` elige el perfil que ejecuta las tareas, `/interpreter <id>` elige el perfil que interpreta las frases, `/help` y `/exit`. Los dos perfiles se eligen por separado. Acordado por el usuario el 2026-10-14.
+- **D-044 — Idioma de las frases:** el intérprete acepta frases en español e inglés desde el principio. Acordado por el usuario el 2026-10-14 (Q-015).
+- **D-045 — Alcance del primer entregable:** prototipo con un solo perfil intérprete y lista cerrada de operaciones; la clasificación completa y la auditoría detallada de cada interpretación quedan para la versión siguiente. La auditoría mínima (FR-026) sí se incluye. Acordado por el usuario el 2026-10-14 (Q-016).
 - **D-043 — Persistencia:** la elección de `/profile` y `/interpreter` se guarda en la configuración de Hilvan y se usa en la siguiente sesión. Antes de cada ejecución, el sistema muestra qué perfil está activo. Acordado por el usuario el 2026-10-14.
 
 ## 5. Alcance
@@ -104,9 +106,9 @@ El sistema debe registrar en la auditoría cada interpretación (perfil, hash de
 ## 10. Preguntas abiertas
 
 - **Q-014 — Intérprete por defecto:** resuelta parcialmente por D-042 y D-043: el intérprete se elige con `/interpreter` y se guarda; el valor inicial es el perfil `routing: default` de mayor preferencia.
-- **Q-015 — Idioma de las frases:** ¿el intérprete acepta frases en español e inglés desde el primer día?
-- **Q-016 — Prototipo o versión completa:** ¿se implementa primero un prototipo de lista cerrada con un solo perfil, o directamente la versión con clasificación y auditoría completas?
+- **Q-015 — Idioma de las frases:** resuelta por D-044 (español e inglés).
+- **Q-016 — Prototipo o versión completa:** resuelta por D-045 (prototipo primero).
 
 ## 11. Próxima revisión
 
-Estado actual: aprobados D-037 a D-043 por el usuario el 2026-10-14; A-010 verificado en Linux. Para pasar a `Approved` faltan **Q-015** (idioma) y **Q-016** (alcance del prototipo), que no están respondidas. Después, un ADR para la elección de salida estructurada por proveedor y el plan de implementación.
+Estado: aprobada el 2026-10-14. A-010 verificado en Linux; falta verificarlo en Windows antes de publicar la función. Próximo paso: plan de implementación del prototipo y ADR de la salida estructurada por proveedor. Después, un ADR para la elección de salida estructurada por proveedor y el plan de implementación.
