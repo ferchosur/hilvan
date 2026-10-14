@@ -220,6 +220,9 @@ func ApproveHandoff(s *store.ProjectStore, d HandoffDraft, approved string) (tas
 		return task, "", "", err
 	}
 	current.ProfileID = &d.To.ID
+	// The model pinned on the first run belongs to the profile that pinned it (D-030). Another
+	// application cannot use it, so the continuing profile uses its own model.
+	current.Model = nil
 	if current.State != domain.TaskInReview {
 		current.State = domain.TaskReady
 	}

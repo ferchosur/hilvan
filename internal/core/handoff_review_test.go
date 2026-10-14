@@ -377,3 +377,30 @@ func TestBusyProfileRefusesRun(t *testing.T) {
 		t.Error("a refused run left the task running")
 	}
 }
+
+// A handoff clears the model pinned by the previous profile: the model belongs to that profile
+// (D-030), so the continuing profile must use its own.
+func TestHandoffClearsPinnedModel(t *testing.T) {
+	s, tmp := newRepo(t)
+	task := mustCreate(t, s, Brief{Title: "Modelo", Classification: "personal", Mode: "read", TaskType: "docs"})
+	a := fakeProfile(tmp, "claude-a", "claude-code")
+	m := "claude-haiku-5-5"
+	a.Model = &m
+	if _, err := RunTask(s, task.ID, a, deps("success")); err != nil {
+		t.Fatal(err)
+	}
+	if saved, _ := s.LoadTask(task.ID); saved.Model == nil {
+		t.Fatal("model not pinned on the first run")
+	}
+	cur, _ := s.LoadTask(task.ID)
+	draft, err := DraftHandoff(s, cur.ID, fakeProfile(tmp, "codex-b", "codex"), a, noPolicy(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, _, _, err := ApproveHandoff(s, draft, draft.Body); err != nil {
+		t.Fatal(err)
+	}
+	if after, _ := s.LoadTask(task.ID); after.Model != nil {
+		t.Errorf("model %q survived the handoff to another application", *after.Model)
+	}
+}
