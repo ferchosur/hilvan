@@ -126,7 +126,7 @@ func TestEndToEnd(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("run: %s %s", out, errOut)
 	}
-	must(t, `✔ completed · profile fake · ~\$0\.0123 estimated`, out)
+	must(t, `run [0-9A-Z]+: completed · profile fake · ~\$0\.0123 estimated`, out)
 	must(t, `task is now in_review`, out)
 	if strings.Contains(out, "\x1b") {
 		t.Error("agent output reached the terminal unsanitised (SR-001)")

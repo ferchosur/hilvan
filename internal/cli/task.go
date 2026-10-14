@@ -323,11 +323,10 @@ func taskRun() *Command {
 			if err != nil {
 				return err
 			}
-			icon := "!"
-			if report.Run.State == domain.RunCompleted {
-				icon = "✔"
-			}
-			c.Println("\n" + icon + " " + FormatRun(report.Run))
+			// The final view is the same as `task show`: header, runs and the agent's answer.
+			c.Println()
+			printTask(c, report.Task)
+			printResult(c, report.Task)
 			if report.Run.Error != "" {
 				c.Println("  error: " + clean(report.Run.Error, 300))
 			}
