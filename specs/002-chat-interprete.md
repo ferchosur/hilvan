@@ -1,7 +1,7 @@
 # 002 — Chat conversacional con perfil intérprete
 
 - **Estado:** Draft
-- **Versión:** 0.2
+- **Versión:** 0.3
 - **Fecha:** 2026-10-14
 - **Autor:** Claude Code (propuesta), para revisión de Fernando Giraldo
 - **Aprobado por / fecha:** —
@@ -99,7 +99,7 @@ El sistema debe registrar en la auditoría cada interpretación (perfil, hash de
 
 - **R-010:** el intérprete propone una operación válida pero no la que el usuario quería. Mitigación: se muestra el comando exacto y se exige confirmación.
 - **R-011:** cada interpretación consume cuota del perfil intérprete. Mitigación: coste visible (NFR-015) y posibilidad de desactivarlo.
-- **A-010:** el proveedor de la cuenta intérprete mantiene una interfaz de salida estructurada que Hilvan puede validar. Pendiente de verificar por proveedor y con fecha de consulta.
+- **A-010:** el proveedor de la cuenta intérprete mantiene una interfaz de salida estructurada que Hilvan puede validar. **Verificado en Linux el 2026-10-14** con llamadas reales: Claude Code 2.1.299 (`claude -p --output-format json --json-schema …`) y Codex CLI 0.161.0 (`codex exec --output-schema …`) devolvieron un objeto que cumple el esquema. Pendiente de verificar en Windows.
 
 ## 10. Preguntas abiertas
 
@@ -109,4 +109,4 @@ El sistema debe registrar en la auditoría cada interpretación (perfil, hash de
 
 ## 11. Próxima revisión
 
-Para pasar a `Approved`: aprobar o modificar D-037 a D-040, responder Q-014 a Q-016, y verificar A-010 con el proveedor del perfil intérprete. Después, un ADR para la elección de salida estructurada por proveedor y el plan de implementación.
+Estado actual: aprobados D-037 a D-043 por el usuario el 2026-10-14; A-010 verificado en Linux. Para pasar a `Approved` faltan **Q-015** (idioma) y **Q-016** (alcance del prototipo), que no están respondidas. Después, un ADR para la elección de salida estructurada por proveedor y el plan de implementación.
