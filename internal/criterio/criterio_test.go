@@ -284,3 +284,20 @@ func TestTokensMatchTypeScript(t *testing.T) {
 		}
 	}
 }
+
+// A research brief that asks for details and sources is research, not docs (fixed 2026-10-13).
+func TestResearchBriefWithSourcesIsResearch(t *testing.T) {
+	probs, _ := TaskTypeRules(TaskSignals{
+		Title: "Top 10 OWASP LLM",
+		Text:  "Dime el detalle del top 10 de OWASP para aplicaciones LLM, con fuentes oficiales.",
+	})
+	best := 0
+	for i, p := range probs {
+		if p > probs[best] {
+			best = i
+		}
+	}
+	if TaskTypes[best] != "research" {
+		t.Errorf("type %s (%v), want research", TaskTypes[best], probs)
+	}
+}
