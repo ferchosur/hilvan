@@ -1,8 +1,8 @@
 # 002 — Chat conversacional con perfil intérprete
 
 - **Estado:** Draft
-- **Versión:** 0.1
-- **Fecha:** 2026-10-13
+- **Versión:** 0.2
+- **Fecha:** 2026-10-14
 - **Autor:** Claude Code (propuesta), para revisión de Fernando Giraldo
 - **Aprobado por / fecha:** —
 - **Relacionado:** [spec 001](001-product-requirements.md) (D-035 diferida, FR-004, FR-010, FR-013, AC-003, AC-018, NFR-003, NFR-007, NFR-014), [nota AgentBridge](../docs/research/2026-10-12-agentbridge.md), [propuestas pendientes](../docs/research/2026-10-08-propuestas-pendientes.md)
@@ -31,6 +31,8 @@ Estas decisiones están **pendientes de aprobación**. Hasta que se aprueben, ni
 - **D-038 — Lista cerrada de operaciones:** el intérprete solo puede proponer operaciones de la lista de la sección 6 (FR-022). Cualquier otra respuesta se descarta y el usuario recibe un aviso.
 - **D-039 — Confirmación obligatoria:** ningún comando se ejecuta sin confirmación explícita del usuario en la sesión. No hay modo de ejecución automática en esta versión.
 - **D-040 — Llamadas aisladas del intérprete:** cada interpretación es una llamada sin sesión reanudada, sin herramientas y sin escrituras. No reutiliza la sesión de ninguna tarea.
+- **D-042 — Comandos con barra:** `hilvan chat` admite comandos locales que no llaman a ningún modelo: `/profile <id>` elige el perfil que ejecuta las tareas, `/interpreter <id>` elige el perfil que interpreta las frases, `/help` y `/exit`. Los dos perfiles se eligen por separado. Acordado por el usuario el 2026-10-14.
+- **D-043 — Persistencia:** la elección de `/profile` y `/interpreter` se guarda en la configuración de Hilvan y se usa en la siguiente sesión. Antes de cada ejecución, el sistema muestra qué perfil está activo. Acordado por el usuario el 2026-10-14.
 
 ## 5. Alcance
 
@@ -51,6 +53,10 @@ Estas decisiones están **pendientes de aprobación**. Hasta que se aprueben, ni
 - Interfaz gráfica (ADR-0012, `hilvan ui`).
 
 ## 6. Requisitos funcionales
+
+### FR-027 — Comandos con barra
+
+El sistema debe procesar en `hilvan chat` los comandos `/profile`, `/interpreter`, `/help` y `/exit` sin enviar el texto a ningún modelo. `/profile` y `/interpreter` sin argumento listan los perfiles elegibles y marcan el activo. Un identificador desconocido se rechaza con el listado de perfiles disponibles.
 
 ### FR-022 — Lista cerrada de operaciones
 
@@ -79,6 +85,10 @@ El sistema debe registrar en la auditoría cada interpretación (perfil, hash de
 
 ## 8. Criterios de aceptación
 
+- **AC-031:** dado `/profile <id>`, cuando el usuario ejecuta una tarea después, entonces se usa ese perfil y el sistema lo muestra antes de confirmar; tras reiniciar `hilvan chat`, el mismo perfil sigue activo.
+- **AC-032:** dado `/interpreter <id>`, cuando el usuario escribe una frase, entonces la interpreta ese perfil, distinto del perfil que ejecuta si así se eligió.
+- **AC-033:** dado un comando con barra, cuando se procesa, entonces no se envía ningún texto a un modelo ni se consume cuota.
+
 - **AC-026:** dado un perfil intérprete configurado, cuando el usuario escribe una frase, entonces el sistema muestra el comando propuesto y no ejecuta nada hasta que el usuario confirma.
 - **AC-027:** dado que el intérprete responde con una operación fuera de la lista cerrada, cuando Hilvan la recibe, entonces la descarta, no la ejecuta y lo indica al usuario.
 - **AC-028:** dado un mensaje clasificado como corporativo y un intérprete que solo acepta personal, cuando el usuario escribe la frase, entonces el texto no se envía al intérprete.
@@ -93,7 +103,7 @@ El sistema debe registrar en la auditoría cada interpretación (perfil, hash de
 
 ## 10. Preguntas abiertas
 
-- **Q-014 — Intérprete por defecto:** ¿el intérprete es siempre el perfil `routing: default` de mayor preferencia, o se elige en la configuración de `chat`?
+- **Q-014 — Intérprete por defecto:** resuelta parcialmente por D-042 y D-043: el intérprete se elige con `/interpreter` y se guarda; el valor inicial es el perfil `routing: default` de mayor preferencia.
 - **Q-015 — Idioma de las frases:** ¿el intérprete acepta frases en español e inglés desde el primer día?
 - **Q-016 — Prototipo o versión completa:** ¿se implementa primero un prototipo de lista cerrada con un solo perfil, o directamente la versión con clasificación y auditoría completas?
 
