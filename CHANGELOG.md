@@ -45,6 +45,7 @@ Cambios notables del proyecto. Formato basado en [Keep a Changelog](https://keep
 
 ### Añadido
 
+- `hilvan chat` (prototipo, spec 002 D-045): bucle conversacional con `/profile` para elegir el perfil que ejecuta las tareas, guardado entre sesiones (D-043), y `/help` y `/exit`. Las frases en lenguaje natural todavía no se interpretan.
 - **Herramientas por cuenta y perfil reservado** (FR-021, ADR-0013, spec 001 v1.3):
   - `routing: reserved`, para que la cuenta corporativa solo reciba tareas que necesitan sus herramientas;
   - Criterio infiere las herramientas requeridas a partir del brief (alias predefinidos, alias del perfil y aprendizaje), con confirmación;

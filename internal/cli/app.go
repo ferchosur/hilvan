@@ -93,6 +93,7 @@ func Root() *Command {
 		acceptCommand(),
 		statsCommand(),
 		watchCommand(),
+		chatCommand(),
 	)
 }
 
