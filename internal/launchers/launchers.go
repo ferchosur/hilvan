@@ -102,12 +102,14 @@ func BuildInvocation(dest domain.Destination, cmd Command, h Host) (Invocation, 
 			return Invocation{}, launcherError("the wsl launcher requires a distro")
 		}
 		// Variables are set inside the distribution with env, so they never leak between
-		// profiles. wsl.exe does not load the user's shell profile: PATH comes from the profile.
+		// profiles. --exec runs the command without the distribution's default shell: with "--"
+		// wsl.exe handed the joined command line to bash -c, which broke on the spaces in PATH
+		// (task YY6DNF, 2026-10-13). wsl.exe does not load the user's shell profile: PATH comes from the profile.
 		args := []string{"-d", dest.Distro}
 		if cmd.Cwd != "" {
 			args = append(args, "--cd", cmd.Cwd)
 		}
-		args = append(args, "--", "env")
+		args = append(args, "--exec", "env")
 		for _, k := range cmd.UnsetEnv {
 			args = append(args, "-u", k)
 		}

@@ -332,7 +332,7 @@ func DiscoverTools(p *domain.Profile, deps CheckDeps) ToolDiscovery {
 // (spike 001). The script is a constant; only the CLI name (from the adapter) varies.
 func WSLDiscoveryInvocation(distro, cli string, h launchers.Host) launchers.Invocation {
 	script := "command -v " + cli + `; printf 'HILVAN_PATH=%s\n' "$PATH"`
-	return launchers.Invocation{Command: "wsl.exe", Args: []string{"-d", distro, "--", "bash", "-ic", script}, Env: h.Env}
+	return launchers.Invocation{Command: "wsl.exe", Args: []string{"-d", distro, "--exec", "bash", "-ic", script}, Env: h.Env}
 }
 
 // ParseWSLDiscovery reads the output of WSLDiscoveryInvocation. Banners printed by .bashrc are
