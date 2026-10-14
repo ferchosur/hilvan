@@ -89,7 +89,7 @@ func chatCommand() *Command {
 				case strings.HasPrefix(line, "/"):
 					c.Eprintln("✖ unknown command " + clean(line, 40) + " (try /help)")
 				default:
-					c.Println("  natural-language requests are not available yet; use /profile, /help or /exit.")
+					chatSentence(c, st, line)
 				}
 			}
 		},
@@ -167,4 +167,65 @@ func defaultInterpreter(f domain.ProfilesFile) string {
 		}
 	}
 	return best
+}
+
+// chatSentence interprets one sentence with the interpreter profile (spec 002, FR-022 to FR-024):
+// the answer must be one operation of the closed list; the exact command is shown and runs only
+// after confirmation.
+func chatSentence(c *Ctx, st chatSettings, sentence string) {
+	f, err := c.loadProfiles()
+	if err != nil {
+		c.Eprintln("✖ " + err.Error())
+		return
+	}
+	id := st.Interpreter
+	if id == "" {
+		id = defaultInterpreter(f)
+	}
+	if id == "" {
+		c.Println("  no interpreter yet: /interpreter <id>")
+		return
+	}
+	p, err := core.FindProfile(f, id)
+	if err != nil {
+		c.Eprintln("✖ " + err.Error())
+		return
+	}
+	dir := filepath.Join(c.App.Platform.UserConfigDir(), "interpret")
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		c.Eprintln("✖ " + err.Error())
+		return
+	}
+	c.Println("  asking " + p.ID + "…")
+	plan, err := core.Interpret(p, sentence, c.App.Host, dir)
+	if err != nil {
+		c.Eprintln("✖ " + err.Error())
+		return
+	}
+	argv, err := plan.Argv()
+	if err != nil {
+		c.Eprintln("✖ " + err.Error())
+		return
+	}
+	c.Println("  proposed: hilvan " + strings.Join(quoteArgs(argv), " "))
+	if !c.App.Confirm("Run it?", true) {
+		c.Println("  cancelled; nothing was run")
+		return
+	}
+	if code := Main(c.App, argv); code != 0 {
+		c.Eprintln(fmt.Sprintf("✖ the command ended with code %d", code))
+	}
+}
+
+// quoteArgs shows an argument with spaces in quotes, for display only.
+func quoteArgs(argv []string) []string {
+	out := make([]string, len(argv))
+	for i, a := range argv {
+		if strings.ContainsAny(a, " \t") {
+			out[i] = `"` + a + `"`
+		} else {
+			out[i] = a
+		}
+	}
+	return out
 }
