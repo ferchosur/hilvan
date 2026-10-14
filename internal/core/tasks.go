@@ -410,7 +410,7 @@ func RunTask(s *store.ProjectStore, taskID string, p *domain.Profile, deps RunDe
 	}
 	if out.ResultText != nil && *out.ResultText != "" {
 		summary, _ := security.RedactSecrets(*out.ResultText)
-		run.Summary = truncate(summary, 4000)
+		run.Summary = truncate(summary, RunSummaryLimit)
 	}
 	run.MaxSilenceSeconds = roundSeconds(result.MaxSilence)
 	run.EndedAt = store.Now()
@@ -605,3 +605,7 @@ func contains(xs []string, v string) bool {
 
 // roundSeconds rounds a duration to tenths of a second for the run record.
 func roundSeconds(d time.Duration) float64 { return math.Round(d.Seconds()*10) / 10 }
+
+// RunSummaryLimit caps the agent's final text kept in the task record. A research answer must fit;
+// the run log keeps the full stream either way.
+const RunSummaryLimit = 50000

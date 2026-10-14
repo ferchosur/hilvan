@@ -28,6 +28,7 @@ Cambios notables del proyecto. Formato basado en [Keep a Changelog](https://keep
 
 ### Cambiado
 
+- `task show` muestra el resultado de la última ejecución (antes solo sus métricas). El texto guardado pasa de 4000 a 50 000 caracteres; el registro de la ejecución conserva el flujo completo.
 - Tareas de solo lectura con Claude: lista explícita de herramientas (`Read`, `Glob`, `Grep`, `ls`, `git ls-files`) en lugar de bloquear también la lectura (D-031). Verificado con la CLI real: `Write` y `Bash` de escritura se bloquean (SR-037).
 - Perfil ocupado: un perfil que ya ejecuta una tarea, en cualquier proyecto, rechaza una nueva ejecución con un mensaje claro (D-027).
 - Revisión cruzada: el transcript completo queda en el registro local de la ejecución y la tarea guarda solo un resumen de 4000 caracteres (D-028).
