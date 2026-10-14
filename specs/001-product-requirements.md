@@ -1,7 +1,7 @@
 # 001 — Requisitos de producto
 
 - **Estado:** Approved
-- **Versión:** 1.5
+- **Versión:** 1.6
 - **Fecha:** 2026-10-06
 - **Aprobado por / fecha:** Fernando Giraldo, 2026-10-06 (aprobación del plan que resuelve Q-001–Q-010)
 - **Relacionado:** [investigación 2026-10-06](../docs/research/2026-10-06-foros-y-herramientas.md), [ADR-0002–0010](../docs/adr/README.md), [plan MVP](../docs/plans/001-mvp.md)
@@ -86,6 +86,7 @@ Una persona que ya usa dos o más asistentes o agentes de IA, posiblemente con v
 - **D-034 — Firma de `hilvan.exe`:** aplazada por su coste. La distribución es sin firma, con verificación por `SHA256SUMS` y attestations, y la documentación describe el aviso de SmartScreen.
 - **D-035 — Hilvan conversacional (spec 002):** no se redacta mientras no haya opiniones de usuarios sobre la CLI publicada.
 - **D-036 — `hilvan ui`:** se implementa después de validar `hilvan watch`. Al hacerlo se repite en Go la verificación de SR-032…SR-036, que hoy solo está hecha en Node.
+- **D-041 — Búsqueda web en tareas de lectura:** las tareas de solo lectura pueden usar búsqueda y lectura web (SR-038). Por defecto, solo para clasificaciones `public` y `personal`; el perfil puede desactivarlo o cambiar esa lista. Se decidió con menos restricciones de las propuestas inicialmente, que se quedan como configuración.
 
 ## 6. Alcance del MVP
 
@@ -286,6 +287,7 @@ Pendientes, no bloqueantes para el MVP:
 
 ## 12. Historial de revisión
 
+- **1.6 (2026-10-13):** D-041 (búsqueda web en tareas de lectura, configurable por perfil). SR-038. Sin cambios de alcance funcional del MVP.
 - **1.5 (2026-10-12):** D-027–D-036 (perfil ocupado, revisión cruzada, límites de ejecución, modelo al reanudar, lectura en Claude, mods, monetización, firma, spec 002 y `ui`), NFR-014 (consumo) y SR-037. Sin cambios de alcance del MVP; la implementación de D-027, D-028, D-030, D-031 y D-032 va en ramas posteriores.
 - **1.4 (2026-10-07):** D-026 (Go como lenguaje, resuelve Q-013); D-013 pasa a obsoleta. Sin cambios de alcance funcional. ADR-0014.
 - **1.3 (2026-10-07):** FR-021 (herramientas por cuenta, perfil reservado, inferencia y descubrimiento de herramientas), AC-023–AC-025. ADR-0013.

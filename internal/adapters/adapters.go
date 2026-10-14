@@ -36,6 +36,8 @@ type RunSpec struct {
 	Mode            string
 	ResumeSessionID string
 	Model           string // overrides the profile's model
+	// Web adds web search and fetch to a read-only run (SR-038).
+	Web bool
 }
 
 // Adapter is one agent application (docs/design/contrato-adaptador.md).
@@ -154,7 +156,11 @@ func (c claude) RunCommand(p *domain.Profile, req RunSpec, h map[string]string) 
 	if req.Mode == "read" {
 		// D-031 and SR-037: an explicit list of read-only tools, one argument per tool, last so that
 		// the variadic list cannot swallow another flag. Everything else stays denied under dontAsk.
-		args = append(append(args, "--allowedTools"), ReadOnlyTools...)
+		tools := ReadOnlyTools
+		if req.Web {
+			tools = append(append([]string{}, ReadOnlyTools...), WebTools...)
+		}
+		args = append(append(args, "--allowedTools"), tools...)
 	}
 	return c.cmd(p, h, req.Cwd, args...)
 }
@@ -162,6 +168,9 @@ func (c claude) RunCommand(p *domain.Profile, req RunSpec, h map[string]string) 
 // ReadOnlyTools are the tools a read-only Claude run may use (D-031, SR-037). Git subcommands that
 // can write (git log --output, git diff --output) are left out on purpose.
 var ReadOnlyTools = []string{"Read", "Glob", "Grep", "Bash(ls:*)", "Bash(git ls-files:*)"}
+
+// WebTools are added to read-only runs whose profile and classification allow them (SR-038).
+var WebTools = []string{"WebSearch", "WebFetch"}
 
 func modelFor(p *domain.Profile, req RunSpec) string {
 	if req.Model != "" {

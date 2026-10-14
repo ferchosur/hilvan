@@ -1,6 +1,7 @@
 package adapters
 
 import (
+	"github.com/ferchosur/hilvan/internal/domain"
 	"os"
 	"path/filepath"
 	"strings"
@@ -129,5 +130,26 @@ func TestRunnerRejectsUnsafeArguments(t *testing.T) {
 	inv.Args = []string{"a\nb"}
 	if _, err := StartRun(inv, "", ParseClaudeLine, func(Event, string) {}, RunOptions{}); err == nil {
 		t.Error("newline argument accepted")
+	}
+}
+
+// SR-038: web tools are added to a read-only Claude run only when the run asks for them.
+func TestClaudeReadRunWebTools(t *testing.T) {
+	p := &domain.Profile{ID: "c", App: "claude-code", Destination: domain.Destination{Launcher: "native", Executable: "claude"}, ConfigDir: nil}
+	with := claude{}.RunCommand(p, RunSpec{Mode: "read", Web: true}, nil)
+	without := claude{}.RunCommand(p, RunSpec{Mode: "read"}, nil)
+	has := func(args []string, tool string) bool {
+		for _, a := range args {
+			if a == tool {
+				return true
+			}
+		}
+		return false
+	}
+	if !has(with.Args, "WebSearch") || !has(with.Args, "WebFetch") {
+		t.Errorf("web run without web tools: %v", with.Args)
+	}
+	if has(without.Args, "WebSearch") || has(without.Args, "WebFetch") {
+		t.Errorf("run without web asked for web tools: %v", without.Args)
 	}
 }

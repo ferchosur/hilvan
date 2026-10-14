@@ -53,6 +53,31 @@ type Tools struct {
 	Provides []string `json:"provides" yaml:"provides"`
 	// Aliases are words that reveal a task needs a tool, e.g. jira: [ticket, incidencia].
 	Aliases Aliases `json:"aliases" yaml:"aliases"`
+	// Web allows web search and fetch in read-only runs (SR-038). Nil means allowed.
+	Web *bool `json:"web,omitempty" yaml:"web,omitempty"`
+	// WebClassifications are the task classifications that may use web tools, because search
+	// queries leave the machine. Empty means public and personal only.
+	WebClassifications []string `json:"webClassifications,omitempty" yaml:"webClassifications,omitempty"`
+}
+
+// DefaultWebClassifications are the classifications whose read-only runs may use web tools (SR-038).
+var DefaultWebClassifications = []string{"public", "personal"}
+
+// WebFor reports whether a read-only run of a task with this classification may use web tools.
+func (p *Profile) WebFor(classification string) bool {
+	if p.Tools.Web != nil && !*p.Tools.Web {
+		return false
+	}
+	allowed := p.Tools.WebClassifications
+	if len(allowed) == 0 {
+		allowed = DefaultWebClassifications
+	}
+	for _, c := range allowed {
+		if c == classification {
+			return true
+		}
+	}
+	return false
 }
 
 // Aliases maps a tool id to the words that reveal it is needed.

@@ -9,6 +9,7 @@ Cambios notables del proyecto. Formato basado en [Keep a Changelog](https://keep
 - Repositorio público y release **0.1.0** (2026-10-11): binarios para linux, darwin y windows en amd64 y arm64, `SHA256SUMS` y attestations de procedencia (SR-029, ADR-0014). Firma de `hilvan.exe` aplazada.
 
 ### Añadido
+- Búsqueda web en tareas de lectura (SR-038, D-041): `WebSearch` y `WebFetch` por defecto para tareas `public` y `personal`. Configurable por perfil con `tools.web` y `tools.webClassifications`.
 
 - Watchdog de inactividad: una ejecución de agente sin salida durante 20 minutos (`--idle-timeout`) se cancela y queda como `cancelled` con el motivo `inactivity`. Cada chunk de salida reinicia el contador. La revisión cruzada tiene además un límite duro de 30 minutos (`review --timeout`), y `task run` mantiene 60 minutos (`--timeout`). El silencio máximo de cada ejecución se guarda en `maxSilenceSeconds` para decidir el valor con datos.
 - `hilvan watch`: panel en vivo y de solo lectura con las tareas del proyecto y la ejecución en curso (ADR-0012). `--once` imprime un solo cuadro; sin terminal, se comporta igual. Nunca escribe en `.hilvan/`.
