@@ -52,3 +52,33 @@ func TestChatFreeTextIsNotSent(t *testing.T) {
 		t.Errorf("free text: code %d, %q", code, out)
 	}
 }
+
+// /interpreter is chosen apart from /profile (D-042), remembered (D-043), and the list marks the
+// default interpreter (routing default, highest preference) until one is chosen.
+func TestChatInterpreterIsSeparateAndRemembered(t *testing.T) {
+	tmp := t.TempDir()
+	host := core.CurrentHost()
+	host.InsideWSL = false
+	platform := config.Platform{OS: host.OS, Env: map[string]string{"HILVAN_CONFIG_DIR": filepath.Join(tmp, "config")}, Homedir: tmp}
+	newApp := func(input string) *App {
+		return &App{Stdin: strings.NewReader(input), Cwd: tmp, Platform: platform, Host: host}
+	}
+	for _, args := range [][]string{
+		{"profile", "add", "--id", "fake", "--app", "claude-code", "--accepts", "personal", "--executable", os.Args[0], "--config-dir", filepath.Join(tmp, "a")},
+		{"profile", "add", "--id", "other", "--app", "codex", "--accepts", "personal", "--executable", os.Args[0], "--config-dir", filepath.Join(tmp, "b")},
+	} {
+		if _, errOut, code := run(t, newApp(""), args...); code != 0 {
+			t.Fatalf("%v: %s", args, errOut)
+		}
+	}
+
+	out, _, _ := run(t, newApp("/interpreter\n/exit\n"), "chat")
+	must(t, `\* fake[^\n]*\n[^\n]*\n[^\n]*default interpreter until you choose`, out)
+	out, _, _ = run(t, newApp("/interpreter other\n/profile fake\n/exit\n"), "chat")
+	must(t, `sentences will be read by other`, out)
+	must(t, `tasks will run with fake`, out)
+
+	out, _, _ = run(t, newApp("/interpreter\n/profile\n/exit\n"), "chat")
+	must(t, `\* other`, out)
+	must(t, `\* fake`, out)
+}
